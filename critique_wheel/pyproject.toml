@@ -1,0 +1,29 @@
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+py_version = 311
+profile = "black"
+
+[tool.pydocstyle]
+convention = "numpy"
+
+[tool.mypy]
+python_version = "3.11"
+allow_untyped_globals = true
+plugins = "mypy_django_plugin.main"
+exclude = "(migrations)"
+follow_imports = "silent"
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+
+[tool.pytest]
+mock_use_standalone_module = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+#addopts = "-n auto"
+python_files = "tests.py test_*.py *_tests.py tests_*.py"
+required_plugins = "pytest-mock pytest-cov"
