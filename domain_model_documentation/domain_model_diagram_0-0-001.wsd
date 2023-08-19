@@ -1,0 +1,52 @@
+@startuml
+!theme sketchy-outline
+
+package "Work Management" {
+  class FictionalWork {
+    + WorkID
+    + Author
+    + Content
+    + Type
+  }
+}
+
+package "Critique Management" {
+  class Critique {
+    + CritiqueID
+    + Reviewer
+    + Content
+  }
+}
+
+package "Rating Management" {
+  class Rating {
+    + RatingID
+    + Score
+  }
+  class Reputation {
+    + MemberID
+    + TotalRatingScore
+  }
+}
+
+package "Monetization" {
+  class PaidCritique {
+    + Price
+  }
+}
+
+package "Member Management" {
+  class Member {
+    + MemberID
+    + Name
+    + Submission Eligibility status
+    + Reputation
+  }
+}
+
+Member -down- FictionalWork : Authors
+Member -down- Critique : Reviews
+FictionalWork -right- Critique : Receives
+Critique -right- Rating : Gets Rated
+Member -down- Rating : Rates
+@enduml
