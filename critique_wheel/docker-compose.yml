@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  critiquewheel-app:
+    build:
+      dockerfile: dockerfiles/Dockerfile
+      context: .
+    ports:
+      - "4000:80"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=sqlite:///data.db  # This can be updated to PostgreSQL or MongoDB in the future
+

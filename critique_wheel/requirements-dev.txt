@@ -1,0 +1,14 @@
+-r requirements.txt
+# Linters and more tools
+black
+isort
+flake8
+flake8-pydocstyle
+# PyTest
+pytest
+pytest-cov
+pytest-mock
+# MyPy
+mypy
+pyhamcrest
+freezegun
