@@ -57,6 +57,7 @@ class Work:
         status=WorkStatus.PENDING_REVIEW,
         age_restriction=WorkAgeRestriction.ADULT,
         work_id=None,
+        member_id=None,
         genre=WorkGenre.OTHER,
     ) -> None:
         self.id = work_id or uuid.uuid4()
@@ -69,6 +70,7 @@ class Work:
         self.submission_date: datetime = datetime.now()
         self.last_update_date: datetime = datetime.now()
         self.archive_date = None
+        self.member_id = member_id
 
     @classmethod
     def create(
@@ -83,7 +85,7 @@ class Work:
             raise MissingEntryError()
         if not genre or not age_restriction:
             raise MissingEntryError()
-        return cls(title, content, status, age_restriction, genre)
+        return cls(title, content, status, age_restriction, genre, member_id=None)
 
     def approve(self) -> None:
         self.status = WorkStatus.ACTIVE
