@@ -1,4 +1,4 @@
-import uuid
+from uuid import uuid4, UUID
 from datetime import datetime
 from enum import Enum
 
@@ -54,13 +54,13 @@ class Work:
         self,
         title,
         content,
+        member_id,
         status=WorkStatus.PENDING_REVIEW,
         age_restriction=WorkAgeRestriction.ADULT,
         work_id=None,
-        member_id=None,
         genre=WorkGenre.OTHER,
     ) -> None:
-        self.id = work_id or uuid.uuid4()
+        self.id = work_id or uuid4()
         self.title: str = title
         self.content: str = content
         self.age_restriction: WorkAgeRestriction = age_restriction
@@ -70,22 +70,22 @@ class Work:
         self.submission_date: datetime = datetime.now()
         self.last_update_date: datetime = datetime.now()
         self.archive_date = None
-        self.member_id = member_id
+        self.member_id: UUID = member_id
 
     @classmethod
     def create(
         cls,
         title,
         content,
-        age_restriction,
-        genre,
-        status=WorkStatus.PENDING_REVIEW,
+        member_id,
+        genre=WorkGenre.OTHER,
+        age_restriction=WorkAgeRestriction.ADULT,
     ):
         if not title or not content:
             raise MissingEntryError()
-        if not genre or not age_restriction:
+        if not genre or not age_restriction or not member_id:
             raise MissingEntryError()
-        return cls(title, content, status, age_restriction, genre, member_id=None)
+        return cls(title=title, content=content, age_restriction=age_restriction, genre=genre, member_id=member_id,)
 
     def approve(self) -> None:
         self.status = WorkStatus.ACTIVE
