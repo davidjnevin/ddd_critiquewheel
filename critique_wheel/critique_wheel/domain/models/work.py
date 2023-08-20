@@ -1,4 +1,4 @@
-import uuid
+from uuid import uuid4, UUID
 from datetime import datetime
 from enum import Enum
 
@@ -54,12 +54,13 @@ class Work:
         self,
         title,
         content,
+        member_id,
         status=WorkStatus.PENDING_REVIEW,
         age_restriction=WorkAgeRestriction.ADULT,
         work_id=None,
         genre=WorkGenre.OTHER,
-    ):
-        self.id = work_id or uuid.uuid4()
+    ) -> None:
+        self.id = work_id or uuid4()
         self.title: str = title
         self.content: str = content
         self.age_restriction: WorkAgeRestriction = age_restriction
@@ -67,42 +68,42 @@ class Work:
         self.status: WorkStatus = status
         self.word_count: int = len(content.split())
         self.submission_date: datetime = datetime.now()
-        self.creation_date: datetime = datetime.now()
         self.last_update_date: datetime = datetime.now()
         self.archive_date = None
+        self.member_id: UUID = member_id
 
     @classmethod
     def create(
         cls,
         title,
         content,
-        age_restriction,
-        genre,
-        status=WorkStatus.PENDING_REVIEW,
+        member_id,
+        genre=WorkGenre.OTHER,
+        age_restriction=WorkAgeRestriction.ADULT,
     ):
         if not title or not content:
             raise MissingEntryError()
-        if not genre or not age_restriction:
+        if not genre or not age_restriction or not member_id:
             raise MissingEntryError()
-        return cls(title, content, status, age_restriction, genre)
+        return cls(title=title, content=content, age_restriction=age_restriction, genre=genre, member_id=member_id,)
 
-    def approve(self):
+    def approve(self) -> None:
         self.status = WorkStatus.ACTIVE
         self.archive_date = datetime.now()
 
-    def reject(self):
+    def reject(self) -> None:
         self.status = WorkStatus.REJECTED
         self.archive_date = datetime.now()
 
-    def archive(self):
+    def archive(self) -> None:
         self.status = WorkStatus.ARCHIVED
         self.archive_date = datetime.now()
 
-    def mark_for_deletion(self):
+    def mark_for_deletion(self) -> None:
         self.status = WorkStatus.MARKED_FOR_DELETION
         self.last_update_date = datetime.now()
 
-    def restore(self):
+    def restore(self) -> None:
         if self.status == WorkStatus.ARCHIVED:
             self.status = WorkStatus.ACTIVE
             self.archive_date = None
