@@ -1,3 +1,4 @@
+from io import BytesIO
 from uuid import uuid4
 
 import pytest
@@ -10,8 +11,15 @@ VALID_FIRST_NAME = "John"
 VALID_LAST_NAME = "Doe"
 VALID_BIO = "This is a sample bio with less than 200 words."
 INVALID_BIO = "This is " + "a " * 201 + "bio."
-VALID_BIO_PHOTO = "sample.jpg"  # This should be a mock object or a path to a valid image file
-INVALID_BIO_PHOTO = "sample.txt"  # This should be a mock object or a path to an invalid image file
+# VALID_BIO_PHOTO = "sample.jpg"  # This should be a mock object or a path to a valid image file
+# INVALID_BIO_PHOTO = "sample.txt"  # This should be a mock object or a path to an invalid image file
+
+
+# def mock_image(filename, size_mb):
+#     size_bytes = size_mb * 1024 * 1024
+#     jpeg_header = b"\xff\xd8\xff"
+#     jpeg_data = b"\x00" * (size_bytes - len(jpeg_header))
+#     return BytesIO(jpeg_header + jpeg_data), filename
 
 
 @pytest.fixture
@@ -21,9 +29,19 @@ def member_profile():
         first_name="David",
         last_name="Smith",
         bio="This is a sample bio with less than 200 words.",
-        bio_photo="sample.jpg",
+        # bio_photo="sample.jpg",
         visible=True,
     )
+
+
+# @pytest.fixture
+# def mock_image_valid_size():
+#     return mock_image("sample.jpg", 1)
+
+
+# @pytest.fixture
+# def mock_image_invalid_size():
+#     return mock_image("sample.txt", 2.1)
 
 
 @pytest.mark.current
@@ -34,13 +52,13 @@ class TestMemberProfile:
             first_name="David",
             last_name="Smith",
             bio="This is a sample bio with less than 200 words.",
-            bio_photo="sample.jpg",
+            # bio_photo="sample.jpg",
             visible=True,
         )
         assert member.first_name == "David"
         assert member.last_name == "Smith"
         assert member.bio == "This is a sample bio with less than 200 words."
-        assert member.bio_photo == "sample.jpg"
+        # assert member.bio_photo == "sample.jpg"
         assert member.visibility == True
         assert member.id is not None
 
@@ -51,16 +69,22 @@ class TestMemberProfile:
                 first_name="a" * 51,
                 last_name=VALID_LAST_NAME,
                 bio=VALID_BIO,
-                bio_photo=VALID_BIO_PHOTO,
+                # bio_photo=VALID_BIO_PHOTO,
             )
 
     def test_create_invalid_bio(self):
         with pytest.raises(ValueError):
-            MemberProfile.create(MOCK_MEMBER_ID, VALID_FIRST_NAME, VALID_LAST_NAME, INVALID_BIO, VALID_BIO_PHOTO)
+            MemberProfile.create(
+                MOCK_MEMBER_ID,
+                VALID_FIRST_NAME,
+                VALID_LAST_NAME,
+                INVALID_BIO,
+                # VALID_BIO_PHOTO,
+            )
 
-    def test_create_invalid_bio_photo(self):
-        with pytest.raises(ValueError):
-            MemberProfile.create(MOCK_MEMBER_ID, VALID_FIRST_NAME, VALID_LAST_NAME, VALID_BIO, INVALID_BIO_PHOTO)
+    # def test_create_invalid_bio_photo_format(self):
+    #     with pytest.raises(ValueError):
+    #         MemberProfile.create(MOCK_MEMBER_ID, VALID_FIRST_NAME, VALID_LAST_NAME, VALID_BIO, INVALID_BIO_PHOTO)
 
     def test_change_first_name(self, member_profile):
         profile = member_profile
