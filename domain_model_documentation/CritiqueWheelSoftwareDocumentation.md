@@ -16,7 +16,7 @@ This document provides a comprehensive overview of the Writing Club software, de
 
 - **Monetization**: Handles aspects related to paid critiques, including setting prices, managing transactions, and tracking paid critique requests.
 
-- **Member Management**: Responsible for all member-related operations and data, including registration, authentication, profile management, tracking submission eligibility, and managing member preferences or settings.
+- **IAM Management**: Responsible for all member-related operations and data, including registration, authentication, profile management, tracking submission eligibility, and managing member preferences or settings.
 
 ### Credit System:
 
