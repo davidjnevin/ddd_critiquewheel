@@ -137,7 +137,6 @@ def mock_roles():
     # Load roles and permissions from the mock YAML file
     Member.load_roles_from_yaml(file_path=MOCK_YAML_PATH)
 
-@pytest.mark.current
 class TestRoles:
     def test_load_roles_from_yaml(self, mock_roles):
         assert Member.ROLES_AND_PERMISSIONS is not None

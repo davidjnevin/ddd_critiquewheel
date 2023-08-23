@@ -1,0 +1,3 @@
+bcrypt
+python-dotenv
+PyYAML
