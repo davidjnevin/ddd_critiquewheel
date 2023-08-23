@@ -1,0 +1,19 @@
+roles:
+  Admin:
+    - {action: "read", resource: "Works"}
+    - {action: "write", resource: "Works"}
+    - {action: "delete", resource: "Works"}
+    - {action: "read", resource: "Critiques"}
+    - {action: "write", resource: "Critiques"}
+    - {action: "read", resource: "Profiles"}
+    - {action: "write", resource: "Profiles"}
+    - {action: "read", resource: "Members"}
+    - {action: "write", resource: "Members"}
+  Staff:
+    - {action: "read", resource: "Works"}
+    - {action: "write", resource: "Critiques"}
+    - {action: "read", resource: "Profiles"}
+  Member:
+    - {action: "read", resource: "Works"}
+    - {action: "write", resource: "Critiques"}
+
