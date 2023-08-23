@@ -9,7 +9,6 @@ class MemberProfile:
         first_name,
         last_name,
         bio="",
-        # bio_photo=None,
         visible=True,
         profile_id=None,  # This is only used for testing
     ):
@@ -18,7 +17,6 @@ class MemberProfile:
         self.first_name = first_name
         self.last_name = last_name
         self.bio = bio
-        # self.bio_photo = bio_photo
         self.visibility = visible
 
     @classmethod
@@ -28,25 +26,19 @@ class MemberProfile:
         first_name,
         last_name,
         bio,
-        # bio_photo,
         visible=True,
     ):
         # Validate first and last names
         cls._validate_name(first_name)
         cls._validate_name(last_name)
         cls._validate_bio(bio)
-        # cls._validate_bio_photo_format(bio_photo)
-        # cls._validate_bio_photo_size(bio_photo)
         return cls(
             member_id=member_id,
             first_name=first_name,
             last_name=last_name,
             bio=bio,
-            # bio_photo=bio_photo,
             visible=visible,
         )
-
-        # TODO: Save the bio_photo to the desired location
 
     def change_first_name(self, new_first_name):
         self._validate_name(new_first_name)
@@ -76,20 +68,6 @@ class MemberProfile:
         _, extension = os.path.splitext(bio_photo)
         if extension not in valid_extensions:
             raise ValueError(f"Invalid file type. Allowed types are: {', '.join(valid_extensions)}")
-
-    @staticmethod
-    def _validate_bio_photo_size(bio_photo):
-        return NotImplemented
-        # # Calculate size in bytes
-        # bio_photo_size = os.path.getsize(bio_photo)
-
-        # if bio_photo_size > 2 * 1024 * 1024:  # 2MB
-        #     raise ValueError("Bio photo must be under 2MB.")
-        # # TODO: Add dimension checks for the bio photo if necessary
-
-    def upload_bio_photo(self, photo):
-        return NotImplemented
-        self.bio_photo = photo
 
     def toggle_visibility(self):
         self.visibility = not self.visibility
