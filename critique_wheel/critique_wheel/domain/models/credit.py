@@ -34,7 +34,7 @@ class CreditTransaction:
         cls,
         member_id,
         amount,
-        transaction_type=TransactionType.CRITIQUE_GIVEN,
+        transaction_type,
         work_id=None,
         critique_id=None,
         transaction_id=None,
