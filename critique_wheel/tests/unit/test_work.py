@@ -2,20 +2,14 @@ from datetime import datetime
 from uuid import uuid4
 
 import pytest
-from critique_wheel.domain.models.work import (MissingEntryError, Work,
-                                               WorkAgeRestriction, WorkGenre,
-                                               WorkStatus)
 
-
-@pytest.fixture
-def test_work():
-    return Work.create(
-        title="Test Title",
-        content="Test content",
-        age_restriction=WorkAgeRestriction.ADULT,
-        genre=WorkGenre.OTHER,
-        member_id=uuid4(),
-    )
+from critique_wheel.domain.models.work import (
+    MissingEntryError,
+    Work,
+    WorkAgeRestriction,
+    WorkGenre,
+    WorkStatus,
+)
 
 
 def test_create_work_with_valid_data():
@@ -67,7 +61,7 @@ def test_create_work_without_genre():
             title="Valid Title",
             content="valid content",
             age_restriction=WorkAgeRestriction.ADULT,
-            genre="",
+            genre=None, # type: ignore
             member_id=uuid4(),
         )
 
@@ -75,14 +69,22 @@ def test_create_work_without_genre():
 def test_create_work_without_age_restriction():
     with pytest.raises(MissingEntryError):
         Work.create(
-            title="Valid Title", content="Valid content", age_restriction="", genre=WorkGenre.OTHER, member_id=uuid4()
+            title="Valid Title",
+            content="Valid content",
+            age_restriction=None,  # type: ignore
+            genre=WorkGenre.OTHER,
+            member_id=uuid4(),
         )
 
 
 def test_create_work_without_member_id():
     with pytest.raises(MissingEntryError):
         Work.create(
-            title="Valid Title", content="Valid content", age_restriction="", genre=WorkGenre.OTHER, member_id=None
+            title="Valid Title",
+            content="Valid content",
+            age_restriction=None, # type: ignore
+            genre=WorkGenre.OTHER,
+            member_id=None,
         )
 
 
@@ -99,49 +101,49 @@ def test_word_count_calculation():
     assert work.word_count == 8
 
 
-def test_submission_date_setting(test_work):
-    work = test_work
+def test_submission_date_setting(valid_work):
+    work = valid_work
     assert work.submission_date.date() == datetime.today().date()
 
 
-def test_work_archiving(test_work):
-    work = test_work
+def test_work_archiving(valid_work):
+    work = valid_work
     work.archive()
 
     assert work.status == WorkStatus.ARCHIVED
     assert work.archive_date is not None
 
 
-def test_work_rejected(test_work):
-    work = test_work
+def test_work_rejected(valid_work):
+    work = valid_work
     work.reject()
 
     assert work.status == WorkStatus.REJECTED
 
 
-def test_work_approved(test_work):
-    work = test_work
+def test_work_approved(valid_work):
+    work = valid_work
     work.approve()
 
     assert work.status == WorkStatus.ACTIVE
 
 
-def test_work_marked_for_deletion(test_work):
-    work = test_work
+def test_work_marked_for_deletion(valid_work):
+    work = valid_work
     work.mark_for_deletion()
 
     assert work.status == WorkStatus.MARKED_FOR_DELETION
 
 
-def test_active_work_availability_for_critique(test_work):
-    work = test_work
+def test_active_work_availability_for_critique(valid_work):
+    work = valid_work
     work.approve()
 
     assert work.is_available_for_critique() is True
 
 
-def test_non_active_work_availability_for_critique(test_work):
-    work = test_work
+def test_non_active_work_availability_for_critique(valid_work):
+    work = valid_work
     work.WorkStatus = WorkStatus.PENDING_REVIEW
     assert work.is_available_for_critique() is False
 
@@ -155,8 +157,8 @@ def test_non_active_work_availability_for_critique(test_work):
     assert work.is_available_for_critique() is False
 
 
-def test_archived_work_restoration(test_work):
-    work = test_work
+def test_archived_work_restoration(valid_work):
+    work = valid_work
     work.archive()
     work.restore()
 

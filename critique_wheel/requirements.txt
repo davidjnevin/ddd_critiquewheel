@@ -1,3 +1,5 @@
 bcrypt
 python-dotenv
 PyYAML
+SQLAlchemy
+
