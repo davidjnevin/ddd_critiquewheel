@@ -4,9 +4,26 @@ import pytest
 
 from critique_wheel.domain.models.credit import CreditTransaction, TransactionType
 
+# Mock database setup
+mock_db = {
+    "transactions": [],
+}
+
+
+# Reset the mock database before each test
+@pytest.fixture(autouse=True)
+def reset_mock_db():
+    mock_db["transactions"].clear()
+
 
 @pytest.mark.current
 class TestTransactionType:
+    def test_setup(self):
+        assert TransactionType.CRITIQUE_GIVEN == "critique_given"
+        assert TransactionType.WORK_SUBMITTED == "work_submitted"
+        assert TransactionType.NEW_MEMBER_BONUS == "new_member_bonus"
+        assert TransactionType.PROFILE_COMPLETEION_BONUS == "profile_completion_bonus"
+
     def test_can_generate_credit_transation(self):
         ct = CreditTransaction(
             member_id=42,
@@ -141,7 +158,10 @@ class TestTransactionType:
         critique_id = 46
         transaction_type = TransactionType.WORK_SUBMITTED
 
-        with pytest.raises(ValueError, match="Work submission must only have an associated work_id"):
+        with pytest.raises(
+            ValueError,
+            match="Work submission must only have an associated work_id",
+        ):
             CreditTransaction.create(
                 member_id=member_id,
                 amount=amount,
@@ -150,4 +170,93 @@ class TestTransactionType:
                 critique_id=critique_id,
                 transaction_id=None,
                 date=None,
+            )
+
+    def test_load_credit_rules_from_yaml(self, tmp_path):
+        # Create a temporary YAML file with credit rules
+        credit_rules_content = """
+        rules:
+          submission:
+            - max_words: 3000
+              credits: 3
+            - max_words: 4000
+              credits: 3
+            - max_words: 5000
+              credits: 4
+            - max_words: max
+              credits: 5
+          critique:
+            - max_words: 3000
+              credits: 1
+            - max_words: 4000
+              credits: 1.5
+            - max_words: 5000
+              credits: 2
+            - max_words: max
+              credits: 2.5
+          bonus:
+            new_user: 2
+        """
+        credit_rules_file = tmp_path / "credit_rules.yaml"
+        credit_rules_file.write_text(credit_rules_content)
+
+        # Load the credit rules from the temporary YAML file
+        CreditTransaction.load_credit_rules_from_yaml(filepath=credit_rules_file)
+
+        # Assert that the credit rules are loaded correctly
+        assert CreditTransaction.CREDIT_RULES["submission"][0]["max_words"] == 3000
+        assert CreditTransaction.CREDIT_RULES["submission"][0]["credits"] == 3
+        assert CreditTransaction.CREDIT_RULES["critique"][1]["max_words"] == 4000
+        assert CreditTransaction.CREDIT_RULES["critique"][1]["credits"] == 1.5
+        assert CreditTransaction.CREDIT_RULES["bonus"]["new_user"] == 2
+
+    def test_load_credit_rules_from_yaml_with_invalid_yaml(self):
+        # Valid credit rules
+        valid_rules = {
+            "submission": [
+                {"max_words": 3000, "credits": 3},
+                {"max_words": 4000, "credits": 3},
+                {"max_words": "max", "credits": 5},
+            ],
+            "critique": [
+                {"max_words": 3000, "credits": 1},
+                {"max_words": 4000, "credits": 1.5},
+                {"max_words": "max", "credits": 2.5},
+            ],
+        }
+
+        # No exception should be raised for valid rules
+        CreditTransaction.validate_credit_rules(valid_rules)
+
+        # Missing 'submission' key
+        with pytest.raises(
+            ValueError,
+            match="YAML file must contain 'submission' and 'critique' rules.",
+        ):
+            CreditTransaction.validate_credit_rules({"critique": valid_rules["critique"]})
+
+        # Missing 'critique' key
+        with pytest.raises(ValueError, match="YAML file must contain 'submission' and 'critique' rules."):
+            CreditTransaction.validate_credit_rules({"submission": valid_rules["submission"]})
+
+        # 'submission' is not a list
+        with pytest.raises(ValueError, match="'submission' must be a list of rules."):
+            CreditTransaction.validate_credit_rules({"submission": {}, "critique": valid_rules["critique"]})
+
+        # Missing 'max_words' in a rule
+        with pytest.raises(ValueError, match="Each rule in 'submission' must contain 'max_words' and 'credits'."):
+            CreditTransaction.validate_credit_rules(
+                {"submission": [{"credits": 3}], "critique": valid_rules["critique"]}
+            )
+
+        # 'max_words' is neither integer nor 'max'
+        with pytest.raises(ValueError, match="'max_words' in 'submission' must be an integer or 'max'."):
+            CreditTransaction.validate_credit_rules(
+                {"submission": [{"max_words": "three thousand", "credits": 3}], "critique": valid_rules["critique"]}
+            )
+
+        # 'credits' is not a number
+        with pytest.raises(ValueError, match="'credits' in 'submission' must be a number."):
+            CreditTransaction.validate_credit_rules(
+                {"submission": [{"max_words": 3000, "credits": "three"}], "critique": valid_rules["critique"]}
             )
