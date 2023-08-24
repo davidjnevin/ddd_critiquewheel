@@ -46,7 +46,7 @@ critique_table = Table(
     Column("work_id", Uuid(as_uuid=True)),
 )
 
-rating_table = Table(
+ratings_table = Table(
     "ratings",
     mapper_registry.metadata,
     Column("id", Uuid(as_uuid=True), primary_key=True),
@@ -64,4 +64,13 @@ rating_table = Table(
 def start_mappers():
     mapper_registry.map_imperatively(Work, works_table)
     mapper_registry.map_imperatively(Critique, critique_table)
-    mapper_registry.map_imperatively(Rating, rating_table)
+    # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
+    # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
+    mapper_registry.map_imperatively(
+        Rating,
+        ratings_table,
+        properties={
+            "_critique_id": ratings_table.c.critique_id,
+            "_member_id": ratings_table.c.member_id
+        }
+    )
