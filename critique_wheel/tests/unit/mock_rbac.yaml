@@ -1,5 +1,5 @@
 roles:
-  Admin:
+  ADMIN:
     - {action: "read", resource: "Works"}
     - {action: "write", resource: "Works"}
     - {action: "delete", resource: "Works"}
@@ -9,11 +9,11 @@ roles:
     - {action: "write", resource: "Profiles"}
     - {action: "read", resource: "Members"}
     - {action: "write", resource: "Members"}
-  Staff:
+  STAFF:
     - {action: "read", resource: "Works"}
     - {action: "write", resource: "Critiques"}
     - {action: "read", resource: "Profiles"}
-  Member:
+  MEMBER:
     - {action: "read", resource: "Works"}
     - {action: "write", resource: "Critiques"}
 
