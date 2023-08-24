@@ -1,7 +1,6 @@
-
-from uuid import uuid4, UUID
 from datetime import datetime
 from enum import Enum
+from uuid import UUID, uuid4
 
 
 class MissingEntryError(Exception):
@@ -9,11 +8,11 @@ class MissingEntryError(Exception):
 
 
 class CritiqueStatus(str, Enum):
-    PENDING_REVIEW = "Pending Review"
-    ACTIVE = "Active"
-    REJECTED = "Rejected"
-    ARCHIVED = "Archived"
-    MARKED_FOR_DELETION = "Marked for Deletion"
+    PENDING_REVIEW = "PENDING REVIEW"
+    ACTIVE = "ACTIVE"
+    REJECTED = "REJECTED"
+    ARCHIVED = "ARCHIVED"
+    MARKED_FOR_DELETION = "MARKED FOR DELETION"
 
 
 class Critique:
@@ -55,12 +54,12 @@ class Critique:
         if not member_id or not work_id:
             raise MissingEntryError()
         return cls(
-        content_about=content_about,
-        content_successes=content_successes,
-        content_weaknesses=content_weaknesses,
-        content_ideas=content_ideas,
-        member_id=member_id,
-        work_id=work_id,
+            content_about=content_about,
+            content_successes=content_successes,
+            content_weaknesses=content_weaknesses,
+            content_ideas=content_ideas,
+            member_id=member_id,
+            work_id=work_id,
         )
 
     def approve(self) -> None:
@@ -88,4 +87,3 @@ class Critique:
             self.status = CritiqueStatus.ACTIVE
             self.archive_date = None
             self.last_update_date = datetime.now()
-
