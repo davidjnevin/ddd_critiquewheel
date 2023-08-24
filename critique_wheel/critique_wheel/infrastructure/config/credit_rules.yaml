@@ -1,0 +1,21 @@
+rules:
+  submission:
+    - max_words: 3000
+      credits: 3
+    - max_words: 4000
+      credits: 3
+    - max_words: 5000
+      credits: 4
+    - max_words: max
+      credits: 5
+  critique:
+    - max_words: 3000
+      credits: 1
+    - max_words: 4000
+      credits: 1.5
+    - max_words: 5000
+      credits: 2
+    - max_words: max
+      credits: 2.5
+  bonus:
+    new_user: 2
