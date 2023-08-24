@@ -1,10 +1,7 @@
-import uuid
-
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import work_repository
 from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
-
 
 
 def test_repository_can_save_a_work(session, valid_work):
