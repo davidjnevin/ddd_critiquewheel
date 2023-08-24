@@ -12,6 +12,7 @@ from critique_wheel.domain.models.work import (
     WorkStatus,
 )
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
+from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 
 mapper_registry = registry()
 
@@ -73,6 +74,23 @@ credits_table = Table(
     Column("transaction_type", Enum(TransactionType)),
 )
 
+members_table = Table(
+    "members",
+    mapper_registry.metadata,
+    Column("id", Uuid(as_uuid=True), primary_key=True),
+    Column("username", String),
+    Column("email", String),
+    Column("password", String),
+    Column("member_type", Enum(MemberRole)),
+    Column("status", Enum(MemberStatus)),
+    Column("last_login", DateTime, default=datetime.now),
+    Column("last_update_date", DateTime, default=datetime.now),
+    Column("crated_date", DateTime, default=datetime.now),
+    Column("archive_date", DateTime),
+)
+
+
+
 
 
 def start_mappers():
@@ -89,3 +107,4 @@ def start_mappers():
         }
     )
     mapper_registry.map_imperatively(CreditManager, credits_table)
+    mapper_registry.map_imperatively(Member, members_table)
