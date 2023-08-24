@@ -1,15 +1,16 @@
 from datetime import datetime
-from sqlalchemy import Uuid
 
-from sqlalchemy import Column, DateTime, Enum, Integer, String, Table, MetaData
+from sqlalchemy import Column, DateTime, Enum, Integer, String, Table, Uuid
 from sqlalchemy.orm import registry
 
+from critique_wheel.domain.models.critique import Critique, CritiqueStatus
 from critique_wheel.domain.models.work import (
     Work,
     WorkAgeRestriction,
     WorkGenre,
     WorkStatus,
 )
+
 mapper_registry = registry()
 
 works_table = Table(
@@ -25,9 +26,26 @@ works_table = Table(
     Column("submission_date", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
-    Column("member_id", Uuid(as_uuid=True))
+    Column("member_id", Uuid(as_uuid=True)),
+)
+
+critique_table = Table(
+    "critiques",
+    mapper_registry.metadata,
+    Column("id", Uuid(as_uuid=True), primary_key=True),
+    Column("content_about", String),
+    Column("content_successes", String),
+    Column("content_weaknesses", String),
+    Column("content_ideas", String),
+    Column("status", Enum(CritiqueStatus)),
+    Column("submission_date", DateTime, default=datetime.now),
+    Column("last_update_date", DateTime, default=datetime.now),
+    Column("archive_date", DateTime),
+    Column("member_id", Uuid(as_uuid=True)),
+    Column("work_id", Uuid(as_uuid=True)),
 )
 
 
 def start_mappers():
     mapper_registry.map_imperatively(Work, works_table)
+    mapper_registry.map_imperatively(Critique, critique_table)
