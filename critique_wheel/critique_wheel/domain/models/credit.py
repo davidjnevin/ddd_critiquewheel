@@ -19,12 +19,12 @@ class TransactionType(str, Enum):
     NEW_MEMBER_BONUS = "new_member_bonus"
     PROFILE_COMPLETEION_BONUS = "profile_completion_bonus"
 
-# Mock database to facilitate testing and building domain logic without a database
-mock_db = {
-    "transactions": []
-}
 
-class CreditTransaction:
+# Mock database to facilitate testing and building domain logic without a database
+mock_db = {"transactions": []}
+
+
+class CreditManager:
     CREDIT_RULES = {}
 
     def __init__(
@@ -55,24 +55,23 @@ class CreditTransaction:
     @classmethod
     def validate_credit_rules(cls, credit_rules):
         # Check if main keys 'submission' and 'critique' exist
-        if not all(key in credit_rules for key in ['submission', 'critique']):
+        if not all(key in credit_rules for key in ["submission", "critique"]):
             raise ValueError("YAML file must contain 'submission' and 'critique' rules.")
 
         # Validate 'submission' and 'critique' rules
-        for rule_type in ['submission', 'critique']:
+        for rule_type in ["submission", "critique"]:
             if not isinstance(credit_rules[rule_type], list):
                 raise ValueError(f"'{rule_type}' must be a list of rules.")
 
             for rule in credit_rules[rule_type]:
-                if not all(key in rule for key in ['max_words', 'credits']):
+                if not all(key in rule for key in ["max_words", "credits"]):
                     raise ValueError(f"Each rule in '{rule_type}' must contain 'max_words' and 'credits'.")
 
-                if not (isinstance(rule['max_words'], int) or rule['max_words'] == 'max'):
+                if not (isinstance(rule["max_words"], int) or rule["max_words"] == "max"):
                     raise ValueError(f"'max_words' in '{rule_type}' must be an integer or 'max'.")
 
-                if not isinstance(rule['credits'], (int, float)):
+                if not isinstance(rule["credits"], (int, float)):
                     raise ValueError(f"'credits' in '{rule_type}' must be a number.")
-
 
     @classmethod
     def create(
@@ -100,3 +99,14 @@ class CreditTransaction:
             date=date,
         )
 
+    @classmethod
+    def credits_for_submission(cls, word_count):
+        for setting in cls.CREDIT_RULES["submission"]:
+            if setting["max_words"] == "max" or word_count < setting["max_words"]:
+                return setting["credits"]
+
+    @classmethod
+    def credits_for_critique(cls, word_count):
+        for setting in cls.CREDIT_RULES["critique"]:
+            if setting["max_words"] == "max" or word_count < setting["max_words"]:
+                return setting["credits"]

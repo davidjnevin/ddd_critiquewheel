@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from critique_wheel.domain.models.credit import CreditTransaction, TransactionType
+from critique_wheel.domain.models.credit import CreditManager, TransactionType
 
 # Mock database setup
 mock_db = {
@@ -25,7 +25,7 @@ class TestTransactionType:
         assert TransactionType.PROFILE_COMPLETEION_BONUS == "profile_completion_bonus"
 
     def test_can_generate_credit_transation(self):
-        ct = CreditTransaction(
+        ct = CreditManager(
             member_id=42,
             work_id=45,
             critique_id=46,
@@ -42,7 +42,7 @@ class TestTransactionType:
         assert ct.date_of_transaction.date() == datetime.now().date()
 
     def test_create_transaction(self):
-        ct = CreditTransaction.create(
+        ct = CreditManager.create(
             member_id=42,
             work_id=45,
             critique_id=None,
@@ -66,7 +66,7 @@ class TestTransactionType:
         transaction_type = TransactionType.CRITIQUE_GIVEN
         critique_id = 46
 
-        ct = CreditTransaction.create(
+        ct = CreditManager.create(
             member_id=member_id,
             amount=amount,
             transaction_type=transaction_type,
@@ -88,7 +88,7 @@ class TestTransactionType:
             ValueError,
             match="Critique submission must have an associated critique_id and work_id.",
         ):
-            CreditTransaction.create(
+            CreditManager.create(
                 member_id=member_id,
                 amount=amount,
                 transaction_type=transaction_type,
@@ -109,7 +109,7 @@ class TestTransactionType:
             ValueError,
             match="Critique submission must have an associated critique_id",
         ):
-            CreditTransaction.create(
+            CreditManager.create(
                 member_id=member_id,
                 amount=amount,
                 transaction_type=transaction_type,
@@ -126,7 +126,7 @@ class TestTransactionType:
         work_id = 45
         critique_id = 46
 
-        ct = CreditTransaction.create(
+        ct = CreditManager.create(
             member_id=member_id,
             amount=amount,
             transaction_type=transaction_type,
@@ -141,7 +141,7 @@ class TestTransactionType:
         transaction_type = TransactionType.WORK_SUBMITTED
 
         with pytest.raises(ValueError, match="Work submission must only have an associated work_id."):
-            CreditTransaction.create(
+            CreditManager.create(
                 member_id=member_id,
                 amount=amount,
                 transaction_type=transaction_type,
@@ -162,7 +162,7 @@ class TestTransactionType:
             ValueError,
             match="Work submission must only have an associated work_id",
         ):
-            CreditTransaction.create(
+            CreditManager.create(
                 member_id=member_id,
                 amount=amount,
                 transaction_type=transaction_type,
@@ -201,14 +201,14 @@ class TestTransactionType:
         credit_rules_file.write_text(credit_rules_content)
 
         # Load the credit rules from the temporary YAML file
-        CreditTransaction.load_credit_rules_from_yaml(filepath=credit_rules_file)
+        CreditManager.load_credit_rules_from_yaml(filepath=credit_rules_file)
 
         # Assert that the credit rules are loaded correctly
-        assert CreditTransaction.CREDIT_RULES["submission"][0]["max_words"] == 3000
-        assert CreditTransaction.CREDIT_RULES["submission"][0]["credits"] == 3
-        assert CreditTransaction.CREDIT_RULES["critique"][1]["max_words"] == 4000
-        assert CreditTransaction.CREDIT_RULES["critique"][1]["credits"] == 1.5
-        assert CreditTransaction.CREDIT_RULES["bonus"]["new_user"] == 2
+        assert CreditManager.CREDIT_RULES["submission"][0]["max_words"] == 3000
+        assert CreditManager.CREDIT_RULES["submission"][0]["credits"] == 3
+        assert CreditManager.CREDIT_RULES["critique"][1]["max_words"] == 4000
+        assert CreditManager.CREDIT_RULES["critique"][1]["credits"] == 1.5
+        assert CreditManager.CREDIT_RULES["bonus"]["new_user"] == 2
 
     def test_load_credit_rules_from_yaml_with_invalid_yaml(self):
         # Valid credit rules
@@ -226,37 +226,51 @@ class TestTransactionType:
         }
 
         # No exception should be raised for valid rules
-        CreditTransaction.validate_credit_rules(valid_rules)
+        CreditManager.validate_credit_rules(valid_rules)
 
         # Missing 'submission' key
         with pytest.raises(
             ValueError,
             match="YAML file must contain 'submission' and 'critique' rules.",
         ):
-            CreditTransaction.validate_credit_rules({"critique": valid_rules["critique"]})
+            CreditManager.validate_credit_rules({"critique": valid_rules["critique"]})
 
         # Missing 'critique' key
         with pytest.raises(ValueError, match="YAML file must contain 'submission' and 'critique' rules."):
-            CreditTransaction.validate_credit_rules({"submission": valid_rules["submission"]})
+            CreditManager.validate_credit_rules({"submission": valid_rules["submission"]})
 
         # 'submission' is not a list
         with pytest.raises(ValueError, match="'submission' must be a list of rules."):
-            CreditTransaction.validate_credit_rules({"submission": {}, "critique": valid_rules["critique"]})
+            CreditManager.validate_credit_rules({"submission": {}, "critique": valid_rules["critique"]})
 
         # Missing 'max_words' in a rule
         with pytest.raises(ValueError, match="Each rule in 'submission' must contain 'max_words' and 'credits'."):
-            CreditTransaction.validate_credit_rules(
+            CreditManager.validate_credit_rules(
                 {"submission": [{"credits": 3}], "critique": valid_rules["critique"]}
             )
 
         # 'max_words' is neither integer nor 'max'
         with pytest.raises(ValueError, match="'max_words' in 'submission' must be an integer or 'max'."):
-            CreditTransaction.validate_credit_rules(
+            CreditManager.validate_credit_rules(
                 {"submission": [{"max_words": "three thousand", "credits": 3}], "critique": valid_rules["critique"]}
             )
 
         # 'credits' is not a number
         with pytest.raises(ValueError, match="'credits' in 'submission' must be a number."):
-            CreditTransaction.validate_credit_rules(
+            CreditManager.validate_credit_rules(
                 {"submission": [{"max_words": 3000, "credits": "three"}], "critique": valid_rules["critique"]}
             )
+
+
+    def test_credits_for_submission(self):
+        assert CreditManager.credits_for_submission(2500) == 3
+        assert CreditManager.credits_for_submission(3500) == 3
+        assert CreditManager.credits_for_submission(4500) == 4
+        assert CreditManager.credits_for_submission(6000) == 5
+
+    def test_credits_for_critique(self):
+        assert CreditManager.credits_for_critique(2500) == 1
+        assert CreditManager.credits_for_critique(3500) == 1.5
+        assert CreditManager.credits_for_critique(4500) == 2
+        assert CreditManager.credits_for_critique(6000) == 2.5
+
