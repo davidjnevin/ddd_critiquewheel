@@ -1,4 +1,4 @@
-from uuid import uuid4, UUID
+from uuid import uuid4
 from datetime import datetime
 from enum import Enum
 
@@ -8,11 +8,11 @@ class MissingEntryError(Exception):
 
 
 class RatingStatus(str, Enum):
-    PENDING_REVIEW = "Pending Review"
-    ACTIVE = "Active"
-    REJECTED = "Rejected"
-    ARCHIVED = "Archived"
-    MARKED_FOR_DELETION = "Marked for Deletion"
+    PENDING_REVIEW = "PENDING REVIEW"
+    ACTIVE = "ACTIVE"
+    REJECTED = "REJECTED"
+    ARCHIVED = "ARCHIVED"
+    MARKED_FOR_DELETION = "MARKED FOR DELETION"
 
 
 class Rating:
