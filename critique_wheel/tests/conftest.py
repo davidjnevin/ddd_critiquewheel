@@ -3,9 +3,20 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 from uuid import uuid4
 from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenre
+from critique_wheel.domain.models.critique import Critique, CritiqueStatus
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
 
 
+@pytest.fixture
+def valid_critique():
+    return Critique.create(
+        content_about="About content.",
+        content_successes="This is a test critique.",
+        content_weaknesses="This is a test critique.",
+        content_ideas="This is a test critique.",
+        member_id=uuid4(),
+        work_id=uuid4(),
+    )
 @pytest.fixture
 def valid_work():
     return Work.create(
