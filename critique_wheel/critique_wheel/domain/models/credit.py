@@ -14,10 +14,10 @@ assert os.path.exists(CREDIT_RULES_FILE_PATH), f"File not found at {CREDIT_RULES
 
 
 class TransactionType(str, Enum):
-    CRITIQUE_GIVEN = "critique_given"
-    WORK_SUBMITTED = "work_submitted"
-    NEW_MEMBER_BONUS = "new_member_bonus"
-    PROFILE_COMPLETEION_BONUS = "profile_completion_bonus"
+    CRITIQUE_GIVEN = "CRITIQUE_GIVEN"
+    WORK_SUBMITTED = "WORK_SUBMITTED"
+    NEW_MEMBER_BONUS = "NEW_MEMBER_BONUS"
+    PROFILE_COMPLETEION_BONUS = "PROFILE_COMPLETION_BONUS"
 
 
 # Mock database to facilitate testing and building domain logic without a database

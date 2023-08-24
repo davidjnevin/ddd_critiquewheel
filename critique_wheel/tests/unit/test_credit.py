@@ -19,10 +19,10 @@ def reset_mock_db():
 @pytest.mark.current
 class TestTransactionType:
     def test_setup(self):
-        assert TransactionType.CRITIQUE_GIVEN == "critique_given"
-        assert TransactionType.WORK_SUBMITTED == "work_submitted"
-        assert TransactionType.NEW_MEMBER_BONUS == "new_member_bonus"
-        assert TransactionType.PROFILE_COMPLETEION_BONUS == "profile_completion_bonus"
+        assert TransactionType.CRITIQUE_GIVEN == "CRITIQUE_GIVEN"
+        assert TransactionType.WORK_SUBMITTED == "WORK_SUBMITTED"
+        assert TransactionType.NEW_MEMBER_BONUS == "NEW_MEMBER_BONUS"
+        assert TransactionType.PROFILE_COMPLETEION_BONUS == "PROFILE_COMPLETION_BONUS"
 
     def test_can_generate_credit_transation(self):
         ct = CreditManager(
