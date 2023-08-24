@@ -6,7 +6,7 @@ from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
 from critique_wheel.domain.models.critique import Critique
-from critique_wheel.domain.models.rating import Rating, RatingStatus
+from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenre
 
 
