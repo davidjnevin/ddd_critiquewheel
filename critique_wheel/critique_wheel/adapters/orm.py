@@ -11,6 +11,7 @@ from critique_wheel.domain.models.work import (
     WorkGenre,
     WorkStatus,
 )
+from critique_wheel.domain.models.credit import CreditManager, TransactionType
 
 mapper_registry = registry()
 
@@ -30,7 +31,7 @@ works_table = Table(
     Column("member_id", Uuid(as_uuid=True)),
 )
 
-critique_table = Table(
+critiques_table = Table(
     "critiques",
     mapper_registry.metadata,
     Column("id", Uuid(as_uuid=True), primary_key=True),
@@ -60,10 +61,23 @@ ratings_table = Table(
     Column("critique_id", Uuid(as_uuid=True)),
 )
 
+credits_table = Table(
+    "credits",
+    mapper_registry.metadata,
+    Column("id", Uuid(as_uuid=True), primary_key=True),
+    Column("member_id", Uuid(as_uuid=True)),
+    Column("critique_id", Uuid(as_uuid=True)),
+    Column("work_id", Uuid(as_uuid=True)),
+    Column("amount", Integer),
+    Column("date_of_transaction", DateTime, default=datetime.now),
+    Column("status", Enum(TransactionType)),
+)
+
+
 
 def start_mappers():
     mapper_registry.map_imperatively(Work, works_table)
-    mapper_registry.map_imperatively(Critique, critique_table)
+    mapper_registry.map_imperatively(Critique, critiques_table)
     # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
     # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
     mapper_registry.map_imperatively(
@@ -74,3 +88,4 @@ def start_mappers():
             "_member_id": ratings_table.c.member_id
         }
     )
+    mapper_registry.map_imperatively(CreditManager, credits_table)

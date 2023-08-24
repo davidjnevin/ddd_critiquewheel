@@ -4,10 +4,12 @@ import pytest
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.work import Work
 from critique_wheel.domain.models.rating import Rating
+from critique_wheel.domain.models.credit import CreditManager, TransactionType
 
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
 class TestOrm:
+    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retrieve_work(self, session, valid_work):
         # Arrange
         new_work = valid_work
@@ -23,6 +25,7 @@ class TestOrm:
         assert retrieved_work.content == "Test content"
 
 
+    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retrieve_critique(self, session, valid_critique):
         # Arrange
         new_critique = valid_critique
@@ -36,6 +39,7 @@ class TestOrm:
         assert retrieved_critique.id == new_critique.id
         assert retrieved_critique.content_about == "About content."
 
+    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retreive_rating(self, session, valid_rating):
         # Arrange
         new_rating = valid_rating
@@ -50,3 +54,19 @@ class TestOrm:
         assert retrieved_rating.member_id == new_rating.member_id
         assert retrieved_rating.score == 5
 
+    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
+    def test_create_and_retreive_credit(self, session, valid_credit):
+        # Arrange
+        new_credit = valid_credit
+
+        # Act
+        session.add(new_credit)
+        session.commit()
+        retrieved_credit = session.query(CreditManager).filter_by(amount=5).one()
+
+        # Assert
+        assert retrieved_credit.id == new_credit.id
+        assert retrieved_credit.member_id == new_credit.member_id
+        assert retrieved_credit.amount == 5
+        assert retrieved_credit.transaction_type == TransactionType.CRITIQUE_GIVEN
+        assert retrieved_credit.work_id == new_credit.work_id

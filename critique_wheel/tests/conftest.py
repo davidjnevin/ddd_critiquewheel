@@ -5,9 +5,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
+from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenre
+
+
+@pytest.fixture
+def valid_credit():
+    return CreditManager.create(
+        member_id=uuid4(),
+        amount=5,
+        transaction_type=TransactionType.CRITIQUE_GIVEN,
+        work_id=uuid4(),
+        critique_id=uuid4(),
+    )
 
 
 @pytest.fixture
