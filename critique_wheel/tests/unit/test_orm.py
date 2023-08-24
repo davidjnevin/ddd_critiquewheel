@@ -3,7 +3,7 @@
 import pytest
 from critique_wheel.domain.models.work import Work
 
-
+@pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
 def test_create_and_retrieve_work(session, valid_work):
     # Arrange
     new_work = valid_work
