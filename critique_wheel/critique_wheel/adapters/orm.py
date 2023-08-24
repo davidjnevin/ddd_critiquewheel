@@ -70,7 +70,7 @@ credits_table = Table(
     Column("work_id", Uuid(as_uuid=True)),
     Column("amount", Integer),
     Column("date_of_transaction", DateTime, default=datetime.now),
-    Column("status", Enum(TransactionType)),
+    Column("transaction_type", Enum(TransactionType)),
 )
 
 
