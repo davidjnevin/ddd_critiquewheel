@@ -13,7 +13,7 @@ load_dotenv()
 
 ROLES_FILE_PATH = os.getenv("ROLES_FILE_PATH")
 
-assert os.path.exists(ROLES_FILE_PATH), f"File not found at {MOCK_YAML_PATH}"
+assert os.path.exists(ROLES_FILE_PATH), f"File not found at {ROLES_FILE_PATH}"
 # Mock database to facilitate testing and building domain logic without a database
 mock_db = {}
 bcrypt.gensalt(rounds=4)  # Set the number of rounds for testing to 4
