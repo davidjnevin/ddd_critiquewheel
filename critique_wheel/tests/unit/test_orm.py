@@ -2,8 +2,8 @@
 
 import pytest
 from critique_wheel.domain.models.critique import Critique
-
 from critique_wheel.domain.models.work import Work
+from critique_wheel.domain.models.rating import Rating
 
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
@@ -35,3 +35,17 @@ class TestOrm:
         # Assert
         assert retrieved_critique.id == new_critique.id
         assert retrieved_critique.content_about == "About content."
+
+    def test_create_and_retreive_rating(self, session, valid_rating):
+        # Arrange
+        new_rating = valid_rating
+
+        # Act
+        session.add(new_rating)
+        session.commit()
+        retrieved_rating = session.query(Rating).filter_by(score=5).one()
+
+        # Assert
+        assert retrieved_rating.id == new_rating.id
+        assert retrieved_rating.score == 5
+
