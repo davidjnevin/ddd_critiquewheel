@@ -51,3 +51,7 @@ In particular order, just a doc to take ideas and notes.
 ### Bio Photos
 
 1. **Upload Bio Photos**: Allow users to upload bio photos.
+
+### Limit critique per work
+
+1. **Critique Limit**: Any given work should have a limit of five critiques. This can be overriden by the admin under particular circumstances.
