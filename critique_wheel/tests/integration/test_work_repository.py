@@ -26,7 +26,7 @@ def test_repository_can_save_a_work(session, valid_work):
     ]
 
 
-def test_repository_can_get_a_work(session, valid_work):
+def test_repository_can_get_a_work_by_id(session, valid_work):
     work = valid_work
     repo = work_repository.SqlAlchemyWorkRepository(session)
     repo.add(work)
