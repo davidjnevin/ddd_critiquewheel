@@ -47,5 +47,6 @@ class TestOrm:
 
         # Assert
         assert retrieved_rating.id == new_rating.id
+        assert retrieved_rating.member_id == new_rating.member_id
         assert retrieved_rating.score == 5
 
