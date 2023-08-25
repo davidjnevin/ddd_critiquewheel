@@ -7,8 +7,19 @@ from sqlalchemy.orm import clear_mappers, sessionmaker
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
+from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenre
+
+
+@pytest.fixture
+def valid_member():
+    return Member.create(
+        username="test_username",
+        password="secure_unguessable_password",
+        email="email_address@davidneivn.net",
+        member_type=MemberRole.MEMBER,
+    )
 
 
 @pytest.fixture

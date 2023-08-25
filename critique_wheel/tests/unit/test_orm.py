@@ -5,10 +5,26 @@ from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.work import Work
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
+from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
 class TestOrm:
+    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
+    def test_create_and_retrieve_member(self, session, valid_member):
+        # Arrange
+        new_member = valid_member
+
+        # Act
+        session.add(new_member)
+        session.commit()
+        retrieved_member = session.query(Member).filter_by(username="test_username").one()
+
+        # Assert
+        assert retrieved_member.id == new_member.id
+        assert retrieved_member.email == new_member.email
+        assert retrieved_member.password != "secure_unguessable_password"
+
     @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retrieve_work(self, session, valid_work):
         # Arrange

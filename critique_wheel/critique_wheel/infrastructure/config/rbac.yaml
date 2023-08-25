@@ -1,5 +1,5 @@
 roles:
-  Admin:
+  ADMIN:
     - {action: "Create", resource: "Works"}
     - {action: "Read", resource: "Works"}
     - {action: "Update", resource: "Works"}
@@ -14,12 +14,12 @@ roles:
     - {action: "Read", resource: "Members"}
     - {action: "Update", resource: "Members"}
     - {action: "Delete", resource: "Members"}
-  Member:
+  MEMBER:
     - {action: "Read", resource: "Works"}
     - {action: "Create", resource: "Critiques"}
     - {action: "Read", resource: "Critiques"}
     - {action: "Read", resource: "Profiles"}
-  Staff:
+  STAFF:
     - {action: "Read", resource: "Members"}
     - {action: "Update", resource: "Members"}
 

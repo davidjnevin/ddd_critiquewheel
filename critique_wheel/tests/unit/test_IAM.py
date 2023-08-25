@@ -140,9 +140,9 @@ def mock_roles():
 class TestRoles:
     def test_load_roles_from_yaml(self, mock_roles):
         assert Member.ROLES_AND_PERMISSIONS is not None
-        assert "Admin" in Member.ROLES_AND_PERMISSIONS
-        assert "Staff" in Member.ROLES_AND_PERMISSIONS
-        assert "Member" in Member.ROLES_AND_PERMISSIONS
+        assert "ADMIN" in Member.ROLES_AND_PERMISSIONS
+        assert "STAFF" in Member.ROLES_AND_PERMISSIONS
+        assert "MEMBER" in Member.ROLES_AND_PERMISSIONS
 
     @pytest.mark.parametrize(
         "member_type, action, resource, expected",

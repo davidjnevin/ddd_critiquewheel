@@ -24,16 +24,16 @@ class MissingEntryError(Exception):
 
 
 class MemberStatus(str, Enum):
-    ACTIVE = "Active"
-    INACTIVE = "Inactive"
-    SUSPENDED = "Suspended"
-    MARKER_FOR_DELETION = "Deleted"
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    SUSPENDED = "SUSPENDED"
+    MARKER_FOR_DELETION = "DELETED"
 
 
 class MemberRole(str, Enum):
-    ADMIN = "Admin"
-    STAFF = "Staff"
-    MEMBER = "Member"
+    ADMIN = "ADMIN"
+    STAFF = "STAFF"
+    MEMBER = "MEMBER"
 
 
 class Permission:
