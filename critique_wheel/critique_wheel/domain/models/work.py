@@ -1,13 +1,16 @@
-from uuid import uuid4, UUID
+from dataclasses import field
 from datetime import datetime
 from enum import Enum
+from uuid import UUID, uuid4
 
 
 class MissingEntryError(Exception):
     pass
 
-class WorkNotAvailableForCritique(Exception):
+
+class WorkNotAvailableForCritiqueError(Exception):
     pass
+
 
 class WorkStatus(str, Enum):
     PENDING_REVIEW = "PENDING REVIEW"
@@ -59,6 +62,7 @@ class Work:
         age_restriction=WorkAgeRestriction.ADULT,
         work_id=None,
         genre=WorkGenre.OTHER,
+        critiques=None,
     ) -> None:
         self.id = work_id or uuid4()
         self.title: str = title
@@ -71,6 +75,7 @@ class Work:
         self.last_update_date: datetime = datetime.now()
         self.archive_date = None
         self.member_id: UUID = member_id
+        self.critiques = critiques or []
 
     @classmethod
     def create(
@@ -80,12 +85,20 @@ class Work:
         member_id,
         genre=WorkGenre.OTHER,
         age_restriction=WorkAgeRestriction.ADULT,
+        critiques=None,
     ):
         if not title or not content:
             raise MissingEntryError()
         if not genre or not age_restriction or not member_id:
             raise MissingEntryError()
-        return cls(title=title, content=content, age_restriction=age_restriction, genre=genre, member_id=member_id,)
+        return cls(
+            title=title,
+            content=content,
+            age_restriction=age_restriction,
+            genre=genre,
+            member_id=member_id,
+            critiques=critiques or [],
+        )
 
     def approve(self) -> None:
         self.status = WorkStatus.ACTIVE
@@ -113,3 +126,17 @@ class Work:
         if self.status == WorkStatus.ACTIVE:
             return True
         return False
+
+    def list_critiques(self) -> list:
+        return self.critiques
+
+    def add_critique(self, critique) -> None:
+        if not self.is_available_for_critique():
+            raise WorkNotAvailableForCritiqueError(
+                "This work is not available for critique",
+            )
+        if critique not in self.critiques:
+            self.critiques.append(critique)
+            self.last_update_date = datetime.now()
+        else:
+            raise ValueError("Critique already exists")
