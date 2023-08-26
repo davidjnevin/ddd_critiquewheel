@@ -36,11 +36,6 @@ class MemberRole(str, Enum):
     MEMBER = "MEMBER"
 
 
-class Permission:
-    def __init__(self, action, resource):
-        self.action = action
-        self.resource = resource
-
 
 class Member:
     # low number of roles, the in-memory approach is efficient and offers fast permission checks.
@@ -57,6 +52,7 @@ class Member:
         status=MemberStatus.INACTIVE,
         member_id=None,
         works=None,
+        critiques=None,
     ):
         self.id = member_id or uuid4()
         self.username: str = username
@@ -65,6 +61,7 @@ class Member:
         self.member_type: MemberRole = member_type
         self.status: MemberStatus = status
         self.works = works or []
+        self.critiques = critiques or []
         self.last_login: datetime = datetime.now()
         self.last_updated_date: datetime = datetime.now()
         self.created_date: datetime = datetime.now()
@@ -83,28 +80,30 @@ class Member:
         password,
         member_type=MemberRole.MEMBER,
         works=None,
+        critiques=None,
         status=MemberStatus.INACTIVE,
     ):
-        if not username:
-            raise MissingEntryError("Missing required fields: username")
-        if not email:
-            raise MissingEntryError("Missing required fields: email")
-        if not password:
-            raise MissingEntryError("Missing required fields: password")
         hashed_password = cls.hash_password(password)
+        if not username or not email or not password:
+            raise MissingEntryError("Missing required fields")
         return cls(
             username=username,
             email=email,
             password=hashed_password,
             member_type=member_type,
             works=works or [],
+            critiques=critiques or [],
             status=status,
         )
 
     @classmethod
     def register(cls, username, email, password):
-        if not username or not email or not password:
-            raise MissingEntryError("Missing required fields")
+        if not username:
+            raise MissingEntryError("Missing required fields: username")
+        if not email:
+            raise MissingEntryError("Missing required fields: email")
+        if not password:
+            raise MissingEntryError("Missing required fields: password")
         cls.validate_password_strength(password)
         hashed_password = cls.hash_password(password)
         member = cls(username=username, email=email, password=hashed_password)
@@ -147,8 +146,9 @@ class Member:
             raise ValueError(
                 "Password does not meet the policy requirements: Mix of letters, numbers, and symbols required."
             )
-        if password.lower() in ["password", "abcdefg", "12345678", "qwerty"]:
-            raise ValueError("Password does not meet the policy requirements: Password is easily guessable.")
+        for word in ["password", "abcdefg", "12345678", "qwerty"]:
+            if word in password.lower():
+                raise ValueError("Password does not meet the policy requirements: Password is easily guessable.")
 
     def request_password_reset(self):
         # TODO: Implement token generation logic
@@ -190,3 +190,13 @@ class Member:
             self.last_update_date = datetime.now()
         else:
             raise ValueError("Work already exists")
+
+    def list_critiques(self) -> list:
+        return self.critiques
+
+    def add_critique(self, critique) -> None:
+        if critique not in self.critiques:
+            self.works.append(critique)
+            self.last_update_date = datetime.now()
+        else:
+            raise ValueError("Critique already exists")

@@ -16,7 +16,7 @@ from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenr
 def valid_member():
     return Member.create(
         username="test_username",
-        password="secure_unguessable_password",
+        password="secure_unguessable_p@ssword",
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
     )
@@ -24,7 +24,7 @@ def valid_member():
 def active_valid_member():
     return Member.create(
         username="test_username",
-        password="secure_unguessable_password",
+        password="secure_unguessable_p@ssword",
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
     )
