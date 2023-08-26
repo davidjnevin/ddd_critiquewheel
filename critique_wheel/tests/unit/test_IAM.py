@@ -34,8 +34,7 @@ def admin():
     )
 
 
-@pytest.mark.current
-# @pytest.mark.slow
+@pytest.mark.slow
 class TestRegistrationAndLogin:
     def setup_method(self):
         mock_db.clear()
