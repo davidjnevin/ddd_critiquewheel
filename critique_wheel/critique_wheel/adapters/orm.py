@@ -30,7 +30,7 @@ works_table = Table(
     Column("submission_date", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
-    Column("member_id", Uuid(as_uuid=True)),
+    Column("member_id", Uuid(as_uuid=True), ForeignKey("members.id")),
 )
 
 critiques_table = Table(
@@ -93,17 +93,20 @@ members_table = Table(
 
 def start_mappers():
     mapper_registry.map_imperatively(
+        Member,
+        members_table,
+        properties={"works": relationship(Work)},
+    )
+    mapper_registry.map_imperatively(
         Work,
         works_table,
-        properties={"critiques": relationship(Critique, backref="works_table")},
+        properties={"critiques": relationship(Critique)},
     )
     mapper_registry.map_imperatively(
         Critique,
         critiques_table,
-        # properties={
-        #     "works": relationship(Work, backref="critiques"),
-        # },
     )
+
     # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
     # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
     mapper_registry.map_imperatively(
@@ -115,4 +118,3 @@ def start_mappers():
         },
     )
     mapper_registry.map_imperatively(CreditManager, credits_table)
-    mapper_registry.map_imperatively(Member, members_table)
