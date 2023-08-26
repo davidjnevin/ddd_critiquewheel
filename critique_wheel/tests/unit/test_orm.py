@@ -16,7 +16,6 @@ from critique_wheel.domain.models.work import (
 )
 
 
-@pytest.mark.current
 class TestOrm:
     def test_create_and_retrieve_member(self, session, valid_member, valid_work):
         # Arrange
