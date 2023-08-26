@@ -48,6 +48,7 @@ class Critique:
         content_ideas,
         member_id,
         work_id,
+        critique_id=None,
     ):
         if not content_about or not content_successes or not content_weaknesses or not content_ideas:
             raise MissingEntryError()
@@ -60,6 +61,7 @@ class Critique:
             content_ideas=content_ideas,
             member_id=member_id,
             work_id=work_id,
+            critique_id=critique_id,
         )
 
     def approve(self) -> None:

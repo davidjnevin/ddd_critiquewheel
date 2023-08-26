@@ -21,6 +21,7 @@ def test_critique():
         content_ideas="This is a test critique.",
         member_id=uuid4(),
         work_id=uuid4(),
+        critique_id=uuid4(),
     )
 
 
@@ -38,6 +39,7 @@ def test_ensure_a_critique_can_be_created_with_all_required_content_elements():
     assert critique.content_successes == "This is a test critique."
     assert critique.content_weaknesses == "This is a test critique."
     assert critique.content_ideas == "This is a test critique."
+    assert critique.id != None
 
 
 # Test Creation of Critique with Missing Content:
