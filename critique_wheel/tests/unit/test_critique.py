@@ -11,7 +11,6 @@ from critique_wheel.domain.models.critique import (
     MissingEntryError,
 )
 
-@pytest.mark.current
 class TestCritique:
     # Test Creation of Critique with All Required Content
     def test_ensure_a_critique_can_be_created_with_all_required_content_elements(self, valid_rating, another_valid_rating, valid_work, active_valid_member):
