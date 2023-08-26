@@ -40,15 +40,24 @@ def valid_credit():
         critique_id=uuid4(),
     )
 
-
 @pytest.fixture
 def valid_rating():
-    return Rating.create(
+    yield Rating.create(
         score=5,
         comment="This is a test rating.",
         member_id=uuid4(),
         critique_id=uuid4(),
     )
+
+@pytest.fixture
+def another_valid_rating():
+    yield Rating.create(
+        score=4,
+        comment="This is a test rating.",
+        member_id=uuid4(),
+        critique_id=uuid4(),
+    )
+
 
 
 @pytest.fixture
@@ -60,6 +69,7 @@ def valid_critique():
         content_ideas="This is a test critique.",
         member_id=uuid4(),
         work_id=uuid4(),
+        ratings=None,
     )
 
 
@@ -85,7 +95,6 @@ def id_critique1():
         member_id=uuid4(),
         work_id=uuid4(),
         critique_id=uuid4(),
-        # critique_id="critique1",
     )
 
 
@@ -99,7 +108,6 @@ def id_critique2():
         member_id=uuid4(),
         work_id=uuid4(),
         critique_id=uuid4(),
-        # critique_id="critique2",
     )
 
 
