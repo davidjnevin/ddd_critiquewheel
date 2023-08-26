@@ -27,6 +27,7 @@ def active_valid_member():
         password="secure_unguessable_p@ssword",
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
+        status=MemberStatus.ACTIVE,
     )
 
 
