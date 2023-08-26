@@ -62,12 +62,5 @@ class MemberProfile:
         if len(bio.split()) > 200 or len(bio) > 1200:
             raise ValueError("Bio must be under 200 words and 1200 characters.")
 
-    @staticmethod
-    def _validate_bio_photo_format(bio_photo):
-        valid_extensions = [".jpg", ".jpeg", ".png"]
-        _, extension = os.path.splitext(bio_photo)
-        if extension not in valid_extensions:
-            raise ValueError(f"Invalid file type. Allowed types are: {', '.join(valid_extensions)}")
-
     def toggle_visibility(self):
         self.visibility = not self.visibility
