@@ -43,7 +43,7 @@ def test_ensure_a_rating_can_be_created_with_a_valid_score():
     assert rating.critique_id == 42
 
 
-# Test Creation of Rating with out member_id
+# Test Creation of Rating with Valid Score and No Comment:
 def test_ensure_a_rating_can_be_created_with_a_valid_score_and_no_comment():
     rating = Rating.create(
         score=4,
@@ -69,7 +69,7 @@ def test_ensure_a_rating_cannot_be_created_without_critique_id():
         )
 
 
-# Test Creation of Rating with Invalid Score:
+# Test Creation of Rating without member_id
 def test_ensure_a_rating_cannot_be_created_without_member_id():
     with raises(MissingEntryError):
         Rating.create(
@@ -119,7 +119,10 @@ def test_ensure_a_rating_s_score_can_be_updated(test_rating):
 def test_ensure_the_associated_critique_of_a_rating_cannot_be_changed(test_rating):
     rating = test_rating
     assert rating.critique_id == 42
-    with raises(AttributeError, match="Can't set attribute"):
+    with raises(
+        AttributeError,
+        match="Can't set attribute",
+    ):
         rating.critique_id = 43
 
 
@@ -127,7 +130,10 @@ def test_ensure_the_associated_critique_of_a_rating_cannot_be_changed(test_ratin
 def test_ensure_the_associated_member_of_a_rating_cannot_be_changed(test_rating):
     rating = test_rating
     assert rating.member_id == 45
-    with raises(AttributeError, match="Can't set attribute"):
+    with raises(
+        AttributeError,
+        match="Can't set attribute",
+    ):
         rating.member_id = 43
 
 
@@ -190,8 +196,8 @@ def test_ensure_a_rating_can_be_rejected(test_rating):
     assert rating.status == RatingStatus.REJECTED
 
 
-# Test Restore Critique:
-def test_ensure_a_critique_status_can_be_restored_to_active(test_rating):
+# Test Restore Rating:
+def test_ensure_a_rating_status_can_be_restored_to_active(test_rating):
     rating = test_rating
     rating.mark_pending_review()
     assert rating.status == RatingStatus.PENDING_REVIEW
