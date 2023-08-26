@@ -1,9 +1,12 @@
 from datetime import datetime
+from typing import List
 
-from sqlalchemy import Column, DateTime, Enum, Integer, String, Table, Uuid
-from sqlalchemy.orm import registry
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Table, Uuid
+from sqlalchemy.orm import registry, relationship
 
+from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique, CritiqueStatus
+from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating, RatingStatus
 from critique_wheel.domain.models.work import (
     Work,
@@ -11,8 +14,6 @@ from critique_wheel.domain.models.work import (
     WorkGenre,
     WorkStatus,
 )
-from critique_wheel.domain.models.credit import CreditManager, TransactionType
-from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 
 mapper_registry = registry()
 
@@ -29,7 +30,7 @@ works_table = Table(
     Column("submission_date", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
-    Column("member_id", Uuid(as_uuid=True)),
+    Column("member_id", Uuid(as_uuid=True), ForeignKey("members.id")),
 )
 
 critiques_table = Table(
@@ -45,7 +46,7 @@ critiques_table = Table(
     Column("last_update_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
     Column("member_id", Uuid(as_uuid=True)),
-    Column("work_id", Uuid(as_uuid=True)),
+    Column("work_id", Uuid(as_uuid=True), ForeignKey("works.id")),
 )
 
 ratings_table = Table(
@@ -55,11 +56,11 @@ ratings_table = Table(
     Column("score", Integer),
     Column("comment", String),
     Column("status", Enum(RatingStatus)),
+    Column("member_id", Uuid(as_uuid=True)),
+    Column("critique_id", Uuid(as_uuid=True)),
     Column("submission_date", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
-    Column("member_id", Uuid(as_uuid=True)),
-    Column("critique_id", Uuid(as_uuid=True)),
 )
 
 credits_table = Table(
@@ -90,12 +91,22 @@ members_table = Table(
 )
 
 
-
-
-
 def start_mappers():
-    mapper_registry.map_imperatively(Work, works_table)
-    mapper_registry.map_imperatively(Critique, critiques_table)
+    mapper_registry.map_imperatively(
+        Member,
+        members_table,
+        properties={"works": relationship(Work)},
+    )
+    mapper_registry.map_imperatively(
+        Work,
+        works_table,
+        properties={"critiques": relationship(Critique)},
+    )
+    mapper_registry.map_imperatively(
+        Critique,
+        critiques_table,
+    )
+
     # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
     # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
     mapper_registry.map_imperatively(
@@ -103,8 +114,7 @@ def start_mappers():
         ratings_table,
         properties={
             "_critique_id": ratings_table.c.critique_id,
-            "_member_id": ratings_table.c.member_id
-        }
+            "_member_id": ratings_table.c.member_id,
+        },
     )
     mapper_registry.map_imperatively(CreditManager, credits_table)
-    mapper_registry.map_imperatively(Member, members_table)

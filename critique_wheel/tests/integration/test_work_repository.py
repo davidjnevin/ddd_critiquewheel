@@ -4,8 +4,9 @@ from critique_wheel.adapters.sqlalchemy import work_repository
 from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
 
 
-def test_repository_can_save_a_work(session, valid_work):
+def test_repository_can_save_a_work(session, valid_work, active_valid_member):
     work = valid_work
+    work.member_id = active_valid_member.id
     repo = work_repository.SqlAlchemyWorkRepository(session)
     repo.add(work)
     session.commit()
@@ -44,3 +45,5 @@ def test_repository_can_get_a_work_by_id(session, valid_work):
             format_uuid_for_db(work.member_id),
         )
     ]
+
+    assert repo.get(id_to_get) == work

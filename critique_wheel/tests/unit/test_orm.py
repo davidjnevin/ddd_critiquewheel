@@ -1,19 +1,29 @@
 # Throwaway test file for testing ORM functionality
 
+import re
+
 import pytest
-from critique_wheel.domain.models.critique import Critique
-from critique_wheel.domain.models.work import Work
-from critique_wheel.domain.models.rating import Rating
+
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
+from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
+from critique_wheel.domain.models.rating import Rating
+from critique_wheel.domain.models.work import (
+    Work,
+    WorkAgeRestriction,
+    WorkGenre,
+    WorkStatus,
+)
 
 
-# @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
+@pytest.mark.current
 class TestOrm:
-    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
-    def test_create_and_retrieve_member(self, session, valid_member):
+    def test_create_and_retrieve_member(self, session, valid_member, valid_work):
         # Arrange
         new_member = valid_member
+
+        new_member.status = MemberStatus.ACTIVE
+        new_member.add_work(valid_work)
 
         # Act
         session.add(new_member)
@@ -24,12 +34,30 @@ class TestOrm:
         assert retrieved_member.id == new_member.id
         assert retrieved_member.email == new_member.email
         assert retrieved_member.password != "secure_unguessable_password"
+        assert retrieved_member.username == "test_username"
+        assert retrieved_member.member_type == MemberRole.MEMBER
+        assert retrieved_member.status == MemberStatus.ACTIVE
+        assert retrieved_member.works != []
 
-    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
-    def test_create_and_retrieve_work(self, session, valid_work):
+    # @pytest.mark.current
+    # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
+    def test_create_and_retrieve_work(self, session, id_critique1, id_critique2, valid_member, valid_work):
         # Arrange
+        # Arrange work
+        assert valid_work.critiques == []
         new_work = valid_work
-
+        new_work.status = WorkStatus.ACTIVE
+        # Arrange critiques
+        new_critique_1 = id_critique1
+        new_critique_1.work_id = new_work.id
+        new_critique_2 = id_critique2
+        new_critique_2.work_id = new_work.id
+        # TODO: Does this break my pure work model?
+        new_work.add_critique(new_critique_1)
+        new_work.add_critique(new_critique_2)
+        # Arrange member
+        new_member = valid_member
+        new_work.member_id = new_member.id
         # Act
         session.add(new_work)
         session.commit()
@@ -39,12 +67,23 @@ class TestOrm:
         assert retrieved_work.id == new_work.id
         assert retrieved_work.title == "Test Title"
         assert retrieved_work.content == "Test content"
+        assert retrieved_work.age_restriction == WorkAgeRestriction.ADULT
+        assert retrieved_work.genre == WorkGenre.OTHER
+        assert retrieved_work.status == WorkStatus.ACTIVE
+        assert retrieved_work.word_count == new_work.word_count
+        assert retrieved_work.submission_date == new_work.submission_date
+        assert retrieved_work.last_update_date == new_work.last_update_date
+        assert retrieved_work.archive_date == new_work.archive_date
+        # relationship assertions
+        assert retrieved_work.critiques == [new_critique_1, new_critique_2]
+        assert retrieved_work.member_id == new_member.id
 
-
-    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
-    def test_create_and_retrieve_critique(self, session, valid_critique):
+    # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
+    # @pytest.mark.current
+    def test_create_and_retrieve_critique(self, session, valid_critique, valid_work):
         # Arrange
         new_critique = valid_critique
+        new_critique.work_id = valid_work.id
 
         # Act
         session.add(new_critique)
@@ -54,8 +93,14 @@ class TestOrm:
         # Assert
         assert retrieved_critique.id == new_critique.id
         assert retrieved_critique.content_about == "About content."
+        assert retrieved_critique.content_about == "About content."
+        assert retrieved_critique.content_successes == "This is a test critique."
+        assert retrieved_critique.content_weaknesses == "This is a test critique."
+        assert retrieved_critique.content_ideas == "This is a test critique."
+        assert retrieved_critique.work_id == valid_work.id
 
-    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
+
+    # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retreive_rating(self, session, valid_rating):
         # Arrange
         new_rating = valid_rating
@@ -70,7 +115,7 @@ class TestOrm:
         assert retrieved_rating.member_id == new_rating.member_id
         assert retrieved_rating.score == 5
 
-    @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
+    # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retreive_credit(self, session, valid_credit):
         # Arrange
         new_credit = valid_credit

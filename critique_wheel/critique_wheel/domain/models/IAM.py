@@ -56,6 +56,7 @@ class Member:
         member_type=MemberRole.MEMBER,
         status=MemberStatus.INACTIVE,
         member_id=None,
+        works=None,
     ):
         self.id = member_id or uuid4()
         self.username: str = username
@@ -63,6 +64,7 @@ class Member:
         self.password: bytes = password
         self.member_type: MemberRole = member_type
         self.status: MemberStatus = status
+        self.works = works or []
         self.last_login: datetime = datetime.now()
         self.last_updated_date: datetime = datetime.now()
         self.created_date: datetime = datetime.now()
@@ -80,6 +82,8 @@ class Member:
         email,
         password,
         member_type=MemberRole.MEMBER,
+        works=None,
+        status=MemberStatus.INACTIVE,
     ):
         if not username:
             raise MissingEntryError("Missing required fields: username")
@@ -93,6 +97,8 @@ class Member:
             email=email,
             password=hashed_password,
             member_type=member_type,
+            works=works or [],
+            status=status,
         )
 
     @classmethod
@@ -174,3 +180,13 @@ class Member:
             if permission["action"] == action and permission["resource"] == resource:
                 return True
         return False
+
+    def list_works(self) -> list:
+        return self.works
+
+    def add_work(self, work) -> None:
+        if work not in self.works:
+            self.works.append(work)
+            self.last_update_date = datetime.now()
+        else:
+            raise ValueError("Work already exists")

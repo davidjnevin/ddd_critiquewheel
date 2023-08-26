@@ -20,6 +20,14 @@ def valid_member():
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
     )
+@pytest.fixture
+def active_valid_member():
+    return Member.create(
+        username="test_username",
+        password="secure_unguessable_password",
+        email="email_address@davidneivn.net",
+        member_type=MemberRole.MEMBER,
+    )
 
 
 @pytest.fixture
@@ -63,6 +71,47 @@ def valid_work():
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
         member_id=uuid4(),
+        critiques=None,
+    )
+
+
+@pytest.fixture
+def id_critique1():
+    return Critique.create(
+        content_about="About content.",
+        content_successes="This is a test critique.",
+        content_weaknesses="This is a test critique.",
+        content_ideas="This is a test critique.",
+        member_id=uuid4(),
+        work_id=uuid4(),
+        critique_id=uuid4(),
+        # critique_id="critique1",
+    )
+
+
+@pytest.fixture
+def id_critique2():
+    return Critique.create(
+        content_about="About content.",
+        content_successes="This is a test critique.",
+        content_weaknesses="This is a test critique.",
+        content_ideas="This is a test critique.",
+        member_id=uuid4(),
+        work_id=uuid4(),
+        critique_id=uuid4(),
+        # critique_id="critique2",
+    )
+
+
+@pytest.fixture
+def valid_work_with_two_critiques():
+    return Work.create(
+        title="Test Title",
+        content="Test content",
+        age_restriction=WorkAgeRestriction.ADULT,
+        genre=WorkGenre.OTHER,
+        member_id=uuid4(),
+        critiques=["critique1", "critique2"],
     )
 
 
