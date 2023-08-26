@@ -1,8 +1,9 @@
 import uuid
-from critique_wheel.infrastructure.config.config import FORMAT_UUID_FOR_SQLITE
+from critique_wheel.infrastructure.config import config
+
 
 def format_uuid_for_db(uuid_str):
-    if FORMAT_UUID_FOR_SQLITE:
+    if config.FORMAT_UUID_FOR_SQLITE:
         return str(uuid_str).replace("-", "")
     else:
         # Default behavior for other databases
