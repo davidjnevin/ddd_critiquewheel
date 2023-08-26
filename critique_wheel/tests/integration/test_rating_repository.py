@@ -10,14 +10,14 @@ def test_repository_can_save_a_rating(session, valid_rating):
     repo.add(rating)
     session.commit()
 
-    rows = list(session.execute(text('SELECT id, score, comment, critique_id, member_id, status FROM "ratings"')))
+    rows = list(session.execute(text('SELECT id, score, comment, member_id, critique_id, status FROM "ratings"')))
     assert rows == [
         (
             format_uuid_for_db(rating.id),
             rating.score,
             rating.comment,
-            format_uuid_for_db(rating.critique_id),
             format_uuid_for_db(rating.member_id),
+            format_uuid_for_db(rating.critique_id),
             rating.status.value,
         )
     ]
