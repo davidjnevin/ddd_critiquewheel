@@ -16,7 +16,6 @@ def reset_mock_db():
     mock_db["transactions"].clear()
 
 
-@pytest.mark.current
 class TestTransactionType:
     def test_setup(self):
         assert TransactionType.CRITIQUE_GIVEN == "CRITIQUE_GIVEN"
