@@ -196,7 +196,7 @@ class Member:
 
     def add_critique(self, critique) -> None:
         if critique not in self.critiques:
-            self.works.append(critique)
+            self.critiques.append(critique)
             self.last_update_date = datetime.now()
         else:
             raise ValueError("Critique already exists")

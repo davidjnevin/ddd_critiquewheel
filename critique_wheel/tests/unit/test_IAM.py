@@ -251,3 +251,52 @@ class TestRoles:
     def test_has_permission(self, mock_roles, member_type, action, resource, expected):
         member = Member(member_type=member_type, username="test_user", email="test@example.com", password="test_pass!")
         assert member.has_permission(action, resource) == expected
+
+
+class TestMemberContributions:
+    def setup_method(self):
+        mock_db.clear()
+
+    def test_member_works(self, member, valid_work):
+        assert member.works == []
+        member.works.append(valid_work)
+        assert member.list_works() == [valid_work]
+
+    def test_add_work_to_member(self, member, valid_work):
+        assert member.works == []
+        member.add_work(valid_work)
+        assert member.works == [valid_work]
+
+        with pytest.raises(
+            ValueError,
+            match="Work already exists",
+        ):
+            member.add_work(valid_work)
+
+    def test_member_critiques(self, valid_member, member, valid_work, valid_critique):
+        assert member.critiques == []
+        assert valid_member.critiques == []
+
+        writer = member
+        reviewer = valid_member
+
+        valid_work.member_id = writer.id
+        writer.works.append(valid_work)
+        valid_critique.member_id = reviewer.id
+        valid_work.critiques.append(valid_critique)
+        reviewer.critiques.append(valid_critique)
+        assert reviewer.list_critiques() == [valid_critique]
+
+    def test_add_critique_to_member(self, valid_member, valid_critique):
+        reviewer = valid_member
+        reviewer.status = MemberStatus.ACTIVE
+        assert reviewer.critiques == []
+        valid_critique.member_id = reviewer.id
+        reviewer.add_critique(valid_critique)
+        assert reviewer.critiques == [valid_critique]
+
+        with pytest.raises(
+            ValueError,
+            match="Critique already exists",
+        ):
+            reviewer.add_critique(valid_critique)
