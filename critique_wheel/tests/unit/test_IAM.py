@@ -1,4 +1,5 @@
 import os
+
 import pytest
 
 from critique_wheel.domain.models.IAM import (
@@ -25,6 +26,7 @@ def member():
     )
 
 
+@pytest.mark.slow
 @pytest.fixture
 def admin():
     return Member.create(
@@ -32,10 +34,24 @@ def admin():
     )
 
 
-@pytest.mark.slow
+@pytest.mark.current
+# @pytest.mark.slow
 class TestRegistrationAndLogin:
     def setup_method(self):
         mock_db.clear()
+
+    def test_member_create(self):
+        member = Member.create(
+            username="test_username",
+            password="secure_unguessable_password",
+            email="email_address@davidneivn.net",
+            member_type=MemberRole.MEMBER,
+        )
+        assert member.username == "test_username"
+        assert member.password != "secure_unguessable_password"
+        assert member.email == "email_address@davidneivn.net"
+        assert member.member_type == MemberRole.MEMBER
+        assert member.works == []
 
     def test_member_registration(self):
         member = Member.register(**registration_details)
@@ -106,6 +122,7 @@ class TestMemberActivationEmailVerification:
         # TODO: Check if the code was sent via Notification Context
 
 
+@pytest.mark.slow
 class TestPassWordStrength:
     def setup_method(self):
         mock_db.clear()
@@ -131,11 +148,13 @@ class TestPassWordStrength:
         with pytest.raises(ValueError, match="Invalid reset token"):
             member.reset_password(token=invalid_token, new_password="new_test_pass")
 
+
 @pytest.fixture(scope="class")
 def mock_roles():
     assert os.path.exists(MOCK_YAML_PATH), f"File not found at {MOCK_YAML_PATH}"
     # Load roles and permissions from the mock YAML file
     Member.load_roles_from_yaml(file_path=MOCK_YAML_PATH)
+
 
 class TestRoles:
     def test_load_roles_from_yaml(self, mock_roles):
@@ -167,4 +186,3 @@ class TestRoles:
     def test_has_permission(self, mock_roles, member_type, action, resource, expected):
         member = Member(member_type=member_type, username="test_user", email="test@example.com", password="test_pass")
         assert member.has_permission(action, resource) == expected
-
