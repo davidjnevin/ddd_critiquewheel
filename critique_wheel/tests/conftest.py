@@ -20,6 +20,14 @@ def valid_member():
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
     )
+@pytest.fixture
+def active_valid_member():
+    return Member.create(
+        username="test_username",
+        password="secure_unguessable_password",
+        email="email_address@davidneivn.net",
+        member_type=MemberRole.MEMBER,
+    )
 
 
 @pytest.fixture
