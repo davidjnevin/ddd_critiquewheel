@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Table, Uuid
 from sqlalchemy.orm import registry, relationship
@@ -45,7 +44,7 @@ critiques_table = Table(
     Column("submission_date", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
-    Column("member_id", Uuid(as_uuid=True)),
+    Column("member_id", Uuid(as_uuid=True), ForeignKey("members.id")),
     Column("work_id", Uuid(as_uuid=True), ForeignKey("works.id")),
 )
 
@@ -57,7 +56,7 @@ ratings_table = Table(
     Column("comment", String),
     Column("status", Enum(RatingStatus)),
     Column("member_id", Uuid(as_uuid=True)),
-    Column("critique_id", Uuid(as_uuid=True)),
+    Column("critique_id", Uuid(as_uuid=True), ForeignKey("critiques.id")),
     Column("submission_date", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
@@ -95,7 +94,7 @@ def start_mappers():
     mapper_registry.map_imperatively(
         Member,
         members_table,
-        properties={"works": relationship(Work)},
+        properties={"works": relationship(Work), "critiques": relationship(Critique)},
     )
     mapper_registry.map_imperatively(
         Work,
@@ -105,6 +104,7 @@ def start_mappers():
     mapper_registry.map_imperatively(
         Critique,
         critiques_table,
+        properties={"ratings": relationship(Rating)},
     )
 
     # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
