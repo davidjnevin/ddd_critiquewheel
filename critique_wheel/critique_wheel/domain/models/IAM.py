@@ -79,9 +79,9 @@ class Member:
         email,
         password,
         member_type=MemberRole.MEMBER,
+        status=MemberStatus.INACTIVE,
         works=None,
         critiques=None,
-        status=MemberStatus.INACTIVE,
     ):
         hashed_password = cls.hash_password(password)
         if not username or not email or not password:
@@ -91,9 +91,9 @@ class Member:
             email=email,
             password=hashed_password,
             member_type=member_type,
+            status=status,
             works=works or [],
             critiques=critiques or [],
-            status=status,
         )
 
     @classmethod
