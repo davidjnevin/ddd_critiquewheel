@@ -2,6 +2,7 @@ from uuid import uuid4
 
 import pytest
 from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
@@ -19,7 +20,11 @@ def valid_member():
         password="secure_unguessable_p@ssword",
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
+        works=None,
+        critiques=None,
     )
+
+
 @pytest.fixture
 def active_valid_member():
     return Member.create(
@@ -28,6 +33,8 @@ def active_valid_member():
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
         status=MemberStatus.ACTIVE,
+        works=None,
+        critiques=None,
     )
 
 
@@ -41,6 +48,7 @@ def valid_credit():
         critique_id=uuid4(),
     )
 
+
 @pytest.fixture
 def valid_rating():
     yield Rating.create(
@@ -50,6 +58,7 @@ def valid_rating():
         critique_id=uuid4(),
     )
 
+
 @pytest.fixture
 def another_valid_rating():
     yield Rating.create(
@@ -58,7 +67,6 @@ def another_valid_rating():
         member_id=uuid4(),
         critique_id=uuid4(),
     )
-
 
 
 @pytest.fixture
@@ -81,6 +89,17 @@ def valid_work():
         content="Test content",
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
+        member_id=uuid4(),
+        critiques=None,
+    )
+
+@pytest.fixture
+def another_valid_work():
+    return Work.create(
+        title="Test Title 2",
+        content="Test content",
+        age_restriction=WorkAgeRestriction.ADULT,
+        genre=WorkGenre.FANTASY,
         member_id=uuid4(),
         critiques=None,
     )
@@ -126,7 +145,12 @@ def valid_work_with_two_critiques():
 
 @pytest.fixture
 def in_memory_db():
-    engine = create_engine("sqlite:///:memory:")
+    engine = create_engine(
+        "sqlite+pysqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+        # echo=True,
+    )
     mapper_registry.metadata.create_all(engine)
     return engine
 
@@ -134,5 +158,7 @@ def in_memory_db():
 @pytest.fixture
 def session(in_memory_db):
     start_mappers()
-    yield sessionmaker(bind=in_memory_db)()
+    session = sessionmaker(bind=in_memory_db)()
+    yield session
     clear_mappers()
+    # session.close()
