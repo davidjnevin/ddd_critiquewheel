@@ -1,5 +1,5 @@
 # Description: This file contains the unit tests for the Critique model.
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -10,6 +10,8 @@ from critique_wheel.domain.models.critique import (
     CritiqueStatus,
     MissingEntryError,
 )
+from critique_wheel.domain.models.work import WorkStatus
+from tests.conftest import valid_rating, valid_work
 
 class TestCritique:
     # Test Creation of Critique with All Required Content
@@ -113,65 +115,94 @@ class TestCritique:
 
 
     # Test Setting Submission Date on Critique Creation:
-    def test_ensure_the_submission_date_is_set_when_a_critique_is_submitted(self, valid_critique):
+    def test_ensure_the_submission_date_is_set_when_a_critique_is_submitted(self, valid_critique, valid_work):
         critique = valid_critique
+        valid_work.status = WorkStatus.ACTIVE
+        valid_work.add_critique(critique)
         assert critique.submission_date.date() == datetime.today().date()
 
 
-    # Test Updating Critique Content:
-    def test_ensure_the_last_updated_date_is_set_when_a_critique_s_content_is_updated(self, valid_critique):
+    # Test Approving Critique Content:
+    def test_ensure_the_last_updated_date_is_set_when_a_critique_s_content_is_approved(self, valid_critique, valid_work):
         critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
+        critique.status = CritiqueStatus.PENDING_REVIEW
+        critique.approve()
+        assert critique.status == CritiqueStatus.ACTIVE
         assert critique.last_updated_date.date() == datetime.today().date()
-
 
     # Test Archiving a Critique:
     def test_ensure_a_critique_can_be_archived_and_its_status_and_archive_date_are_updated(self, valid_critique):
         critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
         critique.archive()
 
         assert critique.status == CritiqueStatus.ARCHIVED
         assert critique.archive_date is not None
+        assert critique.last_updated_date.date() == datetime.today().date()
 
 
     # Test Marking a Critique for Deletion:
     def test_ensure_a_critique_can_be_marked_for_deletion_and_its_status_is_updated(self, valid_critique):
         critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
         critique.mark_for_deletion()
 
         assert critique.status == CritiqueStatus.MARKED_FOR_DELETION
+        assert critique.last_updated_date.date() == datetime.today().date()
 
 
     # Test Marking a Critique as Pending Review:
     def test_ensure_a_critique_can_be_marked_as_pending_review_and_its_status_is_updated(self, valid_critique):
         critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
         critique.pending_review()
 
         assert critique.status == CritiqueStatus.PENDING_REVIEW
+        assert critique.last_updated_date.date() == datetime.today().date()
 
 
     # Test Rejecting a Critique:
     def test_ensure_a_critique_can_be_rejected_and_its_status_is_updated(self, valid_critique):
         critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
         critique.reject()
 
         assert critique.status == CritiqueStatus.REJECTED
+        assert critique.last_updated_date.date() == datetime.today().date()
         # TODO: This will have an effect on rating and credits.
 
 
     # Test Restoring an Archived Critique:
     def test_ensure_an_archived_critique_can_be_restored_to_active_status_and_its_archive_date_is_cleared(self, valid_critique):
         critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
         critique.archive()
+        assert critique.last_updated_date.date() == datetime.today().date()
         critique.restore()
 
         assert critique.status == CritiqueStatus.ACTIVE
+        assert critique.last_updated_date.date() == datetime.today().date()
 
 
     def test_add_rating(self, valid_critique, valid_rating):
         critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
         rating = valid_rating
         critique.add_rating(rating)
+        assert critique.last_updated_date.date() == datetime.today().date()
         assert critique.ratings == [rating]
+
+    def test_connot_add_the_same_rating_twice(self, valid_critique, valid_rating):
+        critique = valid_critique
+        critique.last_updated_date = datetime.now() - timedelta(days=1)
+        rating = valid_rating
+        critique.add_rating(rating)
+        with pytest.raises(
+            ValueError,
+            match="Rating already exists",
+        ):
+            critique.add_rating(rating)
 
 
     # def test_cannot_add_critique_to_non_active_work(valid_work):
