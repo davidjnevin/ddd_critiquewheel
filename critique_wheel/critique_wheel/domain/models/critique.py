@@ -70,29 +70,30 @@ class Critique:
 
     def approve(self) -> None:
         self.status = CritiqueStatus.ACTIVE
-        self.archive_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def reject(self) -> None:
         self.status = CritiqueStatus.REJECTED
-        self.archive_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def archive(self) -> None:
         self.status = CritiqueStatus.ARCHIVED
+        self.last_updated_date = datetime.now()
         self.archive_date = datetime.now()
 
     def mark_for_deletion(self) -> None:
         self.status = CritiqueStatus.MARKED_FOR_DELETION
-        self.last_update_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def pending_review(self) -> None:
         self.status = CritiqueStatus.PENDING_REVIEW
-        self.last_update_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def restore(self) -> None:
         if self.status == CritiqueStatus.ARCHIVED:
             self.status = CritiqueStatus.ACTIVE
             self.archive_date = None
-            self.last_update_date = datetime.now()
+            self.last_updated_date = datetime.now()
 
     def list_ratings(self) -> list:
         return self.ratings
@@ -100,6 +101,6 @@ class Critique:
     def add_rating(self, rating) -> None:
         if rating not in self.ratings:
             self.ratings.append(rating)
-            self.last_update_date = datetime.now()
+            self.last_updated_date = datetime.now()
         else:
             raise ValueError("Rating already exists")
