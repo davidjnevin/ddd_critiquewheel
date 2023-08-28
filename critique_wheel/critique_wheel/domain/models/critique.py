@@ -24,6 +24,7 @@ class Critique:
         content_ideas,
         member_id,
         work_id,
+        ratings,
         status=CritiqueStatus.ACTIVE,
         critique_id=None,
     ) -> None:
@@ -38,6 +39,7 @@ class Critique:
         self.archive_date = None
         self.member_id: UUID = member_id
         self.work_id: UUID = work_id
+        self.ratings = ratings or []
 
     @classmethod
     def create(
@@ -49,6 +51,7 @@ class Critique:
         member_id,
         work_id,
         critique_id=None,
+        ratings=None,
     ):
         if not content_about or not content_successes or not content_weaknesses or not content_ideas:
             raise MissingEntryError()
@@ -62,30 +65,42 @@ class Critique:
             member_id=member_id,
             work_id=work_id,
             critique_id=critique_id,
+            ratings=ratings or [],
         )
 
     def approve(self) -> None:
         self.status = CritiqueStatus.ACTIVE
-        self.archive_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def reject(self) -> None:
         self.status = CritiqueStatus.REJECTED
-        self.archive_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def archive(self) -> None:
         self.status = CritiqueStatus.ARCHIVED
+        self.last_updated_date = datetime.now()
         self.archive_date = datetime.now()
 
     def mark_for_deletion(self) -> None:
         self.status = CritiqueStatus.MARKED_FOR_DELETION
-        self.last_update_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def pending_review(self) -> None:
         self.status = CritiqueStatus.PENDING_REVIEW
-        self.last_update_date = datetime.now()
+        self.last_updated_date = datetime.now()
 
     def restore(self) -> None:
         if self.status == CritiqueStatus.ARCHIVED:
             self.status = CritiqueStatus.ACTIVE
             self.archive_date = None
-            self.last_update_date = datetime.now()
+            self.last_updated_date = datetime.now()
+
+    def list_ratings(self) -> list:
+        return self.ratings
+
+    def add_rating(self, rating) -> None:
+        if rating not in self.ratings:
+            self.ratings.append(rating)
+            self.last_updated_date = datetime.now()
+        else:
+            raise ValueError("Rating already exists")
