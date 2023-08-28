@@ -112,6 +112,7 @@ def start_mappers():
         properties={
             "works": relationship(Work, backref="members", order_by=work_table.c.id),
             "critiques": relationship(Critique, backref="members", order_by=critique_table.c.id),
+            "ratings": relationship(Rating, backref="members", order_by=rating_table.c.id),
         },
     )
 

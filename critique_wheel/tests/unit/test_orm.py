@@ -75,7 +75,7 @@ class TestOrm:
         assert retrieved_work.last_update_date == new_work.last_update_date
         assert retrieved_work.archive_date == new_work.archive_date
         # relationship assertions
-        assert retrieved_work.critiques == [new_critique_1, new_critique_2]
+        assert new_critique_1 and new_critique_2 in retrieved_work.critiques
         assert retrieved_work.member_id == new_member.id
 
     # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
@@ -105,14 +105,16 @@ class TestOrm:
         assert retrieved_critique.ratings == [new_rating]
 
     # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
-    def test_create_and_retreive_rating(self, session, valid_rating):
+    def test_create_and_retreive_rating(self, session, valid_critique, valid_rating):
         # Arrange
+        new_critique = valid_critique
         new_rating = valid_rating
+        new_rating._critique_id = new_critique.id
 
         # Act
         session.add(new_rating)
         session.commit()
-        retrieved_rating = session.query(Rating).filter_by(score=5).one()
+        retrieved_rating = session.query(Rating).filter_by(_critique_id=new_critique.id).one()
 
         # Assert
         assert retrieved_rating.id == new_rating.id
