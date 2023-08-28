@@ -55,3 +55,5 @@ def test_repository_can_get_a_work_by_id(session, valid_critique):
             critique.status.value,
         )
     ]
+    assert critique == repo.get(critique.id)
+    assert repo.list() == [critique]
