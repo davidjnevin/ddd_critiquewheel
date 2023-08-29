@@ -60,3 +60,4 @@ def test_repository_can_get_a_work_by_id(session, valid_work):
     ]
 
     assert repo.get(id_to_get) == work
+    assert repo.list() == [work]
