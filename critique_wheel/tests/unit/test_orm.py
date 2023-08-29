@@ -137,3 +137,28 @@ class TestOrm:
         assert retrieved_credit.amount == 5
         assert retrieved_credit.transaction_type == TransactionType.CRITIQUE_GIVEN
         assert retrieved_credit.work_id == new_credit.work_id
+
+    def test_credit_and_member_relationship(self, session, valid_credit, valid_member, valid_critique):
+        # Arrange
+        new_credit = valid_credit
+        new_critique = valid_critique
+        new_member = valid_member
+
+        new_credit.member_id =  new_member.id
+        new_critique.member_id = new_member.id
+        new_critique.transaction_type = TransactionType.CRITIQUE_GIVEN
+        new_credit.critique_id = new_critique.id
+
+        # Act
+        session.add(new_member)
+        session.add(new_critique)
+        session.add(new_credit)
+        session.commit()
+        retrieved_credit = session.query(CreditManager).filter_by(id=new_credit.id).one()
+
+        # Assert
+        assert retrieved_credit.member_id == new_member.id
+        assert retrieved_credit.amount == 5
+        assert retrieved_credit.transaction_type == TransactionType.CRITIQUE_GIVEN
+        assert retrieved_credit.critique_id == new_critique.id
+
