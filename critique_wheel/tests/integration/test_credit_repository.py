@@ -4,8 +4,17 @@ from critique_wheel.adapters.sqlalchemy import credit_repository
 from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
 
 
-def test_repository_can_save_a_credit_transaction(session, valid_credit):
+def test_repository_can_save_a_critique_credit_transaction(session, valid_credit, valid_member,  valid_critique):
     credit = valid_credit
+    member = valid_member
+    critique = valid_critique
+
+    # Assign all to one member
+    credit.member_id = member.id
+    critique.member_id = member.id
+    credit.work_id = None
+    credit.critique_id = critique.id
+
     repo = credit_repository.SqlAlchemyCreditRepository(session)
     repo.add(credit)
     session.commit()
@@ -16,33 +25,41 @@ def test_repository_can_save_a_credit_transaction(session, valid_credit):
     assert rows == [
         (
             format_uuid_for_db(credit.id),
-            format_uuid_for_db(credit.member_id),
+            format_uuid_for_db(member.id),
             credit.amount,
             credit.transaction_type.value,
-            format_uuid_for_db(credit.work_id),
-            format_uuid_for_db(credit.critique_id),
+            None,
+            format_uuid_for_db(critique.id),
         )
     ]
 
 
-def test_repository_can_get_a_credit_transaction_by_id(session, valid_credit):
+def test_repository_can_save_a_work_credit_transaction(session, valid_credit, valid_member, valid_work):
     credit = valid_credit
+    member = valid_member
+    work = valid_work
+
+    # Assign all to one member
+    credit.member_id = member.id
+    work.member_id = member.id
+    credit.critique_id = None
+    credit.work_id = work.id
+
     repo = credit_repository.SqlAlchemyCreditRepository(session)
     repo.add(credit)
     session.commit()
 
-    id_to_get = credit.id
-    stmt = text('SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits" WHERE id=:id').bindparams(
-        id=id_to_get
-    )
-    rows = session.execute(stmt).fetchall()
+    rows = list(session.execute(text(
+        'SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits"'
+    )))
     assert rows == [
         (
             format_uuid_for_db(credit.id),
-            format_uuid_for_db(credit.member_id),
+            format_uuid_for_db(member.id),
             credit.amount,
             credit.transaction_type.value,
-            format_uuid_for_db(credit.work_id),
-            format_uuid_for_db(credit.critique_id),
+            format_uuid_for_db(work.id),
+            None,
         )
     ]
+
