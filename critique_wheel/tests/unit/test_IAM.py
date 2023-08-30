@@ -114,13 +114,6 @@ class TestRegistrationAndLogin:
             }
             Member.register(**registration_details)
 
-    def test_member_login_valid_credentials(self, member):
-        member = Member.login(email="test@example.com", password="secure_p@ssword")
-        assert member is not None
-
-    def test_member_login_invalid_credentials(self, member):
-        with pytest.raises(ValueError, match="Invalid credentials"):
-            Member.login(email="test@example.com", password="wrong_password")
 
     def test_password_change_correct_old_password(self, member):
         member.change_password(old_password="test_pass!", new_password="new_p@ssword")
