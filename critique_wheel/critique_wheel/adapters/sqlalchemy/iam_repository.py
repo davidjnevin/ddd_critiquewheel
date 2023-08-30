@@ -16,5 +16,8 @@ class SqlAlchemyMemberRepository(AbstractMemberRepository):
     def get(self, member_id: str) -> Optional[Member]:
         return self.session.query(Member).filter_by(id=member_id).one_or_none()
 
+    def get_member_by_email(self, email: str) -> Optional[Member]:
+        return self.session.query(Member).filter_by(email=email).one_or_none()
+
     def list(self) -> list[Member]:
         return self.session.query(Member).all()
