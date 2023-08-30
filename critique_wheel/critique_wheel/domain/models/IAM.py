@@ -110,12 +110,6 @@ class Member:
         mock_db[email] = member
         return member
 
-    @classmethod
-    def login(cls, email, password):
-        member = mock_db.get(email)
-        if member and bcrypt.checkpw(password.encode(), member.password):
-            return member
-        raise ValueError("Invalid credentials")
 
     def change_password(self, old_password, new_password):
         self.validate_password_strength(new_password)
