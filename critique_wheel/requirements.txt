@@ -2,4 +2,8 @@ bcrypt
 python-dotenv
 PyYAML
 SQLAlchemy
-
+fastapi
+pydantic
+uvicorn
+psycopg2-binary
+requests

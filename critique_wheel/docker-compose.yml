@@ -2,13 +2,39 @@ version: '3.9'
 
 services:
   critiquewheel-app:
+    container_name: app-container
     build:
       dockerfile: dockerfiles/Dockerfile
       context: .
+    depends_on:
+      - critiquewheel-db
+    env_file:
+      - ./.env
     ports:
-      - "4000:80"
+      - "8000:8000"
     volumes:
       - .:/app
-    environment:
-      - DATABASE_URL=sqlite:///data.db  # This can be updated to PostgreSQL or MongoDB in the future
+      - postgres_socket:/var/run/postgresql
 
+  critiquewheel-db:
+    container_name: db-container
+    image: postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - postgres_socket:/var/run/postgresql/
+    healthcheck:
+      test: pg_isready -q --username=$$POSTGRES_USER --dbname=$$POSTGRES_DB
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    ports:
+      - "54321:5432"
+
+volumes:
+  postgres_data:
+  postgres_socket:
