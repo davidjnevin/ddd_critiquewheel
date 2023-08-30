@@ -21,4 +21,4 @@ USER app_user:app_user
 
 COPY --chown=app_user:app_user . .
 ENTRYPOINT [ "/app/entrypoint.sh" ]
-CMD [ "python", "main.py" ]
+CMD ["server"]
