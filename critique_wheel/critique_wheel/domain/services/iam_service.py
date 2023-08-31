@@ -10,6 +10,10 @@ class MemberNotFoundException(Exception):
     pass
 
 
+class MissingEntryError(Exception):
+    pass
+
+
 class InvalidCredentials(Exception):
     pass
 
@@ -32,6 +36,26 @@ class IAMService:
             return member
         else:
             raise InvalidCredentials("Invalid credentials")
+
+    def register_member(self, username: str, email: str, password: str, confirm_password: str) -> Member:
+        if not username:
+            raise MissingEntryError("Missing required fields: username")
+        if not email:
+            raise MissingEntryError("Missing required fields: email")
+        if not password:
+            raise MissingEntryError("Missing required fields: password")
+        if not confirm_password:
+            raise MissingEntryError("Missing required fields: confirm password")
+        if password != confirm_password:
+            raise InvalidCredentials("Passwords do not match")
+        try:
+            Member.validate_password_strength(password)
+        except ValueError:
+            # TODO: pass errors from model up to service
+            raise InvalidCredentials("Password is weak")
+        new_member = Member.create(username=username, email=email, password=password)
+        self._repository.add(new_member)
+        return new_member
 
     def list_members(self) -> list[Member]:
         return self._repository.list()
