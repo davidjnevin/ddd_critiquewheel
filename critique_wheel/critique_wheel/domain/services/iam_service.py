@@ -18,6 +18,18 @@ class InvalidCredentials(Exception):
     pass
 
 
+class NonMatchingPasswords(Exception):
+    pass
+
+
+class WeakPasswordError(Exception):
+    pass
+
+
+class DuplicateEmailError(Exception):
+    pass
+
+
 class IAMService:
     def __init__(self, repository: AbstractMemberRepository):
         self._repository = repository
@@ -38,21 +50,7 @@ class IAMService:
             raise InvalidCredentials("Invalid credentials")
 
     def register_member(self, username: str, email: str, password: str, confirm_password: str) -> Member:
-        if not username:
-            raise MissingEntryError("Missing required fields: username")
-        if not email:
-            raise MissingEntryError("Missing required fields: email")
-        if not password:
-            raise MissingEntryError("Missing required fields: password")
-        if not confirm_password:
-            raise MissingEntryError("Missing required fields: confirm password")
-        if password != confirm_password:
-            raise InvalidCredentials("Passwords do not match")
-        try:
-            Member.validate_password_strength(password)
-        except ValueError:
-            # TODO: pass errors from model up to service
-            raise InvalidCredentials("Password is weak")
+        self._validate_registration_parameters(username, email, password, confirm_password)
         new_member = Member.create(username=username, email=email, password=password)
         self._repository.add(new_member)
         return new_member
@@ -96,3 +94,26 @@ class IAMService:
             return member.list_critiques()
         else:
             raise MemberNotFoundException("Member not found")
+
+    def _validate_registration_parameters(self, username: str, email: str, password: str, confirm_password: str) -> None:
+        if not username:
+            raise MissingEntryError("Missing required fields: username")
+        if not email:
+            raise MissingEntryError("Missing required fields: email")
+        if not password:
+            raise MissingEntryError("Missing required fields: password")
+        if not confirm_password:
+            raise MissingEntryError("Missing required fields: confirm password")
+        if password != confirm_password:
+            raise NonMatchingPasswords("Passwords do not match")
+        try:
+            Member.validate_password_strength(password)
+        except ValueError:
+            # TODO: pass errors from model up to service
+            raise WeakPasswordError("Password is weak")
+        try:
+            existing_member = self._repository.get_member_by_email(email)
+            if existing_member:
+                raise DuplicateEmailError("Email already in use")
+        except MemberNotFoundException:
+            pass
