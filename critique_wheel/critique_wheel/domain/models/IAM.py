@@ -83,6 +83,7 @@ class Member:
         works=None,
         critiques=None,
     ):
+        cls.validate_password_strength(password)
         hashed_password = cls.hash_password(password)
         if not username or not email or not password:
             raise MissingEntryError("Missing required fields")
