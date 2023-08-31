@@ -11,7 +11,8 @@ from critique_wheel.domain.services.iam_service import (
     InvalidCredentials,
     NonMatchingPasswords,
     MissingEntryError,
-    DuplicateEmailError
+    DuplicateEmailError,
+    DuplicateUsernameError
 )
 
 
@@ -32,6 +33,12 @@ class FakeMemberRepository(AbstractMemberRepository):
     def get_member_by_email(self, email: str) -> Optional[Member]:
         try:
             return next(m for m in self._members if m.email == email)
+        except StopIteration:
+            raise MemberNotFoundException("Not found")
+
+    def get_member_by_username(self, username: str) -> Optional[Member]:
+        try:
+            return next(m for m in self._members if m.username == username)
         except StopIteration:
             raise MemberNotFoundException("Not found")
 
@@ -126,7 +133,6 @@ def test_login_member_raises_InvalidCredentials_for_nonexistent_email(service, m
     with pytest.raises(InvalidCredentials, match="Invalid credentials"):
         service.login_member(nonexistent_email, password)
 
-@pytest.mark.current
 def test_register_new_member_with_valid_registration_creates_new_member(service, member_details):
     # Arrange
     username = member_details["username"]
@@ -148,7 +154,6 @@ def test_register_new_member_with_valid_registration_creates_new_member(service,
     assert new_member.critiques == []
     assert new_member.id is not None
 
-@pytest.mark.current
 def test_register_new_member_with_non_matching_passwords_raises_NonMatchingPasswords(service, member_details):
     # Arrange
     username = member_details["username"]
@@ -160,7 +165,6 @@ def test_register_new_member_with_non_matching_passwords_raises_NonMatchingPassw
     with pytest.raises(NonMatchingPasswords):
         new_member = service.register_member(username, email, password, confirm_password)
 
-@pytest.mark.current
 def test_register_new_member_with_missing_username_raises_MissingEntryError(service, member_details):
     # Arrange
     username = ""
@@ -172,7 +176,6 @@ def test_register_new_member_with_missing_username_raises_MissingEntryError(serv
     with pytest.raises(MissingEntryError):
         new_member = service.register_member(username, email, password, confirm_password)
 
-@pytest.mark.current
 def test_register_new_member_with_missing_email_raises_MissingEntryError(service, member_details):
     # Arrange
     username = member_details["username"]
@@ -184,7 +187,6 @@ def test_register_new_member_with_missing_email_raises_MissingEntryError(service
     with pytest.raises(MissingEntryError):
         new_member = service.register_member(username, email, password, confirm_password)
 
-@pytest.mark.current
 def test_register_new_member_with_missing_password_raises_MissingEntryError(service, member_details):
     # Arrange
     username = member_details["username"]
@@ -196,7 +198,6 @@ def test_register_new_member_with_missing_password_raises_MissingEntryError(serv
     with pytest.raises(MissingEntryError):
         new_member = service.register_member(username, email, password, confirm_password)
 
-@pytest.mark.current
 def test_new_member_with_missing_confirm_password_raises_MissingEntryError(service, member_details):
     # Arrange
     username = member_details["username"]
@@ -208,7 +209,6 @@ def test_new_member_with_missing_confirm_password_raises_MissingEntryError(servi
     with pytest.raises(MissingEntryError):
         new_member = service.register_member(username, email, password, confirm_password)
 
-@pytest.mark.current
 def test_new_member_with_existing_email_raises_DuplicateEmailError(service, member_details):
     # Arrange
     username = member_details["username"]
@@ -220,3 +220,17 @@ def test_new_member_with_existing_email_raises_DuplicateEmailError(service, memb
     # Assert
     with pytest.raises(DuplicateEmailError):
         new_member = service.register_member(username, email, password, confirm_password)
+
+
+def test_new_member_with_existing_username_raises_DuplicateUsernameError(service, member_details):
+    # Arrange
+    username = member_details["username"]
+    email = member_details["email"]
+    password = member_details["password"]
+    confirm_password = member_details["password"]
+    service.register_member(username, email, password, confirm_password)
+    other_email = "other_email@davidnevin.net"
+
+    # Assert
+    with pytest.raises(DuplicateUsernameError):
+        new_member = service.register_member(username, other_email, password, confirm_password)

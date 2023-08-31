@@ -19,5 +19,9 @@ class AbstractMemberRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_member_by_username(self, username: str) -> Optional[Member]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def list(self) -> List[Member]:
         raise NotImplementedError

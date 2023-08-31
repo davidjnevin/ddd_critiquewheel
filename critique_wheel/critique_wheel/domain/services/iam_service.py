@@ -29,6 +29,9 @@ class WeakPasswordError(Exception):
 class DuplicateEmailError(Exception):
     pass
 
+class DuplicateUsernameError(Exception):
+    pass
+
 
 class IAMService:
     def __init__(self, repository: AbstractMemberRepository):
@@ -113,7 +116,11 @@ class IAMService:
             raise WeakPasswordError("Password is weak")
         try:
             existing_member = self._repository.get_member_by_email(email)
-            if existing_member:
-                raise DuplicateEmailError("Email already in use")
+            raise DuplicateEmailError("Email already in use")
+        except MemberNotFoundException:
+            pass
+        try:
+            existing_member = self._repository.get_member_by_username(username)
+            raise DuplicateUsernameError("Username already in use")
         except MemberNotFoundException:
             pass
