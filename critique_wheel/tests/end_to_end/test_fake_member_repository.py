@@ -2,15 +2,15 @@ from uuid import uuid4
 
 import pytest
 
-from critique_wheel.domain.models.IAM import MemberStatus, MemberRole
+from critique_wheel.domain.models.IAM import MemberRole, MemberStatus
 from tests.end_to_end.fake_iam_repository import FakeMemberRepository
 
 
 def test_repository_can_save_a_basic_member(session, active_valid_member, valid_work, valid_critique):
     member = active_valid_member
-    repo = FakeMemberRepository(session)
     assert member.works == []
     assert member.critiques == []
+    repo = FakeMemberRepository([])
     member.add_work(valid_work)
     member.add_critique(valid_critique)
     repo.add(member)
@@ -27,9 +27,9 @@ def test_repository_can_save_a_basic_member(session, active_valid_member, valid_
 
 
 def test_repository_can_get_a_member_by_id(session, valid_member, valid_work, valid_critique):
+    repo = FakeMemberRepository([])
     member = valid_member
     valid_member.status = MemberStatus.ACTIVE
-    repo = FakeMemberRepository(session)
     valid_work.member_id = member.id
     valid_critique.member_id = member.id
     member.add_work(valid_work)
@@ -44,20 +44,19 @@ def test_repository_can_get_a_member_by_id(session, valid_member, valid_work, va
 
 
 def test_resository_can_get_a_member_by_email(session, valid_member):
+    repo = FakeMemberRepository([])
     member = valid_member
     valid_member.status = MemberStatus.ACTIVE
-    repo = FakeMemberRepository(session)
     repo.add(member)
     session.commit()
 
     assert repo.get_member_by_email(valid_member.email) == valid_member
-    assert repo.commit() == True
 
 
 def test_resository_can_get_a_member_by_username(session, valid_member):
+    repo = FakeMemberRepository([])
     member = valid_member
     valid_member.status = MemberStatus.ACTIVE
-    repo = FakeMemberRepository(session)
     repo.add(member)
     session.commit()
 
@@ -65,10 +64,10 @@ def test_resository_can_get_a_member_by_username(session, valid_member):
 
 
 def test_resository_can_get_a_list_of_members(session, valid_member, active_valid_member):
+    repo = FakeMemberRepository([])
     member = valid_member
     member_2 = active_valid_member
     valid_member.status = MemberStatus.ACTIVE
-    repo = FakeMemberRepository(session)
     repo.add(member)
     repo.add(member_2)
     session.commit()
@@ -76,8 +75,8 @@ def test_resository_can_get_a_list_of_members(session, valid_member, active_vali
     assert member and member_2 in repo.list()
 
 
-def test_repository_returns_None_for_no_member_found(session, valid_member):
-    repo = FakeMemberRepository(session)
+def test_repository_returns_None_for_no_member_found():
+    repo = FakeMemberRepository([])
     username, email, id = "not_in_db", "unknown@davidnevin.net", uuid4()
     assert repo.get_member_by_username(username) is None
     assert repo.get_member_by_email(email) is None

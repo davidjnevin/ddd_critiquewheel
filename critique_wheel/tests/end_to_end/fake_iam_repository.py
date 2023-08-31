@@ -10,9 +10,9 @@ from critique_wheel.domain.services.iam_service import (
 
 
 class FakeMemberRepository(AbstractMemberRepository):
-    def __init__(self, members: list[Member], commit: bool = False):
+    def __init__(self, members: list[Member]):
         self._members = set(members)
-        self.committed = commit
+        self.committed = False
 
 
     def add(self, member: Member) -> None:
@@ -40,4 +40,4 @@ class FakeMemberRepository(AbstractMemberRepository):
         return list(self._members)
 
     def commit(self) -> None:
-        self.committed = not self.committed
+        self.committed = True
