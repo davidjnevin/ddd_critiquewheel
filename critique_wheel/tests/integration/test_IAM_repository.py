@@ -74,7 +74,7 @@ def test_repository_can_get_a_member_by_id(session, valid_member, valid_work, va
     assert retrieved_works[0].member_id == valid_member.id
     assert retrieved_critiques[0].member_id == valid_member.id
 
-    assert repo.get(valid_member.id) == valid_member
+    assert repo.get_member_by_id(valid_member.id) == valid_member
     assert repo.list() == [valid_member]
 
 
