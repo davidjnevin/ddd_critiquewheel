@@ -10,7 +10,11 @@ class AbstractWorkRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, work_id: UUID) -> Optional[Work]:
+    def get_work_by_id(self, work_id: UUID) -> Optional[Work]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_work_by_member_id(self, member_id: UUID) -> Optional[Work]:
         raise NotImplementedError
 
     @abc.abstractmethod
