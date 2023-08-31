@@ -10,29 +10,34 @@ from critique_wheel.domain.services.iam_service import (
 
 
 class FakeMemberRepository(AbstractMemberRepository):
-    def __init__(self, members: list[Member]):
+    def __init__(self, members: list[Member], commit: bool = False):
         self._members = set(members)
+        self.committed = commit
+
 
     def add(self, member: Member) -> None:
         self._members.add(member)
 
     def get_member_by_id(self, member_id: UUID) -> Optional[Member]:
-        try:
-            return next(m for m in self._members if m.id == member_id)
-        except StopIteration:
-            raise MemberNotFoundException("Not found")
+        for m in self._members:
+            if m.id == member_id:
+                return m
+        return None
 
     def get_member_by_email(self, email: str) -> Optional[Member]:
-        try:
-            return next(m for m in self._members if m.email == email)
-        except StopIteration:
-            raise MemberNotFoundException("Not found")
+        for m in self._members:
+            if m.email == email:
+                return m
+        return None
 
     def get_member_by_username(self, username: str) -> Optional[Member]:
-        try:
-            return next(m for m in self._members if m.username == username)
-        except StopIteration:
-            raise MemberNotFoundException("Not found")
+        for m in self._members:
+            if m.username == username:
+                return m
+        return None
 
     def list(self) -> list[Member]:
         return list(self._members)
+
+    def commit(self) -> None:
+        self.committed = not self.committed
