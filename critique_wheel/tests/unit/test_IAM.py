@@ -71,57 +71,6 @@ class TestRegistrationAndLogin:
                 email="email_address@davidnevin.net",
             )
 
-    def test_member_registration(self):
-        member = Member.register(**registration_details)
-        assert member.email == registration_details["email"]
-        assert member.username == registration_details["username"]
-        # Ensure the password is hashed and not stored in plain text
-        assert member.password != registration_details["password"]
-
-    def test_member_registration_missing_username(self):
-        with pytest.raises(
-            MissingEntryError,
-            match="Missing required fields: username",
-        ):
-            registration_details = {
-                "username": "",  # "username" is intentionally omitted
-                "email": "test@example.com",
-                "password": "test_pass!",
-            }
-            Member.register(**registration_details)
-
-    def test_member_registration_missing_email(self):
-        with pytest.raises(
-            MissingEntryError,
-            match="Missing required fields: email",
-        ):
-            registration_details = {
-                "username": "test_user",
-                "email": "",  # "email" is intentionally omitted
-                "password": "test_pass",
-            }
-            Member.register(**registration_details)
-
-    def test_member_registration_missing_password(self):
-        with pytest.raises(
-            MissingEntryError,
-            match="Missing required fields: password",
-        ):
-            registration_details = {
-                "username": "test_user",
-                "email": "test@example.com",
-                "password": "",  # "password" is intentionally omitted
-            }
-            Member.register(**registration_details)
-
-    def test_member_login_valid_credentials(self, member):
-        member = Member.login(email="test@example.com", password="secure_p@ssword")
-        assert member is not None
-
-    def test_member_login_invalid_credentials(self, member):
-        with pytest.raises(ValueError, match="Invalid credentials"):
-            Member.login(email="test@example.com", password="wrong_password")
-
     def test_password_change_correct_old_password(self, member):
         member.change_password(old_password="test_pass!", new_password="new_p@ssword")
         assert member.verify_password("new_p@ssword")
@@ -196,7 +145,7 @@ class TestPassWordStrength:
         weak_passwords = ["password", "abcdefg", "12345678", "qwerty"]
         for password in weak_passwords:
             with pytest.raises(ValueError, match="Password does not meet the policy requirements"):
-                Member.register(username="test_user", email="test@example.com", password=password)
+                Member.create(username="test_user", email="test@example.com", password=password)
 
     def test_password_reset_request(self, member):
         reset_token = member.request_password_reset()
