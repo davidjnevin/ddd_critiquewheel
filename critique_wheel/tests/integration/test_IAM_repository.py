@@ -8,7 +8,6 @@ from critique_wheel.domain.models.critique import Critique
 from critique_wheel.infrastructure.utils import db_utils
 
 
-@pytest.mark.current
 def test_repository_can_save_a_basic_member(session, active_valid_member, valid_work, valid_critique):
     member = active_valid_member
     repo = iam_repository.SqlAlchemyMemberRepository(session)
