@@ -11,7 +11,7 @@ class AbstractMemberRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, member_id: UUID) -> Optional[Member]:
+    def get_member_by_id(self, member_id: UUID) -> Optional[Member]:
         raise NotImplementedError
 
     @abc.abstractmethod

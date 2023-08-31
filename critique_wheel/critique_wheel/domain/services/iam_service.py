@@ -61,23 +61,34 @@ class IAMService:
     def list_members(self) -> list[Member]:
         return self._repository.list()
 
-    def get_member_by_id(self, member_id: UUID) -> Member:
-        member = self._repository.get(member_id)
+    def get_member_by_username(self, username: str) -> Member:
+        member = self._repository.get_member_by_username(username)
         if member:
             return member
         else:
             raise MemberNotFoundException("Member not found")
 
+    def get_member_by_id(self, member_id: UUID) -> Member:
+        member = self._repository.get_member_by_id(member_id)
+        if member:
+            return member
+        else:
+            raise MemberNotFoundException("Member not found")
+
+    # This was added here because the since each
+    # Work has a member_id and is closely related to a Member,
     def add_work_to_member(self, member_id: UUID, work: Work) -> None:
-        member = self._repository.get(member_id)
+        member = self._repository.get_member_by_id(member_id)
         if member:
             member.add_work(work)
             self._repository.add(member)
         else:
             raise MemberNotFoundException("Member not found")
 
+    # This was added here because the since each
+    # critique has a member_id and is closely related to a Member,
     def add_critique_to_member(self, member_id: UUID, critique: Critique) -> None:
-        member = self._repository.get(member_id)
+        member = self._repository.get_member_by_id(member_id)
         if member:
             member.add_critique(critique)
             self._repository.add(member)
@@ -85,14 +96,14 @@ class IAMService:
             raise MemberNotFoundException("Member not found")
 
     def list_member_works(self, member_id: UUID) -> list[Work]:
-        member = self._repository.get(member_id)  # type: ignore
+        member = self._repository.get_member_by_id(member_id)  # type: ignore
         if member:
             return member.list_works()
         else:
             raise MemberNotFoundException("Member not found")
 
     def list_member_critiques(self, member_id: UUID) -> list[Critique]:
-        member = self._repository.get(member_id)
+        member = self._repository.get_member_by_id(member_id)
         if member:
             return member.list_critiques()
         else:
