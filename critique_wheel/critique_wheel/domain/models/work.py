@@ -1,4 +1,3 @@
-from dataclasses import field
 from datetime import datetime
 from enum import Enum
 from uuid import UUID, uuid4
@@ -11,6 +10,9 @@ class MissingEntryError(Exception):
 class WorkNotAvailableForCritiqueError(Exception):
     pass
 
+
+class WorkNotFoundException(Exception):
+    pass
 
 class WorkStatus(str, Enum):
     PENDING_REVIEW = "PENDING REVIEW"
