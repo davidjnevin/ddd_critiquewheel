@@ -1,7 +1,8 @@
-
 from sqlalchemy import UUID
+from typing import Optional
 from critique_wheel.domain.models.work import Work, WorkNotFoundException
 from critique_wheel.domain.models.work_repository import AbstractWorkRepository
+
 
 class FakeWorkRepository(AbstractWorkRepository):
     def __init__(self, works: list[Work]):
@@ -10,7 +11,7 @@ class FakeWorkRepository(AbstractWorkRepository):
     def add(self, work: Work) -> None:
         self._works.add(work)
 
-    def get_work_by_id(self, work_id: UUID) -> Optional[Member]:
+    def get_work_by_id(self, work_id: UUID) -> Optional[Work]:
         try:
             return next(w for w in self._works if w.id == work_id)
         except StopIteration:
