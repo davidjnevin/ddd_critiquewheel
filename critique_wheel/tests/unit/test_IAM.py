@@ -114,7 +114,6 @@ class TestRegistrationAndLogin:
             }
             Member.register(**registration_details)
 
-
     def test_password_change_correct_old_password(self, member):
         member.change_password(old_password="test_pass!", new_password="new_p@ssword")
         assert member.verify_password("new_p@ssword")
