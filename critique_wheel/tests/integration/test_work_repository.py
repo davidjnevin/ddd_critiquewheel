@@ -59,5 +59,31 @@ def test_repository_can_get_a_work_by_id(session, valid_work):
         )
     ]
 
-    assert repo.get(id_to_get) == work
+    assert repo.get_work_by_id(id_to_get) == work
+    assert repo.list() == [work]
+
+
+def test_repository_can_get_work_by_member_id(session, valid_work):
+    work = valid_work
+    repo = work_repository.SqlAlchemyWorkRepository(session)
+    repo.add(work)
+    session.commit()
+
+    member_id_to_get = work.member_id
+    stmt = text('SELECT id, title, content, age_restriction, genre, member_id FROM "works" WHERE member_id=:member_id').bindparams(
+        member_id=member_id_to_get
+    )
+    rows = session.execute(stmt).fetchall()
+    assert rows == [
+        (
+            format_uuid_for_db(work.id),
+            work.title,
+            work.content,
+            work.age_restriction.value,
+            work.genre.value,
+            format_uuid_for_db(work.member_id),
+        )
+    ]
+
+    assert repo.get_work_by_member_id(member_id_to_get) == work
     assert repo.list() == [work]
