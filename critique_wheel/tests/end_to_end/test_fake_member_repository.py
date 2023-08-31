@@ -51,6 +51,7 @@ def test_resository_can_get_a_member_by_email(session, valid_member):
     session.commit()
 
     assert repo.get_member_by_email(valid_member.email) == valid_member
+    assert repo.commit() == True
 
 
 def test_resository_can_get_a_member_by_username(session, valid_member):
