@@ -23,6 +23,14 @@ class MissingEntryError(Exception):
     pass
 
 
+class NonMatchingPasswords(Exception):
+    pass
+
+
+class WeakPasswordError(Exception):
+    pass
+
+
 class MemberStatus(str, Enum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
@@ -34,7 +42,6 @@ class MemberRole(str, Enum):
     ADMIN = "ADMIN"
     STAFF = "STAFF"
     MEMBER = "MEMBER"
-
 
 
 class Member:
@@ -97,7 +104,29 @@ class Member:
             critiques=critiques or [],
         )
 
+    def _validate_registration_parameters(
+        self, username: str, email: str, password: str, confirm_password: str
+    ) -> bool:
+        if not username:
+            raise MissingEntryError("Missing required fields: username")
+        if not email:
+            raise MissingEntryError("Missing required fields: email")
+        if not password:
+            raise MissingEntryError("Missing required fields: password")
+        if not confirm_password:
+            raise MissingEntryError("Missing required fields: confirm password")
+        if password != confirm_password:
+            raise NonMatchingPasswords("Passwords do not match")
+        try:
+            self.validate_password_strength(password)
+        except WeakPasswordError:
+            raise WeakPasswordError("Password does not meet the policy requirements")
+        return True
 
+    def register(self, username, email, password, confirm_password):
+        self._validate_registration_parameters(username, email, password, confirm_password)
+        member = self.create(username, email, password)
+        return member
 
     def change_password(self, old_password, new_password):
         self.validate_password_strength(new_password)
@@ -123,14 +152,14 @@ class Member:
     @staticmethod
     def validate_password_strength(password: str):
         if len(password) < 8:
-            raise ValueError("Password does not meet the policy requirements: Minimum length of 8 characters required.")
+            raise WeakPasswordError("Password does not meet the policy requirements: Minimum length of 8 characters required.")
         if password.isalpha() or password.isdigit() or password.isalnum():
-            raise ValueError(
+            raise WeakPasswordError(
                 "Password does not meet the policy requirements: Mix of letters, numbers, and symbols required."
             )
         for word in ["password", "abcdefg", "12345678", "qwerty"]:
             if word in password.lower():
-                raise ValueError("Password does not meet the policy requirements: Password is easily guessable.")
+                raise WeakPasswordError("Password does not meet the policy requirements: Password is easily guessable.")
 
     def request_password_reset(self):
         # TODO: Implement token generation logic
