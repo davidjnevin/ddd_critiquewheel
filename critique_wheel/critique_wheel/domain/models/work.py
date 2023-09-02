@@ -93,6 +93,7 @@ class Work:
         genre=WorkGenre.OTHER,
         age_restriction=WorkAgeRestriction.ADULT,
         critiques=None,
+        work_id=None,
     ):
         if not title or not content:
             raise MissingEntryError()
@@ -105,6 +106,7 @@ class Work:
             genre=genre,
             member_id=member_id,
             critiques=critiques or [],
+            work_id=work_id,
         )
 
     def approve(self) -> None:
