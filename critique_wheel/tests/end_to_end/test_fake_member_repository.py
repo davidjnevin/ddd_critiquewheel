@@ -17,9 +17,9 @@ def test_repository_can_save_a_basic_member(session, active_valid_member, valid_
     session.commit()
 
     assert member.id is not None
-    assert member.username == "test_username"
-    assert member.password != "secure_unguessable_p@ssword"
-    assert member.email == "email_address@davidneivn.net"
+    assert member.username == "active_test_username"
+    assert member.password != "secure_unguessab1e_p@ssword"
+    assert member.email == "active_email_address@davidneivn.net"
     assert member.member_type == MemberRole.MEMBER
     assert member.status == MemberStatus.ACTIVE
     assert member.works != None

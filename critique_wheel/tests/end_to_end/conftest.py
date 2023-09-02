@@ -29,7 +29,7 @@ def work_service(work_repo):
 def member_details():
     return {
         "username": "test_username",
-        "email": "test_email@davidnevin.net",
+        "email": "testing_email@davidnevin.net",
         "password": "secure_unguessable_p@ssword",
         "member_type": MemberRole.MEMBER,
         "status": MemberStatus.INACTIVE,

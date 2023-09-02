@@ -1,38 +1,38 @@
-class BaseIAMError(Exception):
+class BaseIAMDomainError(Exception):
     pass
 
 
-class MissingEntryError(BaseIAMError):
+class MissingEntryError(BaseIAMDomainError):
     pass
 
 
-class NonMatchingPasswordsError(BaseIAMError):
+class NonMatchingPasswordsError(BaseIAMDomainError):
     pass
 
 
-class WeakPasswordError(BaseIAMError):
+class WeakPasswordError(BaseIAMDomainError):
     pass
 
 
-class DuplicateUsernameError(BaseIAMError):
+class DuplicateUsernameError(BaseIAMDomainError):
     pass
 
 
-class IncorrectCredentialsError(BaseIAMError):
+class IncorrectCredentialsError(BaseIAMDomainError):
     pass
 
 
-class DuplicateEmailError(BaseIAMError):
+class DuplicateEmailError(BaseIAMDomainError):
     pass
 
 
-class AdminOnlyError(BaseIAMError):
+class AdminOnlyError(BaseIAMDomainError):
     pass
 
 
-class WorkAlreadyExistsError(BaseIAMError):
+class WorkAlreadyExistsError(BaseIAMDomainError):
     pass
 
 
-class CritiqueAlreadyExistsError(BaseIAMError):
+class CritiqueAlreadyExistsError(BaseIAMDomainError):
     pass

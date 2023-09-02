@@ -129,7 +129,7 @@ class Member:
         if not confirm_password:
             raise exceptions.MissingEntryError("Missing required fields: confirm password")
         if password != confirm_password:
-            raise exceptions.NonMatchingPasswords("Passwords do not match")
+            raise exceptions.NonMatchingPasswordsError("Passwords do not match")
         return True
 
     def change_password(self, old_password, new_password):

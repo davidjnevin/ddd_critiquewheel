@@ -18,7 +18,7 @@ from critique_wheel.infrastructure.config import config
 def valid_member():
     return Member.create(
         username="test_username",
-        password="secure_unguessable_p@ssword",
+        password="secure_unguessab1e_p@ssword",
         email="email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
         works=None,
@@ -29,9 +29,9 @@ def valid_member():
 @pytest.fixture
 def active_valid_member():
     return Member.create(
-        username="test_username",
-        password="secure_unguessable_p@ssword",
-        email="email_address@davidneivn.net",
+        username="active_test_username",
+        password="secure_unguessab1e_p@ssword",
+        email="active_email_address@davidneivn.net",
         member_type=MemberRole.MEMBER,
         status=MemberStatus.ACTIVE,
         works=None,
@@ -163,7 +163,7 @@ def session(in_memory_db):
     session = sessionmaker(bind=in_memory_db)()
     yield session
     clear_mappers()
-    # session.close()
+    session.close()
 
 
 @pytest.fixture
