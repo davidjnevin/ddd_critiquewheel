@@ -1,13 +1,16 @@
 from typing import Optional
 from sqlalchemy import UUID
 
-from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenre
+from critique_wheel.domain.models.work import BaseWorkDomainError, Work, WorkAgeRestriction, WorkGenre
 from critique_wheel.domain.models.work_repository import AbstractWorkRepository
 
 class BaseWorkServiceError(Exception):
     pass
 
-class DuplicateWorkError(Exception):
+class DuplicateWorkError(BaseWorkServiceError):
+    pass
+
+class InvalidDataError(BaseWorkServiceError):
     pass
 
 
@@ -25,15 +28,18 @@ class WorkService:
         critiques=None,
         work_id=None,
     ) -> Work:
-        new_work = Work.create(
-            title=title,
-            content=content,
-            age_restriction=age_restriction,
-            genre=genre,
-            member_id=member_id,
-            critiques=critiques,
-            work_id=work_id,
-        )
+        try:
+            new_work = Work.create(
+                title=title,
+                content=content,
+                age_restriction=age_restriction,
+                genre=genre,
+                member_id=member_id,
+                critiques=critiques,
+                work_id=work_id,
+            )
+        except BaseWorkDomainError:
+            raise InvalidDataError()
         if self._repository.get_work_by_id(new_work.id):
             raise DuplicateWorkError(f"Work with id {new_work.id} already exists")
         self._repository.add(new_work)
