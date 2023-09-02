@@ -3,16 +3,21 @@ from enum import Enum
 from uuid import UUID, uuid4
 
 
-class MissingEntryError(Exception):
+class BaseWorkDomainError(Exception):
     pass
 
 
-class WorkNotAvailableForCritiqueError(Exception):
+class MissingEntryError(BaseWorkDomainError):
     pass
 
 
-class WorkNotFoundException(Exception):
+class WorkNotAvailableForCritiqueError(BaseWorkDomainError):
     pass
+
+
+class CritiqueDuplicateError(BaseWorkDomainError):
+    pass
+
 
 class WorkStatus(str, Enum):
     PENDING_REVIEW = "PENDING REVIEW"
@@ -141,4 +146,4 @@ class Work:
             self.critiques.append(critique)
             self.last_update_date = datetime.now()
         else:
-            raise ValueError("Critique already exists")
+            raise CritiqueDuplicateError("Critique already exists")

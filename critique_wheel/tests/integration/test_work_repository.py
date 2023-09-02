@@ -1,4 +1,5 @@
-from sqlalchemy import text
+from uuid import uuid4
+from sqlalchemy import UUID, text
 
 from critique_wheel.adapters.sqlalchemy import work_repository
 from critique_wheel.domain.models.IAM import MemberStatus
@@ -87,3 +88,9 @@ def test_repository_can_get_work_by_member_id(session, valid_work):
 
     assert repo.get_work_by_member_id(member_id_to_get) == work
     assert repo.list() == [work]
+
+def test_respository_returns_none_when_no_work_found(session):
+    repo = work_repository.SqlAlchemyWorkRepository(session)
+    id = uuid4()
+    assert repo.get_work_by_id(id) is None
+    assert repo.get_work_by_member_id(id) is None

@@ -4,6 +4,7 @@ from uuid import uuid4
 import pytest
 
 from critique_wheel.domain.models.work import (
+    CritiqueDuplicateError,
     MissingEntryError,
     Work,
     WorkAgeRestriction,
@@ -117,7 +118,7 @@ def test_cannot_add_same_critique_twice(valid_work_with_two_critiques):
     work = valid_work_with_two_critiques
     work.status = WorkStatus.ACTIVE
     with pytest.raises(
-        ValueError,
+        CritiqueDuplicateError,
         match="Critique already exists",
     ):
         work.add_critique("critique1")
