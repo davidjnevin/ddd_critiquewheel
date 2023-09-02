@@ -2,12 +2,17 @@ import os
 
 import pytest
 
-from critique_wheel.domain.models.IAM import (
-    Member,
-    MemberRole,
-    MemberStatus,
+from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
+from critique_wheel.domain.models.IAM_domain_exceptions import (
+    AdminOnlyError,
+    CritiqueAlreadyExistsError,
+    DuplicateEmailError,
+    DuplicateUsernameError,
+    IncorrectCredentialsError,
     MissingEntryError,
+    NonMatchingPasswordsError,
     WeakPasswordError,
+    WorkAlreadyExistsError,
 )
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +82,7 @@ class TestRegistrationAndLogin:
         assert member.verify_password("new_p@ssword10")
 
     def test_password_change_incorrect_old_password(self, member):
-        with pytest.raises(ValueError, match="Incorrect old password"):
+        with pytest.raises(IncorrectCredentialsError, match="Incorrect old password"):
             member.change_password(old_password="wrong_old_p@ssword", new_password="new_p@ssword")
 
     def test_validate_password_strength(self):
@@ -114,9 +119,7 @@ class TestRegistrationAndLogin:
     def test_validate_password_strength_easily_guessable(self):
         weak_passwords = ["password", "abcdefg", "12345678", "qwerty"]
         for password in weak_passwords:
-            with pytest.raises(
-                WeakPasswordError
-            ):
+            with pytest.raises(WeakPasswordError):
                 Member.create(username="test_user", email="test@example.com", password=password)
 
 
@@ -136,7 +139,7 @@ class TestMemberActivationEmailVerification:
         admin.member_type = MemberRole.MEMBER
         another_member = admin
         with pytest.raises(
-            PermissionError,
+            AdminOnlyError,
             match="Only admins can deactivate members.",
         ):
             another_member.deactivate_member(member)
@@ -223,7 +226,7 @@ class TestMemberContributions:
         assert member.works == [valid_work]
 
         with pytest.raises(
-            ValueError,
+            WorkAlreadyExistsError,
             match="Work already exists",
         ):
             member.add_work(valid_work)
@@ -251,7 +254,7 @@ class TestMemberContributions:
         assert reviewer.critiques == [valid_critique]
 
         with pytest.raises(
-            ValueError,
+            CritiqueAlreadyExistsError,
             match="Critique already exists",
         ):
             reviewer.add_critique(valid_critique)
