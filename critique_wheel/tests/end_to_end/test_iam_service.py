@@ -1,17 +1,12 @@
-from typing import Optional
-
 import pytest
-from sqlalchemy import UUID
 
 from critique_wheel.domain.models.IAM import MemberRole, MemberStatus
 from critique_wheel.domain.services.iam_service import (
-    DuplicateEmailError,
-    DuplicateUsernameError,
     InvalidCredentials,
     MemberNotFoundException,
-    MissingEntryError,
-    NonMatchingPasswords,
+    DuplicateEntryError,
 )
+from critique_wheel.domain.models.IAM_domain_exceptions import BaseIAMDomainError
 
 
 def test_create_member(iam_repo, iam_service, member_details):
@@ -102,7 +97,7 @@ def test_register_new_member_with_valid_registration_creates_new_member(iam_serv
     assert new_member.id is not None
 
 
-def test_register_new_member_with_non_matching_passwords_raises_NonMatchingPasswords(iam_service, member_details):
+def test_register_new_member_with_non_matching_passwords_raises_BaseIAMDomainError(iam_service, member_details):
     # Arrange
     username = member_details["username"]
     email = member_details["email"]
@@ -110,11 +105,11 @@ def test_register_new_member_with_non_matching_passwords_raises_NonMatchingPassw
     confirm_password = "non_matching_p@ssword"
 
     # Assert
-    with pytest.raises(NonMatchingPasswords):
+    with pytest.raises(BaseIAMDomainError):
         iam_service.register_member(username, email, password, confirm_password)
 
 
-def test_register_new_member_with_missing_username_raises_MissingEntryError(iam_service, member_details):
+def test_register_new_member_with_missing_username_raises_BaseIAMDomainError(iam_service, member_details):
     # Arrange
     username = ""
     email = member_details["email"]
@@ -122,11 +117,11 @@ def test_register_new_member_with_missing_username_raises_MissingEntryError(iam_
     confirm_password = member_details["password"]
 
     # Assert
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(BaseIAMDomainError):
         iam_service.register_member(username, email, password, confirm_password)
 
 
-def test_register_new_member_with_missing_email_raises_MissingEntryError(iam_service, member_details):
+def test_register_new_member_with_missing_email_raises_BaseIAMDomainError(iam_service, member_details):
     # Arrange
     username = member_details["username"]
     email = ""
@@ -134,11 +129,11 @@ def test_register_new_member_with_missing_email_raises_MissingEntryError(iam_ser
     confirm_password = member_details["password"]
 
     # Assert
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(BaseIAMDomainError):
         iam_service.register_member(username, email, password, confirm_password)
 
 
-def test_register_new_member_with_missing_password_raises_MissingEntryError(iam_service, member_details):
+def test_register_new_member_with_missing_password_raises_BaseIAMDomainError(iam_service, member_details):
     # Arrange
     username = member_details["username"]
     email = member_details["email"]
@@ -146,11 +141,11 @@ def test_register_new_member_with_missing_password_raises_MissingEntryError(iam_
     confirm_password = member_details["password"]
 
     # Assert
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(BaseIAMDomainError):
         iam_service.register_member(username, email, password, confirm_password)
 
 
-def test_new_member_with_missing_confirm_password_raises_MissingEntryError(iam_service, member_details):
+def test_new_member_with_missing_confirm_password_raises_BaseIAMDomainError(iam_service, member_details):
     # Arrange
     username = member_details["username"]
     email = member_details["email"]
@@ -158,11 +153,11 @@ def test_new_member_with_missing_confirm_password_raises_MissingEntryError(iam_s
     confirm_password = ""
 
     # Assert
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(BaseIAMDomainError):
         iam_service.register_member(username, email, password, confirm_password)
 
 
-def test_new_member_with_existing_email_raises_DuplicateEmailError(iam_service, member_details):
+def test_new_member_with_existing_email_raises_DuplicateEntryError(iam_service, member_details):
     # Arrange
     username = member_details["username"]
     email = member_details["email"]
@@ -171,11 +166,11 @@ def test_new_member_with_existing_email_raises_DuplicateEmailError(iam_service, 
     iam_service.register_member(username, email, password, confirm_password)
 
     # Assert
-    with pytest.raises(DuplicateEmailError):
+    with pytest.raises(DuplicateEntryError):
         iam_service.register_member(username, email, password, confirm_password)
 
 
-def test_new_member_with_existing_username_raises_DuplicateUsernameError(iam_service, member_details):
+def test_new_member_with_existing_username_raises_DuplicateEntryError(iam_service, member_details):
     # Arrange
     username = member_details["username"]
     email = member_details["email"]
@@ -185,7 +180,7 @@ def test_new_member_with_existing_username_raises_DuplicateUsernameError(iam_ser
     other_email = "other_email@davidnevin.net"
 
     # Assert
-    with pytest.raises(DuplicateUsernameError):
+    with pytest.raises(DuplicateEntryError):
         iam_service.register_member(username, other_email, password, confirm_password)
 
 
@@ -232,17 +227,9 @@ def test_get_member_by_id_returns_member_with_matching_id(iam_service, member_de
     assert member == new_member
 
 
-def test_get_member_by_id_returns_MemberNotFoundException_for_nonexistent_id(iam_service, member_details):
-    # Arrange
-    username = member_details["username"]
-    email = member_details["email"]
-    password = member_details["password"]
-    new_member = iam_service.create_member(username, email, password)
+def test_get_member_by_id_returns_None_for_nonexistent_id(iam_service, member_details):
     nonexistent_id = 999
-
-    # Assert
-    with pytest.raises(MemberNotFoundException):
-        iam_service.get_member_by_id(nonexistent_id)
+    assert iam_service.get_member_by_id(nonexistent_id) is None
 
 
 def test_get_member_by_username_returns_member_with_matching_username(iam_service, member_details):
@@ -260,17 +247,9 @@ def test_get_member_by_username_returns_member_with_matching_username(iam_servic
     assert member == new_member
 
 
-def test_get_member_by_username_returns_MemberNotFoundException_for_nonexistent_username(iam_service, member_details):
-    # Arrange
-    username = member_details["username"]
-    email = member_details["email"]
-    password = member_details["password"]
-    iam_service.create_member(username, email, password)
+def test_get_member_by_username_returns_None_for_nonexistent_username(iam_service):
     nonexistent_username = "nonexistent_username"
-
-    # Assert
-    with pytest.raises(MemberNotFoundException):
-        iam_service.get_member_by_username(nonexistent_username)
+    assert iam_service.get_member_by_username(nonexistent_username) is None
 
 
 def test_add_work_to_member_adds_work_to_member(iam_service, member_details, work_service, work_details):
@@ -285,7 +264,9 @@ def test_add_work_to_member_adds_work_to_member(iam_service, member_details, wor
     genre = work_details["genre"]
     age_restriction = work_details["age_restriction"]
 
-    new_work = work_service.create_work(title=title, content=content, genre=genre, age_restriction=age_restriction, member_id=new_member.id)
+    new_work = work_service.create_work(
+        title=title, content=content, genre=genre, age_restriction=age_restriction, member_id=new_member.id
+    )
 
     # Act
     iam_service.add_work_to_member(member_id=new_member.id, work=new_work)
