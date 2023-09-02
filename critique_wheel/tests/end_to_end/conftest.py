@@ -13,12 +13,12 @@ def iam_repo():
     return fake_iam_repository.FakeMemberRepository([])
 
 @pytest.fixture
-def work_repo():
-    return fake_work_repository.FakeWorkRepository([])
-
-@pytest.fixture
 def iam_service(iam_repo):
     return IAMService(iam_repo)
+
+@pytest.fixture
+def work_repo():
+    return fake_work_repository.FakeWorkRepository([])
 
 @pytest.fixture
 def work_service(work_repo):
