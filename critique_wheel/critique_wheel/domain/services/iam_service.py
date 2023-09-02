@@ -1,35 +1,26 @@
+from typing import Optional
 from sqlalchemy import UUID
 
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member
+from critique_wheel.domain.models.IAM_domain_exceptions import BaseIAMDomainError
 from critique_wheel.domain.models.iam_repository import AbstractMemberRepository
 from critique_wheel.domain.models.work import Work
 
 
-class MemberNotFoundException(Exception):
+class BaseIAMServiceError(Exception):
     pass
 
 
-class MissingEntryError(Exception):
+class InvalidCredentials(BaseIAMServiceError):
     pass
 
 
-class InvalidCredentials(Exception):
+class MemberNotFoundException(BaseIAMServiceError):
     pass
 
 
-class NonMatchingPasswords(Exception):
-    pass
-
-
-class WeakPasswordError(Exception):
-    pass
-
-
-class DuplicateEmailError(Exception):
-    pass
-
-class DuplicateUsernameError(Exception):
+class DuplicateEntryError(BaseIAMServiceError):
     pass
 
 
@@ -45,35 +36,33 @@ class IAMService:
     def login_member(self, email: str, password: str) -> Member:
         try:
             member = self._repository.get_member_by_email(email)
-        except MemberNotFoundException:
+        except BaseIAMDomainError as e:
             raise InvalidCredentials("Invalid credentials")
         if member and member.verify_password(password):
             return member
         else:
             raise InvalidCredentials("Invalid credentials")
 
-    def register_member(self, username: str, email: str, password: str, confirm_password: str) -> Member:
-        self._validate_registration_parameters(username, email, password, confirm_password)
-        new_member = Member.create(username=username, email=email, password=password)
+    def register_member(
+        self,
+        username: str,
+        email: str,
+        password: str,
+        confirm_password: str,
+    ) -> Member:
+        self.check_for_unique_parameters(username, email)
+        new_member = Member.register(username, email, password, confirm_password)
         self._repository.add(new_member)
         return new_member
 
     def list_members(self) -> list[Member]:
         return self._repository.list()
 
-    def get_member_by_username(self, username: str) -> Member:
-        member = self._repository.get_member_by_username(username)
-        if member:
-            return member
-        else:
-            raise MemberNotFoundException("Member not found")
+    def get_member_by_username(self, username: str) -> Optional[Member]:
+        return self._repository.get_member_by_username(username)
 
-    def get_member_by_id(self, member_id: UUID) -> Member:
-        member = self._repository.get_member_by_id(member_id)
-        if member:
-            return member
-        else:
-            raise MemberNotFoundException("Member not found")
+    def get_member_by_id(self, member_id: UUID) -> Optional[Member]:
+        return self._repository.get_member_by_id(member_id)
 
     # This was added here because the since each
     # Work has a member_id and is closely related to a Member,
@@ -109,29 +98,8 @@ class IAMService:
         else:
             raise MemberNotFoundException("Member not found")
 
-    def _validate_registration_parameters(self, username: str, email: str, password: str, confirm_password: str) -> None:
-        if not username:
-            raise MissingEntryError("Missing required fields: username")
-        if not email:
-            raise MissingEntryError("Missing required fields: email")
-        if not password:
-            raise MissingEntryError("Missing required fields: password")
-        if not confirm_password:
-            raise MissingEntryError("Missing required fields: confirm password")
-        if password != confirm_password:
-            raise NonMatchingPasswords("Passwords do not match")
-        try:
-            Member.validate_password_strength(password)
-        except ValueError:
-            # TODO: pass errors from model up to service
-            raise WeakPasswordError("Password is weak")
-        try:
-            existing_member = self._repository.get_member_by_email(email)
-            raise DuplicateEmailError("Email already in use")
-        except MemberNotFoundException:
-            pass
-        try:
-            existing_member = self._repository.get_member_by_username(username)
-            raise DuplicateUsernameError("Username already in use")
-        except MemberNotFoundException:
-            pass
+    def check_for_unique_parameters(self, username: str, email: str) -> None:
+        if self._repository.get_member_by_email(email):
+            raise DuplicateEntryError("Email already in use")
+        if self._repository.get_member_by_username(username):
+            raise DuplicateEntryError("Email already in use")
