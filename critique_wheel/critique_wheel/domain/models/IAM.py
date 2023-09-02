@@ -9,6 +9,8 @@ import bcrypt
 import yaml
 from dotenv import load_dotenv
 
+from critique_wheel.domain.models import IAM_domain_exceptions as exceptions
+
 load_dotenv()
 
 ROLES_FILE_PATH = os.getenv("ROLES_FILE_PATH")
@@ -17,10 +19,6 @@ assert os.path.exists(ROLES_FILE_PATH), f"File not found at {ROLES_FILE_PATH}"  
 # Mock database to facilitate testing and building domain logic without a database
 mock_db = {}
 bcrypt.gensalt(rounds=4)  # Set the number of rounds for testing to 4
-
-
-class MissingEntryError(Exception):
-    pass
 
 
 class MemberStatus(str, Enum):
@@ -34,7 +32,6 @@ class MemberRole(str, Enum):
     ADMIN = "ADMIN"
     STAFF = "STAFF"
     MEMBER = "MEMBER"
-
 
 
 class Member:
@@ -86,7 +83,7 @@ class Member:
         cls.validate_password_strength(password)
         hashed_password = cls.hash_password(password)
         if not username or not email or not password:
-            raise MissingEntryError("Missing required fields")
+            raise exceptions.MissingEntryError("Missing required fields")
         return cls(
             username=username,
             email=email,
@@ -97,12 +94,48 @@ class Member:
             critiques=critiques or [],
         )
 
+    @classmethod
+    def register(cls, username, email, password, confirm_password):
+        cls._validate_registration_parameters(username, email, password, confirm_password)
+        try:
+            cls.validate_password_strength(password)
+        except exceptions.WeakPasswordError:
+            raise exceptions.WeakPasswordError("Password does not meet the policy requirements")
+        member = cls.create(username, email, password)
+        return member
 
+    @staticmethod
+    def validate_password_strength(password: str):
+        if len(password) < 8:
+            raise exceptions.WeakPasswordError(
+                "Password does not meet the policy requirements: Minimum length of 8 characters required."
+            )
+        if password.isalpha() or password.isdigit() or password.isalnum():
+            raise exceptions.WeakPasswordError(
+                "Password does not meet the policy requirements: Mix of letters, numbers, and symbols required."
+            )
+        for word in ["password", "abcdefg", "12345678", "qwerty"]:
+            if word in password.lower():
+                raise exceptions.WeakPasswordError("Password does not meet the policy requirements: Password is easily guessable.")
+
+    @classmethod
+    def _validate_registration_parameters(cls, username: str, email: str, password: str, confirm_password: str) -> bool:
+        if not username:
+            raise exceptions.MissingEntryError("Missing required fields: username")
+        if not email:
+            raise exceptions.MissingEntryError("Missing required fields: email")
+        if not password:
+            raise exceptions.MissingEntryError("Missing required fields: password")
+        if not confirm_password:
+            raise exceptions.MissingEntryError("Missing required fields: confirm password")
+        if password != confirm_password:
+            raise exceptions.NonMatchingPasswords("Passwords do not match")
+        return True
 
     def change_password(self, old_password, new_password):
         self.validate_password_strength(new_password)
         if not bcrypt.checkpw(old_password.encode(), self.password):
-            raise ValueError("Incorrect old password")
+            raise exceptions.IncorrectCredentialsError("Incorrect old password")
         self.password = self.hash_password(new_password)
 
     def verify_password(self, password):
@@ -113,24 +146,12 @@ class Member:
 
     def deactivate_member(self, member):
         if self.member_type != MemberRole.ADMIN:
-            raise PermissionError("Only admins can deactivate members.")
+            raise exceptions.AdminOnlyError("Only admins can deactivate members.")
         member.status = MemberStatus.INACTIVE
 
     def generate_email_verification_code(self):
         # TODO: Implement email verification code generation
         return "".join(random.choices(string.ascii_letters + string.digits, k=6))
-
-    @staticmethod
-    def validate_password_strength(password: str):
-        if len(password) < 8:
-            raise ValueError("Password does not meet the policy requirements: Minimum length of 8 characters required.")
-        if password.isalpha() or password.isdigit() or password.isalnum():
-            raise ValueError(
-                "Password does not meet the policy requirements: Mix of letters, numbers, and symbols required."
-            )
-        for word in ["password", "abcdefg", "12345678", "qwerty"]:
-            if word in password.lower():
-                raise ValueError("Password does not meet the policy requirements: Password is easily guessable.")
 
     def request_password_reset(self):
         # TODO: Implement token generation logic
@@ -141,6 +162,7 @@ class Member:
         # TODO: Send the token via the Notification Context
         return token
 
+    # TODO: Implement the reset_password method in service layer
     def reset_password(self, token, new_password):
         # TODO: Validate the token against the database and check its expiration
         # For this example, assume the token is always valid.
@@ -171,7 +193,7 @@ class Member:
             self.works.append(work)
             self.last_update_date = datetime.now()
         else:
-            raise ValueError("Work already exists")
+            raise exceptions.WorkAlreadyExistsError("Work already exists")
 
     def list_critiques(self) -> list:
         return self.critiques
@@ -181,4 +203,4 @@ class Member:
             self.critiques.append(critique)
             self.last_update_date = datetime.now()
         else:
-            raise ValueError("Critique already exists")
+            raise exceptions.CritiqueAlreadyExistsError("Critique already exists")
