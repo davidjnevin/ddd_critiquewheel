@@ -1,48 +1,48 @@
-from uuid import uuid4
+from uuid import uuid4, UUID
+from critique_wheel.members.value_objects import MemberId, FirstName, LastName, Bio, Visibility
 
 import pytest
 
 from critique_wheel.domain.models.member_profile import MemberProfile
 
 # Mock data for testing
-MOCK_MEMBER_ID = "12345"
-VALID_FIRST_NAME = "John"
-VALID_LAST_NAME = "Doe"
-VALID_BIO = "This is a sample bio with less than 200 words."
-INVALID_BIO = "This is " + "a " * 201 + "bio."
+MOCK_MEMBER_ID: MemberId = MemberId(UUID("7a16f584-7bca-4676-9838-8fb17d722490"))
+VALID_FIRST_NAME: FirstName = FirstName("John")
+VALID_LAST_NAME: LastName = LastName("Doe")
+VALID_BIO = Bio("This is a sample bio with less than 200 words.")
+INVALID_BIO_STR = "This is " + "a " * 201 + "bio."
 
 
 @pytest.fixture
 def member_profile():
     return MemberProfile.create(
-        member_id=uuid4(),
-        first_name="David",
-        last_name="Smith",
-        bio="This is a sample bio with less than 200 words.",
-        visible=True,
+        member_id=MemberId(uuid4()),
+        first_name=FirstName("David"),
+        last_name=LastName("Smith"),
+        bio=Bio("This is a sample bio with less than 200 words."),
+        visible=Visibility(True),
     )
-
 
 class TestMemberProfile:
     def test_create_valid_profile(self):
         member = MemberProfile.create(
-            member_id=uuid4(),
-            first_name="David",
-            last_name="Smith",
-            bio="This is a sample bio with less than 200 words.",
-            visible=True,
+        member_id=MemberId(uuid4()),
+        first_name=FirstName("David"),
+        last_name=LastName("Smith"),
+        bio=Bio("This is a sample bio with less than 200 words."),
+        visible=Visibility(True),
         )
-        assert member.first_name == "David"
-        assert member.last_name == "Smith"
-        assert member.bio == "This is a sample bio with less than 200 words."
-        assert member.visibility == True
+        assert member.first_name == FirstName("David")
+        assert member.last_name == LastName("Smith")
+        assert member.bio == Bio("This is a sample bio with less than 200 words.")
+        assert member.visibility == Visibility(True)
         assert member.id is not None
 
     def test_create_invalid_name(self):
         with pytest.raises(ValueError):
             MemberProfile.create(
                 member_id=MOCK_MEMBER_ID,
-                first_name="a" * 51,
+                first_name=FirstName("a" * 51),
                 last_name=VALID_LAST_NAME,
                 bio=VALID_BIO,
             )
@@ -53,7 +53,7 @@ class TestMemberProfile:
                 MOCK_MEMBER_ID,
                 VALID_FIRST_NAME,
                 VALID_LAST_NAME,
-                INVALID_BIO,
+                Bio(INVALID_BIO_STR),
             )
 
 
