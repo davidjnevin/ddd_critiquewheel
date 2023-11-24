@@ -1,7 +1,6 @@
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import critique_repository
-from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
 
 
 def test_repository_can_save_a_critique(session, valid_critique):
@@ -19,7 +18,7 @@ def test_repository_can_save_a_critique(session, valid_critique):
     )
     assert rows == [
         (
-            format_uuid_for_db(critique.id),
+            critique.id.get_uuid(),
             critique.content_about,
             critique.content_successes,
             critique.content_weaknesses,
@@ -37,7 +36,7 @@ def test_repository_can_get_a_work_by_id(session, valid_critique):
     repo.add(critique)
     session.commit()
 
-    id_to_get = critique.id
+    id_to_get = critique.id.get_uuid()
     stmt = text(
         'SELECT id, content_about, content_successes, content_weaknesses, content_ideas, member_id, work_id, status FROM "critiques" WHERE id=:id_to_get'
     ).bindparams(id_to_get=id_to_get)
@@ -45,7 +44,7 @@ def test_repository_can_get_a_work_by_id(session, valid_critique):
     rows = session.execute(stmt).fetchall()
     assert rows == [
         (
-            format_uuid_for_db(critique.id),
+            critique.id.get_uuid(),
             critique.content_about,
             critique.content_successes,
             critique.content_weaknesses,

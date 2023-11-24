@@ -5,6 +5,7 @@ from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Tabl
 from sqlalchemy.orm import registry, relationship
 from sqlalchemy.types import CHAR, TypeDecorator
 
+from critique_wheel.critiques.value_objects import CritiqueId
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique, CritiqueStatus
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
@@ -67,6 +68,17 @@ class MemberUUIDType(TypeDecorator):
         return MemberId(id=uuid.UUID(value)) if value is not None else None
 
 
+class CritiqueUUIDType(TypeDecorator):
+    impl = CHAR
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return str(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return CritiqueId(id=uuid.UUID(value)) if value is not None else None
+
+
 work_table = Table(
     "works",
     mapper_registry.metadata,
@@ -87,7 +99,7 @@ work_table = Table(
 critique_table = Table(
     "critiques",
     mapper_registry.metadata,
-    Column("id", Uuid(as_uuid=True), primary_key=True),
+    Column("id", CritiqueUUIDType, primary_key=True, nullable=False),
     Column("content_about", String),
     Column("content_successes", String),
     Column("content_weaknesses", String),

@@ -54,6 +54,11 @@ test:
 test-current:
 	${PRE_RUN_API_COMMAND} test-current
 
+# target: test with current flag-verbose
+.PHONY: test-current-v
+test-current-v:
+	${PRE_RUN_API_COMMAND} test-current-v
+
 # target: bash - bash code
 .PHONY: bash
 bash:

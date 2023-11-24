@@ -6,6 +6,7 @@ from sqlalchemy.orm import clear_mappers, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
+from critique_wheel.critiques.value_objects import CritiqueId
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
@@ -124,7 +125,7 @@ def id_critique1():
         content_ideas="This is a test critique.",
         member_id=MemberId(),
         work_id=WorkId(),
-        critique_id=uuid4(),
+        critique_id=CritiqueId(),
     )
 
 
@@ -137,7 +138,7 @@ def id_critique2():
         content_ideas="This is a test critique.",
         member_id=MemberId(),
         work_id=WorkId(),
-        critique_id=uuid4(),
+        critique_id=CritiqueId(),
     )
 
 

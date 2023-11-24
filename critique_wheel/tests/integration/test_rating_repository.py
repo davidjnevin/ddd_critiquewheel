@@ -23,7 +23,7 @@ def test_repository_can_save_a_rating(session, valid_rating):
             rating.score,
             rating.comment,
             rating.member_id.get_uuid(),
-            format_uuid_for_db(rating.critique_id),
+            rating.critique_id.get_uuid(),
             rating.status.value,
         )
     ]
@@ -55,7 +55,7 @@ def test_repository_can_get_a_work_by_id(session, valid_rating):
             format_uuid_for_db(rating.id),
             rating.score,
             rating.comment,
-            format_uuid_for_db(rating.critique_id),
+            rating.critique_id.get_uuid(),
             rating.member_id.get_uuid(),
             rating.status.value,
         )

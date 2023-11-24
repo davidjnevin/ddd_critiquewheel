@@ -60,6 +60,10 @@ case $1 in
 		;;
 	"test-current")
 		wait_other_containers ;\
+		pytest -m current --no-header
+		;;
+	"test-current-v")
+		wait_other_containers ;\
 		pytest -vv -m current
 		;;
 	"lint")

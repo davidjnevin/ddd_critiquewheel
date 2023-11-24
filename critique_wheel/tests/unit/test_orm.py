@@ -1,5 +1,4 @@
 # Throwaway test file for testing ORM functionality
-
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus

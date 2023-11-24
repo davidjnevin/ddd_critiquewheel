@@ -1,18 +1,11 @@
 from datetime import datetime
-from enum import Enum
-from uuid import UUID, uuid4
+from uuid import UUID
 
-
-class MissingEntryError(Exception):
-    pass
-
-
-class CritiqueStatus(str, Enum):
-    PENDING_REVIEW = "PENDING REVIEW"
-    ACTIVE = "ACTIVE"
-    REJECTED = "REJECTED"
-    ARCHIVED = "ARCHIVED"
-    MARKED_FOR_DELETION = "MARKED FOR DELETION"
+from critique_wheel.critiques.value_objects import (
+    CritiqueId,
+    CritiqueStatus,
+    MissingEntryError,
+)
 
 
 class Critique:
@@ -28,7 +21,7 @@ class Critique:
         status=CritiqueStatus.ACTIVE,
         critique_id=None,
     ) -> None:
-        self.id = critique_id or uuid4()
+        self.id: CritiqueId = critique_id or CritiqueId()
         self.content_about: str = content_about
         self.content_successes: str = content_successes
         self.content_weaknesses: str = content_weaknesses
@@ -53,7 +46,12 @@ class Critique:
         critique_id=None,
         ratings=None,
     ):
-        if not content_about or not content_successes or not content_weaknesses or not content_ideas:
+        if (
+            not content_about
+            or not content_successes
+            or not content_weaknesses
+            or not content_ideas
+        ):
             raise MissingEntryError()
         if not member_id or not work_id:
             raise MissingEntryError()
