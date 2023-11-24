@@ -1,4 +1,6 @@
 from uuid import uuid4
+
+import pytest
 from sqlalchemy import UUID, text
 
 from critique_wheel.adapters.sqlalchemy import work_repository
@@ -20,20 +22,20 @@ def test_repository_can_save_a_work(session, valid_work, another_valid_work, act
     rows = list(session.execute(text('SELECT id, title, content, age_restriction, genre, member_id FROM "works"')))
     assert rows == [
         (
-            format_uuid_for_db(work.id),
-            work.title,
-            work.content,
+            work.id.get_uuid(),
+            str(work.title),
+            str(work.content),
             work.age_restriction.value,
             work.genre.value,
-            format_uuid_for_db(work.member_id),
+            work.member_id.get_uuid(),
         ),
         (
-            format_uuid_for_db(work_2.id),
-            work_2.title,
-            work_2.content,
+            work_2.id.get_uuid(),
+            str(work_2.title),
+            str(work_2.content),
             work_2.age_restriction.value,
             work_2.genre.value,
-            format_uuid_for_db(work_2.member_id),
+            work.member_id.get_uuid(),
         ),
     ]
 
@@ -46,17 +48,17 @@ def test_repository_can_get_a_work_by_id(session, valid_work):
 
     id_to_get = work.id
     stmt = text('SELECT id, title, content, age_restriction, genre, member_id FROM "works" WHERE id=:id').bindparams(
-        id=id_to_get
+        id=work.id.get_uuid()
     )
     rows = session.execute(stmt).fetchall()
     assert rows == [
         (
-            format_uuid_for_db(work.id),
-            work.title,
-            work.content,
+            work.id.get_uuid(),
+            str(work.title),
+            str(work.content),
             work.age_restriction.value,
             work.genre.value,
-            format_uuid_for_db(work.member_id),
+            work.member_id.get_uuid(),
         )
     ]
 
@@ -70,19 +72,20 @@ def test_repository_can_get_work_by_member_id(session, valid_work):
     repo.add(work)
     session.commit()
 
-    member_id_to_get = work.member_id
+
+    member_id_to_get = str(work.member_id)
     stmt = text('SELECT id, title, content, age_restriction, genre, member_id FROM "works" WHERE member_id=:member_id').bindparams(
         member_id=member_id_to_get
     )
     rows = session.execute(stmt).fetchall()
     assert rows == [
         (
-            format_uuid_for_db(work.id),
-            work.title,
-            work.content,
+            work.id.get_uuid(),
+            str(work.title),
+            str(work.content),
             work.age_restriction.value,
             work.genre.value,
-            format_uuid_for_db(work.member_id),
+            work.member_id.get_uuid(),
         )
     ]
 

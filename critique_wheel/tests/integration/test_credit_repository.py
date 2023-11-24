@@ -1,3 +1,4 @@
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import credit_repository
@@ -25,7 +26,7 @@ def test_repository_can_save_a_critique_credit_transaction(session, valid_credit
     assert rows == [
         (
             format_uuid_for_db(credit.id),
-            format_uuid_for_db(member.id),
+            member.id.get_uuid(),
             credit.amount,
             credit.transaction_type.value,
             None,
@@ -55,11 +56,10 @@ def test_repository_can_save_a_work_credit_transaction(session, valid_credit, va
     assert rows == [
         (
             format_uuid_for_db(credit.id),
-            format_uuid_for_db(member.id),
+            member.id.get_uuid(),
             credit.amount,
             credit.transaction_type.value,
-            format_uuid_for_db(work.id),
+            work.id.get_uuid(),
             None,
         )
     ]
-

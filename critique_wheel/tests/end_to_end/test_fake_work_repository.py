@@ -1,9 +1,8 @@
 from uuid import uuid4
-
+import pytest
 from tests.end_to_end import fake_work_repository
 from critique_wheel.domain.models.IAM import MemberStatus
 from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
-
 
 def test_repository_can_save_a_work(session, valid_work, another_valid_work, active_valid_member):
     active_valid_member.status = MemberStatus.ACTIVE

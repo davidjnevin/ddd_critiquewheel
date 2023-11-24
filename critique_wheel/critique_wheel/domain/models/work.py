@@ -1,14 +1,16 @@
 from datetime import datetime
-from enum import Enum
-from uuid import UUID, uuid4
 
-
-class BaseWorkDomainError(Exception):
-    pass
-
-
-class MissingEntryError(BaseWorkDomainError):
-    pass
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import (
+    BaseWorkDomainError,
+    Content,
+    MissingEntryError,
+    Title,
+    WorkAgeRestriction,
+    WorkGenre,
+    WorkId,
+    WorkStatus,
+)
 
 
 class WorkNotAvailableForCritiqueError(BaseWorkDomainError):
@@ -19,81 +21,41 @@ class CritiqueDuplicateError(BaseWorkDomainError):
     pass
 
 
-class WorkStatus(str, Enum):
-    PENDING_REVIEW = "PENDING REVIEW"
-    ACTIVE = "ACTIVE"
-    REJECTED = "REJECTED"
-    ARCHIVED = "ARCHIVED"
-    MARKED_FOR_DELETION = "MARKED FOR DELETION"
-
-
-class WorkAgeRestriction(str, Enum):
-    NONE = "NONE"
-    TEEN = "TEEN"
-    ADULT = "ADULT"
-
-
-class WorkGenre(str, Enum):
-    BIOGRAPHY = "BIOGRAPHY"
-    CHICKLIT = "CHICKLIT"
-    CHILDREN = "CHILDREN"
-    COMEDY = "COMEDY"
-    CRIME = "CRIME"
-    DRAMA = "DRAMA"
-    FANTASY = "FANTASY"
-    HISTORICALFICTION = "HISTORICAL FICTION"
-    HORROR = "HORROR"
-    LITERARY = "LITERARY"
-    MYSTERY = "MYSTERY"
-    NEWADULT = "NEW ADULT"
-    PARANORMAL = "PARANORMAL"
-    ROMANCE = "ROMANCE"
-    SCIENCEFICTION = "SCIENCE FICTION"
-    SPECULATIVE = "SPECULATIVE"
-    SUSPENSE = "SUSPENSE"
-    THRILLER = "THRILLER"
-    UNDECIDED = "UNDECIDED"
-    URBANFANTASY = "URBAN FANTASY"
-    WOMENSLIT = "WOMENS LIT"
-    YOUNGADULT = "YOUNG ADULT"
-    OTHER = "OTHER"
-
-
 class Work:
     def __init__(
         self,
-        title,
-        content,
-        member_id,
+        title: Title,
+        content: Content,
+        member_id: MemberId,
         status=WorkStatus.PENDING_REVIEW,
         age_restriction=WorkAgeRestriction.ADULT,
-        work_id=None,
-        genre=WorkGenre.OTHER,
+        work_id: WorkId = WorkId(),
+        genre: WorkGenre = WorkGenre.OTHER,
         critiques=None,
     ) -> None:
-        self.id = work_id or uuid4()
-        self.title: str = title
-        self.content: str = content
+        self.id = work_id or WorkId()
+        self.title: Title = title
+        self.content: Content = content
         self.age_restriction: WorkAgeRestriction = age_restriction
         self.genre: WorkGenre = genre
         self.status: WorkStatus = status
-        self.word_count: int = len(content.split())
+        self.word_count: int = len(str(content).split())
         self.submission_date: datetime = datetime.now()
         self.last_update_date: datetime = datetime.now()
         self.archive_date = None
-        self.member_id: UUID = member_id
+        self.member_id: MemberId = member_id
         self.critiques = critiques or []
 
     @classmethod
     def create(
         cls,
-        title,
-        content,
-        member_id,
+        title: Title,
+        content: Content,
+        member_id: MemberId,
         genre=WorkGenre.OTHER,
         age_restriction=WorkAgeRestriction.ADULT,
         critiques=None,
-        work_id=None,
+        work_id: WorkId = None,
     ):
         if not title or not content:
             raise MissingEntryError()

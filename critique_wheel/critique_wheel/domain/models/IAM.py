@@ -10,6 +10,7 @@ import yaml
 from dotenv import load_dotenv
 
 from critique_wheel.domain.models import IAM_domain_exceptions as exceptions
+from critique_wheel.members.value_objects import MemberId
 
 load_dotenv()
 
@@ -51,7 +52,7 @@ class Member:
         works=None,
         critiques=None,
     ):
-        self.id = member_id or uuid4()
+        self.id = member_id or MemberId()
         self.username: str = username
         self.email: str = email
         self.password: bytes = password

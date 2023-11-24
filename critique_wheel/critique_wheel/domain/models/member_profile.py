@@ -52,15 +52,5 @@ class MemberProfile:
         # self._validate_bio(new_bio)
         self.bio = new_bio
 
-    # @staticmethod
-    # def _validate_name(name):
-    #     if len(name) > 50:
-    #         raise ValueError("Name must be under 50 characters.")
-
-    # @staticmethod
-    # def _validate_bio(bio):
-    #     if len(bio.split()) > 200 or len(bio) > 1200:
-    #         raise ValueError("Bio must be under 200 words and 1200 characters.")
-
     def toggle_visibility(self):
         self.visibility = not self.visibility

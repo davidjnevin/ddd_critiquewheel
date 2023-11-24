@@ -73,8 +73,6 @@ class Title:
     def __post_init__(self):
         if len(self.value) > 100:
             raise ValueError("Title must be under 100 characters.")
-        if not self.value:
-            raise MissingEntryError("Title cannot be empty.")
 
     def __str__(self):
         return str(self.value)
@@ -91,8 +89,6 @@ class Content:
         char_limit = 8500
         if len(self.value) > char_limit:
             raise ValueError(f"Work text must be under {char_limit} characters.")
-        if not self.value:
-            raise MissingEntryError("Content cannot be empty.")
 
     def __str__(self):
         return str(self.value)

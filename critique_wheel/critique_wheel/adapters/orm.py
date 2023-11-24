@@ -1,6 +1,16 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, MetaData, String, Table, Uuid
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    Uuid,
+)
 from sqlalchemy.orm import registry, relationship
 
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
@@ -13,14 +23,65 @@ from critique_wheel.domain.models.work import (
     WorkGenre,
     WorkStatus,
 )
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import WorkId, Content, Title, WorkStatus, WorkGenre, WorkAgeRestriction
+
 mapper_registry = registry()
+
+import uuid
+
+from sqlalchemy.types import CHAR, String, TypeDecorator
+
+
+class WorkUUIDType(TypeDecorator):
+    impl = CHAR
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return str(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return WorkId(id=uuid.UUID(value)) if value is not None else None
+
+
+class TitleType(TypeDecorator):
+    impl = String
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return value.value if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return Title(value) if value is not None else None
+
+
+class ContentType(TypeDecorator):
+    impl = String
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return value.value if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return Content(value) if value is not None else None
+
+
+class MemberUUIDType(TypeDecorator):
+    impl = CHAR
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return str(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return MemberId(id=uuid.UUID(value)) if value is not None else None
 
 work_table = Table(
     "works",
     mapper_registry.metadata,
-    Column("id", Uuid(as_uuid=True), primary_key=True, nullable=False),
-    Column("title", String),
-    Column("content", String),
+    Column("id", WorkUUIDType, primary_key=True, nullable=False),
+    Column("title", TitleType),
+    Column("content", ContentType),
     Column("age_restriction", Enum(WorkAgeRestriction)),
     Column("genre", Enum(WorkGenre)),
     Column("status", Enum(WorkStatus)),
@@ -77,7 +138,7 @@ credit_table = Table(
 member_table = Table(
     "members",
     mapper_registry.metadata,
-    Column("id", Uuid(as_uuid=True), primary_key=True),
+    Column("id", MemberUUIDType, primary_key=True),
     Column("username", String),
     Column("email", String),
     Column("password", String),
