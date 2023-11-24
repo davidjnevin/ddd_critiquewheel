@@ -3,7 +3,6 @@ import random
 import string
 from datetime import datetime
 from enum import Enum
-from uuid import uuid4
 
 import bcrypt
 import yaml
@@ -97,11 +96,15 @@ class Member:
 
     @classmethod
     def register(cls, username, email, password, confirm_password):
-        cls._validate_registration_parameters(username, email, password, confirm_password)
+        cls._validate_registration_parameters(
+            username, email, password, confirm_password
+        )
         try:
             cls.validate_password_strength(password)
         except exceptions.WeakPasswordError:
-            raise exceptions.WeakPasswordError("Password does not meet the policy requirements")
+            raise exceptions.WeakPasswordError(
+                "Password does not meet the policy requirements"
+            )
         member = cls.create(username, email, password)
         return member
 
@@ -117,10 +120,14 @@ class Member:
             )
         for word in ["password", "abcdefg", "12345678", "qwerty"]:
             if word in password.lower():
-                raise exceptions.WeakPasswordError("Password does not meet the policy requirements: Password is easily guessable.")
+                raise exceptions.WeakPasswordError(
+                    "Password does not meet the policy requirements: Password is easily guessable."
+                )
 
     @classmethod
-    def _validate_registration_parameters(cls, username: str, email: str, password: str, confirm_password: str) -> bool:
+    def _validate_registration_parameters(
+        cls, username: str, email: str, password: str, confirm_password: str
+    ) -> bool:
         if not username:
             raise exceptions.MissingEntryError("Missing required fields: username")
         if not email:
@@ -128,7 +135,9 @@ class Member:
         if not password:
             raise exceptions.MissingEntryError("Missing required fields: password")
         if not confirm_password:
-            raise exceptions.MissingEntryError("Missing required fields: confirm password")
+            raise exceptions.MissingEntryError(
+                "Missing required fields: confirm password"
+            )
         if password != confirm_password:
             raise exceptions.NonMatchingPasswordsError("Passwords do not match")
         return True

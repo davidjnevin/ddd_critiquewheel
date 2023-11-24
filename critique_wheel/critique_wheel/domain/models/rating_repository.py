@@ -1,10 +1,11 @@
 import abc
 from typing import List, Optional
 from uuid import UUID
+
 from critique_wheel.domain.models.rating import Rating
 
-class AbstractRatingRepository(abc.ABC):
 
+class AbstractRatingRepository(abc.ABC):
     @abc.abstractmethod
     def add(self, rating: Rating) -> None:
         raise NotImplementedError

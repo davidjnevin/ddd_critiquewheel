@@ -4,16 +4,12 @@ from sqlalchemy import UUID
 
 from critique_wheel.domain.models.IAM import Member
 from critique_wheel.domain.models.iam_repository import AbstractMemberRepository
-from critique_wheel.domain.services.iam_service import (
-    MemberNotFoundException,
-)
 
 
 class FakeMemberRepository(AbstractMemberRepository):
     def __init__(self, members: list[Member]):
         self._members = set(members)
         self.committed = False
-
 
     def add(self, member: Member) -> None:
         self._members.add(member)

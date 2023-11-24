@@ -64,7 +64,8 @@ case $1 in
 		;;
 	"lint")
 		isort critique_wheel tests
-		ruff critique_wheel tests
+		ruff check . --fix
+		ruff format .  --fix
 		mypy critique_wheel
 		;;
 	"*")

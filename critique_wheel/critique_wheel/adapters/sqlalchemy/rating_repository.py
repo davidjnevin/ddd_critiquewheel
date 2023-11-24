@@ -1,10 +1,12 @@
-from sqlalchemy.orm import Session
 from typing import Optional
+
+from sqlalchemy.orm import Session
+
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.rating_repository import AbstractRatingRepository
 
-class SqlAlchemyRatingRepository(AbstractRatingRepository):
 
+class SqlAlchemyRatingRepository(AbstractRatingRepository):
     def __init__(self, session: Session):
         self.session = session
 

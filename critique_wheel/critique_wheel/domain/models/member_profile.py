@@ -1,6 +1,13 @@
-import os
 from uuid import uuid4
-from critique_wheel.members.value_objects import MemberId, FirstName, LastName, Bio, Visibility
+
+from critique_wheel.members.value_objects import (
+    Bio,
+    FirstName,
+    LastName,
+    MemberId,
+    Visibility,
+)
+
 
 class MemberProfile:
     def __init__(
@@ -10,7 +17,7 @@ class MemberProfile:
         last_name: LastName,
         bio: Bio = Bio(""),
         visible: Visibility = Visibility(True),
-        profile_id =None,  # This is only used for testing
+        profile_id=None,  # This is only used for testing
     ):
         self.id = uuid4() or profile_id  # Unique identifier for the profile
         self.member_id = member_id

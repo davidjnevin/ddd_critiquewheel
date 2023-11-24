@@ -1,12 +1,12 @@
 from uuid import uuid4
 
-import pytest
-
 from critique_wheel.domain.models.IAM import MemberRole, MemberStatus
 from tests.end_to_end.fake_iam_repository import FakeMemberRepository
 
 
-def test_repository_can_save_a_basic_member(session, active_valid_member, valid_work, valid_critique):
+def test_repository_can_save_a_basic_member(
+    session, active_valid_member, valid_work, valid_critique
+):
     member = active_valid_member
     assert member.works == []
     assert member.critiques == []
@@ -22,11 +22,13 @@ def test_repository_can_save_a_basic_member(session, active_valid_member, valid_
     assert member.email == "active_email_address@davidneivn.net"
     assert member.member_type == MemberRole.MEMBER
     assert member.status == MemberStatus.ACTIVE
-    assert member.works != None
-    assert member.critiques != None
+    assert member.works is not None
+    assert member.critiques is not None
 
 
-def test_repository_can_get_a_member_by_id(session, valid_member, valid_work, valid_critique):
+def test_repository_can_get_a_member_by_id(
+    session, valid_member, valid_work, valid_critique
+):
     repo = FakeMemberRepository([])
     member = valid_member
     valid_member.status = MemberStatus.ACTIVE
@@ -63,7 +65,9 @@ def test_resository_can_get_a_member_by_username(session, valid_member):
     assert repo.get_member_by_username(valid_member.username) == valid_member
 
 
-def test_resository_can_get_a_list_of_members(session, valid_member, active_valid_member):
+def test_resository_can_get_a_list_of_members(
+    session, valid_member, active_valid_member
+):
     repo = FakeMemberRepository([])
     member = valid_member
     member_2 = active_valid_member

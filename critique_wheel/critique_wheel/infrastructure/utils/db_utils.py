@@ -1,4 +1,5 @@
 import uuid
+
 from critique_wheel.infrastructure.config import config
 
 
@@ -8,4 +9,3 @@ def format_uuid_for_db(uuid_str):
     else:
         # Default behavior for other databases
         return str(uuid.UUID(str(uuid_str)))
-

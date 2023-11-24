@@ -2,8 +2,7 @@
 # Linters and more tools
 black
 isort
-flake8
-flake8-pydocstyle
+ruff
 # PyTest
 pytest
 pytest-cov

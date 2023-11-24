@@ -11,10 +11,15 @@ from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.work import Work
-from critique_wheel.works.value_objects import WorkAgeRestriction, WorkGenre
 from critique_wheel.infrastructure.config import config
 from critique_wheel.members.value_objects import MemberId
-from critique_wheel.works.value_objects import Content, Title, WorkId
+from critique_wheel.works.value_objects import (
+    Content,
+    Title,
+    WorkAgeRestriction,
+    WorkGenre,
+    WorkId,
+)
 
 
 @pytest.fixture
@@ -45,7 +50,7 @@ def active_valid_member():
 @pytest.fixture
 def valid_credit():
     return CreditManager.create(
-        member_id= MemberId(),
+        member_id=MemberId(),
         amount=5,
         transaction_type=TransactionType.CRITIQUE_GIVEN,
         work_id=WorkId(),
@@ -56,7 +61,7 @@ def valid_credit():
 @pytest.fixture
 def valid_rating():
     yield Rating.create(
-        member_id= MemberId(),
+        member_id=MemberId(),
         score=5,
         comment="This is a test rating.",
         critique_id=uuid4(),
@@ -66,7 +71,7 @@ def valid_rating():
 @pytest.fixture
 def another_valid_rating():
     yield Rating.create(
-        member_id= MemberId(),
+        member_id=MemberId(),
         score=4,
         comment="This is a test rating.",
         critique_id=uuid4(),
@@ -76,8 +81,8 @@ def another_valid_rating():
 @pytest.fixture
 def valid_critique():
     return Critique.create(
-        member_id = MemberId(),
-        work_id= WorkId(),
+        member_id=MemberId(),
+        work_id=WorkId(),
         content_about="About content.",
         content_successes="This is a test critique.",
         content_weaknesses="This is a test critique.",
@@ -89,11 +94,11 @@ def valid_critique():
 @pytest.fixture
 def valid_work():
     return Work.create(
-        title= Title("Test Title"),
-        content= Content("Test content"),
+        title=Title("Test Title"),
+        content=Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
-        member_id= MemberId(),
+        member_id=MemberId(),
         critiques=None,
     )
 

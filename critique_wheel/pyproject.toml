@@ -57,7 +57,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.isort]
-py_version = 311
+py_version = 310
 profile = "black"
 
 [tool.pydocstyle]

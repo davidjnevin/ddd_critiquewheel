@@ -9,6 +9,7 @@ from critique_wheel.domain.services.work_service import (
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.value_objects import Content, Title
 
+
 def test_create_work(work_service, work_details):
     member_id = uuid4()
     work = work_service.create_work(
@@ -20,7 +21,7 @@ def test_create_work(work_service, work_details):
     )
     assert work.title == "Test Title"
     assert work.content == "Test content"
-    assert work.member_id != None
+    assert work.member_id is not None
     assert work.genre == "YOUNG ADULT"
     assert work.status == "PENDING REVIEW"
     assert work.age_restriction == "ADULT"
@@ -36,7 +37,7 @@ def test_create_dupliacte_work_raises_DuplicateWorkError(work_service, work_deta
         member_id=member_id,
     )
     with pytest.raises(DuplicateWorkError):
-        work_2 = work_service.create_work(
+        work_service.create_work(
             work_id=work_1.id,
             title=Title(work_details["title"]),
             content=Content(work_details["content"]),
@@ -46,10 +47,12 @@ def test_create_dupliacte_work_raises_DuplicateWorkError(work_service, work_deta
         )
 
 
-def test_create_work_raises_InvalidDataError_when_title_is_empty(work_service, work_details):
+def test_create_work_raises_InvalidDataError_when_title_is_empty(
+    work_service, work_details
+):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work = work_service.create_work(
+        work_service.create_work(
             title=Title(""),
             content=Content(work_details["content"]),
             age_restriction=work_details["age_restriction"],
@@ -58,10 +61,12 @@ def test_create_work_raises_InvalidDataError_when_title_is_empty(work_service, w
         )
 
 
-def test_create_work_raises_InvalidDataError_when_age_restriction_is_empty(work_service, work_details):
+def test_create_work_raises_InvalidDataError_when_age_restriction_is_empty(
+    work_service, work_details
+):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work = work_service.create_work(
+        work_service.create_work(
             title=Title(work_details["title"]),
             content=Content("test content"),
             age_restriction="",
@@ -69,10 +74,13 @@ def test_create_work_raises_InvalidDataError_when_age_restriction_is_empty(work_
             member_id=member_id,
         )
 
-def test_create_work_raises_InvalidDataError_when_genre_is_empty(work_service, work_details):
+
+def test_create_work_raises_InvalidDataError_when_genre_is_empty(
+    work_service, work_details
+):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work = work_service.create_work(
+        work_service.create_work(
             title=Title(work_details["title"]),
             content=Content("test content"),
             age_restriction=work_details["age_restriction"],
@@ -80,10 +88,13 @@ def test_create_work_raises_InvalidDataError_when_genre_is_empty(work_service, w
             member_id=member_id,
         )
 
-def test_create_work_raises_InvalidDataError_when_content_is_empty(work_service, work_details):
+
+def test_create_work_raises_InvalidDataError_when_content_is_empty(
+    work_service, work_details
+):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work = work_service.create_work(
+        work_service.create_work(
             title=Title(work_details["title"]),
             content=Content(""),
             age_restriction=work_details["age_restriction"],
@@ -92,10 +103,11 @@ def test_create_work_raises_InvalidDataError_when_content_is_empty(work_service,
         )
 
 
-def test_create_work_raises_InvalidDataError_when_member_id_is_None(work_service, work_details):
-    member_id = MemberId()
+def test_create_work_raises_InvalidDataError_when_member_id_is_None(
+    work_service, work_details
+):
     with pytest.raises(InvalidDataError):
-        work = work_service.create_work(
+        work_service.create_work(
             title=Title(work_details["title"]),
             content=Content(work_details["content"]),
             age_restriction=work_details["age_restriction"],

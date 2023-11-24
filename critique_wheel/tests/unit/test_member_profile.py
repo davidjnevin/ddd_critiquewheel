@@ -1,9 +1,15 @@
-from uuid import uuid4, UUID
-from critique_wheel.members.value_objects import MemberId, FirstName, LastName, Bio, Visibility
+from uuid import UUID, uuid4
 
 import pytest
 
 from critique_wheel.domain.models.member_profile import MemberProfile
+from critique_wheel.members.value_objects import (
+    Bio,
+    FirstName,
+    LastName,
+    MemberId,
+    Visibility,
+)
 
 # Mock data for testing
 MOCK_MEMBER_ID: MemberId = MemberId(UUID("7a16f584-7bca-4676-9838-8fb17d722490"))
@@ -23,14 +29,15 @@ def member_profile():
         visible=Visibility(True),
     )
 
+
 class TestMemberProfile:
     def test_create_valid_profile(self):
         member = MemberProfile.create(
-        member_id=MemberId(uuid4()),
-        first_name=FirstName("David"),
-        last_name=LastName("Smith"),
-        bio=Bio("This is a sample bio with less than 200 words."),
-        visible=Visibility(True),
+            member_id=MemberId(uuid4()),
+            first_name=FirstName("David"),
+            last_name=LastName("Smith"),
+            bio=Bio("This is a sample bio with less than 200 words."),
+            visible=Visibility(True),
         )
         assert member.first_name == FirstName("David")
         assert member.last_name == LastName("Smith")
@@ -55,7 +62,6 @@ class TestMemberProfile:
                 VALID_LAST_NAME,
                 Bio(INVALID_BIO_STR),
             )
-
 
     def test_change_first_name(self, member_profile):
         profile = member_profile

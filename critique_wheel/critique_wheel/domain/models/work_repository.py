@@ -1,11 +1,12 @@
 import abc
 from typing import List, Optional
+
 from critique_wheel.domain.models.work import Work
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.value_objects import WorkId
 
-class AbstractWorkRepository(abc.ABC):
 
+class AbstractWorkRepository(abc.ABC):
     @abc.abstractmethod
     def add(self, work: Work) -> None:
         raise NotImplementedError

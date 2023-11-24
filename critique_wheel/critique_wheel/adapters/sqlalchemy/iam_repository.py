@@ -1,6 +1,6 @@
 from typing import Optional
-from sqlalchemy import UUID
 
+from sqlalchemy import UUID
 from sqlalchemy.orm import Session
 
 from critique_wheel.domain.models.IAM import Member

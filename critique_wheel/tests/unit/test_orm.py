@@ -1,5 +1,4 @@
 # Throwaway test file for testing ORM functionality
-import pytest
 
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
@@ -7,19 +6,20 @@ from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.work import Work
 from critique_wheel.works.value_objects import (
+    Content,
+    Title,
     WorkAgeRestriction,
     WorkGenre,
     WorkStatus,
-    WorkId,
-    Title,
-    Content,
 )
-from critique_wheel.members.value_objects import MemberId
+
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
 class TestOrm:
     # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
-    def test_create_and_retrieve_member(self, session, valid_member, valid_work, valid_critique):
+    def test_create_and_retrieve_member(
+        self, session, valid_member, valid_work, valid_critique
+    ):
         # Arrange
         new_member = valid_member
 
@@ -30,7 +30,9 @@ class TestOrm:
         # Act
         session.add(new_member)
         session.commit()
-        retrieved_member = session.query(Member).filter_by(username="test_username").one()
+        retrieved_member = (
+            session.query(Member).filter_by(username="test_username").one()
+        )
 
         # Assert
         assert retrieved_member.id == new_member.id
@@ -42,9 +44,10 @@ class TestOrm:
         assert retrieved_member.works == [valid_work]
         assert retrieved_member.critiques == [valid_critique]
 
-
     # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
-    def test_create_and_retrieve_work(self, session, id_critique1, id_critique2, valid_member, valid_work):
+    def test_create_and_retrieve_work(
+        self, session, id_critique1, id_critique2, valid_member, valid_work
+    ):
         # Arrange
         # Arrange work
         assert valid_work.critiques == []
@@ -82,7 +85,9 @@ class TestOrm:
         assert retrieved_work.member_id == new_member.id
 
     # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
-    def test_create_and_retrieve_critique(self, session, valid_critique, valid_work, valid_rating):
+    def test_create_and_retrieve_critique(
+        self, session, valid_critique, valid_work, valid_rating
+    ):
         # Arrange
         new_critique = valid_critique
         new_critique.work_id = valid_work.id
@@ -95,7 +100,9 @@ class TestOrm:
         # Act
         session.add(new_critique)
         session.commit()
-        retrieved_critique = session.query(Critique).filter_by(content_about="About content.").one()
+        retrieved_critique = (
+            session.query(Critique).filter_by(content_about="About content.").one()
+        )
 
         # Assert
         assert retrieved_critique.id == new_critique.id
@@ -117,7 +124,9 @@ class TestOrm:
         # Act
         session.add(new_rating)
         session.commit()
-        retrieved_rating = session.query(Rating).filter_by(_critique_id=new_critique.id).one()
+        retrieved_rating = (
+            session.query(Rating).filter_by(_critique_id=new_critique.id).one()
+        )
 
         # Assert
         assert retrieved_rating.id == new_rating.id
@@ -141,13 +150,15 @@ class TestOrm:
         assert retrieved_credit.transaction_type == TransactionType.CRITIQUE_GIVEN
         assert retrieved_credit.work_id == new_credit.work_id
 
-    def test_credit_and_member_relationship(self, session, valid_credit, valid_member, valid_critique):
+    def test_credit_and_member_relationship(
+        self, session, valid_credit, valid_member, valid_critique
+    ):
         # Arrange
         new_credit = valid_credit
         new_critique = valid_critique
         new_member = valid_member
 
-        new_credit.member_id =  new_member.id
+        new_credit.member_id = new_member.id
         new_critique.member_id = new_member.id
         new_critique.transaction_type = TransactionType.CRITIQUE_GIVEN
         new_credit.critique_id = new_critique.id
@@ -157,11 +168,12 @@ class TestOrm:
         session.add(new_critique)
         session.add(new_credit)
         session.commit()
-        retrieved_credit = session.query(CreditManager).filter_by(id=new_credit.id).one()
+        retrieved_credit = (
+            session.query(CreditManager).filter_by(id=new_credit.id).one()
+        )
 
         # Assert
         assert retrieved_credit.member_id == new_member.id
         assert retrieved_credit.amount == 5
         assert retrieved_credit.transaction_type == TransactionType.CRITIQUE_GIVEN
         assert retrieved_credit.critique_id == new_critique.id
-
