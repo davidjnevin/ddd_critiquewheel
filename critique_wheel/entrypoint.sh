@@ -64,8 +64,7 @@ case $1 in
 		;;
 	"lint")
 		isort --check-only critique_wheel tests
-		black --check  critique_wheel tests
-		flake8 critique_wheel tests
+		ruff critique_wheel tests
 		mypy critique_wheel
 		;;
 	"*")
