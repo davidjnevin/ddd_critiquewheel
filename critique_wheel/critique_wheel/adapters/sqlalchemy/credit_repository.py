@@ -1,10 +1,12 @@
-from sqlalchemy.orm import Session
 from typing import Optional
+
+from sqlalchemy.orm import Session
+
 from critique_wheel.domain.models.credit import CreditManager
 from critique_wheel.domain.models.credit_repository import AbstractCreditRepository
 
-class SqlAlchemyCreditRepository(AbstractCreditRepository):
 
+class SqlAlchemyCreditRepository(AbstractCreditRepository):
     def __init__(self, session: Session):
         self.session = session
 

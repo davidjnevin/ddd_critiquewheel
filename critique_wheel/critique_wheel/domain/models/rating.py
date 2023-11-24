@@ -1,6 +1,6 @@
-from uuid import uuid4
 from datetime import datetime
 from enum import Enum
+from uuid import uuid4
 
 
 class MissingEntryError(Exception):
@@ -23,7 +23,7 @@ class Rating:
         critique_id,
         member_id,
         status=RatingStatus.ACTIVE,
-        rating_id = None,
+        rating_id=None,
     ) -> None:
         self.id = rating_id or uuid4()
         self.score: int = score
@@ -32,8 +32,8 @@ class Rating:
         self.submission_date: datetime = datetime.now()
         self.last_updated_date: datetime = datetime.now()
         self.archive_date = None
-        self._member_id= member_id
-        self._critique_id= critique_id
+        self._member_id = member_id
+        self._critique_id = critique_id
 
     @classmethod
     def create(
@@ -48,10 +48,10 @@ class Rating:
         if not member_id or not critique_id:
             raise MissingEntryError()
         return cls(
-        score=score,
-        comment=comment,
-        critique_id=critique_id,
-        member_id=member_id,
+            score=score,
+            comment=comment,
+            critique_id=critique_id,
+            member_id=member_id,
         )
 
     @property
@@ -70,11 +70,11 @@ class Rating:
     def member_id(self, value):
         raise AttributeError("Can't set attribute")
 
-    def update_score(self, updated_score:int) -> None:
+    def update_score(self, updated_score: int) -> None:
         self.score = updated_score
         self.last_updated_date = datetime.now()
 
-    def add_comment(self, comment:str) -> None:
+    def add_comment(self, comment: str) -> None:
         self.comment = comment
         self.last_updated_date = datetime.now()
 
@@ -102,4 +102,3 @@ class Rating:
         self.status = RatingStatus.ACTIVE
         self.archive_date = None
         self.last_update_date = datetime.now()
-

@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import critique_repository

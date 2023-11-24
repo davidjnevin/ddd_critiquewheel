@@ -1,11 +1,12 @@
-import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import credit_repository
 from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
 
 
-def test_repository_can_save_a_critique_credit_transaction(session, valid_credit, valid_member,  valid_critique):
+def test_repository_can_save_a_critique_credit_transaction(
+    session, valid_credit, valid_member, valid_critique
+):
     credit = valid_credit
     member = valid_member
     critique = valid_critique
@@ -20,9 +21,13 @@ def test_repository_can_save_a_critique_credit_transaction(session, valid_credit
     repo.add(credit)
     session.commit()
 
-    rows = list(session.execute(text(
-        'SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits"'
-    )))
+    rows = list(
+        session.execute(
+            text(
+                'SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits"'
+            )
+        )
+    )
     assert rows == [
         (
             format_uuid_for_db(credit.id),
@@ -35,7 +40,9 @@ def test_repository_can_save_a_critique_credit_transaction(session, valid_credit
     ]
 
 
-def test_repository_can_save_a_work_credit_transaction(session, valid_credit, valid_member, valid_work):
+def test_repository_can_save_a_work_credit_transaction(
+    session, valid_credit, valid_member, valid_work
+):
     credit = valid_credit
     member = valid_member
     work = valid_work
@@ -50,9 +57,13 @@ def test_repository_can_save_a_work_credit_transaction(session, valid_credit, va
     repo.add(credit)
     session.commit()
 
-    rows = list(session.execute(text(
-        'SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits"'
-    )))
+    rows = list(
+        session.execute(
+            text(
+                'SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits"'
+            )
+        )
+    )
     assert rows == [
         (
             format_uuid_for_db(credit.id),

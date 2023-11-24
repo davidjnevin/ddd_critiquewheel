@@ -1,5 +1,5 @@
-from sqlalchemy import UUID
 from typing import Optional
+
 from critique_wheel.domain.models.work import Work
 from critique_wheel.domain.models.work_repository import AbstractWorkRepository
 from critique_wheel.members.value_objects import MemberId

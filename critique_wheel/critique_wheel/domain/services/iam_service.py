@@ -1,4 +1,5 @@
 from typing import Optional
+
 from sqlalchemy import UUID
 
 from critique_wheel.domain.models.critique import Critique
@@ -36,7 +37,7 @@ class IAMService:
     def login_member(self, email: str, password: str) -> Member:
         try:
             member = self._repository.get_member_by_email(email)
-        except BaseIAMDomainError as e:
+        except BaseIAMDomainError:
             raise InvalidCredentials("Invalid credentials")
         if member and member.verify_password(password):
             return member

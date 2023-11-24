@@ -63,8 +63,9 @@ case $1 in
 		pytest -vv -m current
 		;;
 	"lint")
-		isort --check-only critique_wheel tests
-		ruff critique_wheel tests
+		isort critique_wheel tests
+		ruff check . --fix
+		ruff format .  --fix
 		mypy critique_wheel
 		;;
 	"*")

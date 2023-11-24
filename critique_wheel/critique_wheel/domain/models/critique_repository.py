@@ -1,10 +1,11 @@
 import abc
 from typing import List, Optional
 from uuid import UUID
+
 from critique_wheel.domain.models.critique import Critique
 
-class AbstractCritiqueRepository(abc.ABC):
 
+class AbstractCritiqueRepository(abc.ABC):
     @abc.abstractmethod
     def add(self, critique: Critique) -> None:
         raise NotImplementedError

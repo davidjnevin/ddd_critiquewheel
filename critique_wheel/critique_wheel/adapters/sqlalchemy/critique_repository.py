@@ -1,10 +1,12 @@
-from sqlalchemy.orm import Session
 from typing import Optional
+
+from sqlalchemy.orm import Session
+
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.critique_repository import AbstractCritiqueRepository
 
-class SqlAlchemyCritiqueRepository(AbstractCritiqueRepository):
 
+class SqlAlchemyCritiqueRepository(AbstractCritiqueRepository):
     def __init__(self, session: Session):
         self.session = session
 

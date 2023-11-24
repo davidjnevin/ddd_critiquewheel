@@ -1,36 +1,26 @@
+import uuid
 from datetime import datetime
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Integer,
-    MetaData,
-    String,
-    Table,
-    Uuid,
-)
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Table, Uuid
 from sqlalchemy.orm import registry, relationship
+from sqlalchemy.types import CHAR, TypeDecorator
 
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique, CritiqueStatus
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating, RatingStatus
-from critique_wheel.domain.models.work import (
-    Work,
+from critique_wheel.domain.models.work import Work
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import (
+    Content,
+    Title,
     WorkAgeRestriction,
     WorkGenre,
+    WorkId,
     WorkStatus,
 )
-from critique_wheel.members.value_objects import MemberId
-from critique_wheel.works.value_objects import WorkId, Content, Title, WorkStatus, WorkGenre, WorkAgeRestriction
 
 mapper_registry = registry()
-
-import uuid
-
-from sqlalchemy.types import CHAR, String, TypeDecorator
 
 
 class WorkUUIDType(TypeDecorator):
@@ -75,6 +65,7 @@ class MemberUUIDType(TypeDecorator):
 
     def process_result_value(self, value, dialect):
         return MemberId(id=uuid.UUID(value)) if value is not None else None
+
 
 work_table = Table(
     "works",
@@ -156,14 +147,20 @@ def start_mappers():
     mapper_registry.map_imperatively(
         Critique,
         critique_table,
-        properties={"ratings": relationship(Rating, backref="critiques", order_by=rating_table.c.id)},
+        properties={
+            "ratings": relationship(
+                Rating, backref="critiques", order_by=rating_table.c.id
+            )
+        },
     )
     # WORK
     mapper_registry.map_imperatively(
         Work,
         work_table,
         properties={
-            "critiques": relationship(Critique, backref="work", order_by=critique_table.c.id),
+            "critiques": relationship(
+                Critique, backref="work", order_by=critique_table.c.id
+            ),
         },
     )
     # MEMBER
@@ -172,8 +169,12 @@ def start_mappers():
         member_table,
         properties={
             "works": relationship(Work, backref="members", order_by=work_table.c.id),
-            "critiques": relationship(Critique, backref="members", order_by=critique_table.c.id),
-            "ratings": relationship(Rating, backref="members", order_by=rating_table.c.id),
+            "critiques": relationship(
+                Critique, backref="members", order_by=critique_table.c.id
+            ),
+            "ratings": relationship(
+                Rating, backref="members", order_by=rating_table.c.id
+            ),
         },
     )
 

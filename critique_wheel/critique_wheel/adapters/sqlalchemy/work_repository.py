@@ -1,12 +1,14 @@
-from sqlalchemy.orm import Session
 from typing import Optional
+
+from sqlalchemy.orm import Session
+
 from critique_wheel.domain.models.work import Work
 from critique_wheel.domain.models.work_repository import AbstractWorkRepository
-from critique_wheel.works.value_objects import WorkId
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import WorkId
+
 
 class SqlAlchemyWorkRepository(AbstractWorkRepository):
-
     def __init__(self, session: Session):
         self.session = session
 
@@ -17,7 +19,9 @@ class SqlAlchemyWorkRepository(AbstractWorkRepository):
         return self.session.query(Work).filter_by(id=str(work_id)).one_or_none()
 
     def get_work_by_member_id(self, member_id: MemberId) -> Optional[Work]:
-        return self.session.query(Work).filter_by(member_id=str(member_id)).one_or_none()
+        return (
+            self.session.query(Work).filter_by(member_id=str(member_id)).one_or_none()
+        )
 
     def list(self) -> list[Work]:
         return self.session.query(Work).all()

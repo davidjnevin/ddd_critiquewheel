@@ -6,11 +6,8 @@ from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.IAM_domain_exceptions import (
     AdminOnlyError,
     CritiqueAlreadyExistsError,
-    DuplicateEmailError,
-    DuplicateUsernameError,
     IncorrectCredentialsError,
     MissingEntryError,
-    NonMatchingPasswordsError,
     WeakPasswordError,
     WorkAlreadyExistsError,
 )
@@ -78,12 +75,16 @@ class TestRegistrationAndLogin:
             )
 
     def test_password_change_correct_old_password(self, member):
-        member.change_password(old_password="test_pass10!", new_password="new_p@ssword10")
+        member.change_password(
+            old_password="test_pass10!", new_password="new_p@ssword10"
+        )
         assert member.verify_password("new_p@ssword10")
 
     def test_password_change_incorrect_old_password(self, member):
         with pytest.raises(IncorrectCredentialsError, match="Incorrect old password"):
-            member.change_password(old_password="wrong_old_p@ssword", new_password="new_p@ssword")
+            member.change_password(
+                old_password="wrong_old_p@ssword", new_password="new_p@ssword"
+            )
 
     def test_validate_password_strength(self):
         assert Member.validate_password_strength("secure_p@ssword!10") is None
@@ -120,7 +121,9 @@ class TestRegistrationAndLogin:
         weak_passwords = ["password", "abcdefg", "12345678", "qwerty"]
         for password in weak_passwords:
             with pytest.raises(WeakPasswordError):
-                Member.create(username="test_user", email="test@example.com", password=password)
+                Member.create(
+                    username="test_user", email="test@example.com", password=password
+                )
 
 
 class TestMemberActivationEmailVerification:
@@ -200,14 +203,29 @@ class TestRoles:
             (MemberRole.ADMIN, "write", "Members", True),
             (MemberRole.STAFF, "read", "Works", True),
             (MemberRole.STAFF, "write", "Critiques", True),
-            (MemberRole.STAFF, "delete", "Works", False),  # Staff shouldn't have delete permission on Works
+            (
+                MemberRole.STAFF,
+                "delete",
+                "Works",
+                False,
+            ),  # Staff shouldn't have delete permission on Works
             (MemberRole.MEMBER, "read", "Works", True),
             (MemberRole.MEMBER, "write", "Critiques", True),
-            (MemberRole.MEMBER, "delete", "Works", False),  # Member shouldn't have delete permission on Works
+            (
+                MemberRole.MEMBER,
+                "delete",
+                "Works",
+                False,
+            ),  # Member shouldn't have delete permission on Works
         ],
     )
     def test_has_permission(self, mock_roles, member_type, action, resource, expected):
-        member = Member(member_type=member_type, username="test_user", email="test@example.com", password="test_pass!")
+        member = Member(
+            member_type=member_type,
+            username="test_user",
+            email="test@example.com",
+            password="test_pass!",
+        )
         assert member.has_permission(action, resource) == expected
 
 
