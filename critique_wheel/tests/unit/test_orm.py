@@ -5,13 +5,16 @@ from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating
-from critique_wheel.domain.models.work import (
-    Work,
+from critique_wheel.domain.models.work import Work
+from critique_wheel.works.value_objects import (
     WorkAgeRestriction,
     WorkGenre,
     WorkStatus,
+    WorkId,
+    Title,
+    Content,
 )
-
+from critique_wheel.members.value_objects import MemberId
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
 class TestOrm:
@@ -61,12 +64,12 @@ class TestOrm:
         # Act
         session.add(new_work)
         session.commit()
-        retrieved_work = session.query(Work).filter_by(title="Test Title").one()
+        retrieved_work = session.query(Work).filter_by(title=Title("Test Title")).one()
 
         # Assert
         assert retrieved_work.id == new_work.id
-        assert retrieved_work.title == "Test Title"
-        assert retrieved_work.content == "Test content"
+        assert retrieved_work.title == Title("Test Title")
+        assert retrieved_work.content == Content("Test content")
         assert retrieved_work.age_restriction == WorkAgeRestriction.ADULT
         assert retrieved_work.genre == WorkGenre.OTHER
         assert retrieved_work.status == WorkStatus.ACTIVE

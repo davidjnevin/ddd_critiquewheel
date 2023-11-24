@@ -12,3 +12,5 @@ pytest-mock
 mypy
 pyhamcrest
 freezegun
+pre-commit
+

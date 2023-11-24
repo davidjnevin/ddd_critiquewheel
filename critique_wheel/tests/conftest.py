@@ -10,8 +10,11 @@ from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating
-from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenre
+from critique_wheel.domain.models.work import Work
+from critique_wheel.works.value_objects import WorkAgeRestriction, WorkGenre
 from critique_wheel.infrastructure.config import config
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import Content, Title, WorkId
 
 
 @pytest.fixture
@@ -42,10 +45,10 @@ def active_valid_member():
 @pytest.fixture
 def valid_credit():
     return CreditManager.create(
-        member_id=uuid4(),
+        member_id= MemberId(),
         amount=5,
         transaction_type=TransactionType.CRITIQUE_GIVEN,
-        work_id=uuid4(),
+        work_id=WorkId(),
         critique_id=uuid4(),
     )
 
@@ -53,9 +56,9 @@ def valid_credit():
 @pytest.fixture
 def valid_rating():
     yield Rating.create(
+        member_id= MemberId(),
         score=5,
         comment="This is a test rating.",
-        member_id=uuid4(),
         critique_id=uuid4(),
     )
 
@@ -63,9 +66,9 @@ def valid_rating():
 @pytest.fixture
 def another_valid_rating():
     yield Rating.create(
+        member_id= MemberId(),
         score=4,
         comment="This is a test rating.",
-        member_id=uuid4(),
         critique_id=uuid4(),
     )
 
@@ -73,12 +76,12 @@ def another_valid_rating():
 @pytest.fixture
 def valid_critique():
     return Critique.create(
+        member_id = MemberId(),
+        work_id= WorkId(),
         content_about="About content.",
         content_successes="This is a test critique.",
         content_weaknesses="This is a test critique.",
         content_ideas="This is a test critique.",
-        member_id=uuid4(),
-        work_id=uuid4(),
         ratings=None,
     )
 
@@ -86,11 +89,11 @@ def valid_critique():
 @pytest.fixture
 def valid_work():
     return Work.create(
-        title="Test Title",
-        content="Test content",
+        title= Title("Test Title"),
+        content= Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
-        member_id=uuid4(),
+        member_id= MemberId(),
         critiques=None,
     )
 
@@ -98,11 +101,11 @@ def valid_work():
 @pytest.fixture
 def another_valid_work():
     return Work.create(
-        title="Test Title 2",
-        content="Test content",
+        title=Title("Test Title 2"),
+        content=Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.FANTASY,
-        member_id=uuid4(),
+        member_id=MemberId(),
         critiques=None,
     )
 
@@ -114,8 +117,8 @@ def id_critique1():
         content_successes="This is a test critique.",
         content_weaknesses="This is a test critique.",
         content_ideas="This is a test critique.",
-        member_id=uuid4(),
-        work_id=uuid4(),
+        member_id=MemberId(),
+        work_id=WorkId(),
         critique_id=uuid4(),
     )
 
@@ -127,8 +130,8 @@ def id_critique2():
         content_successes="This is a test critique.",
         content_weaknesses="This is a test critique.",
         content_ideas="This is a test critique.",
-        member_id=uuid4(),
-        work_id=uuid4(),
+        member_id=MemberId(),
+        work_id=WorkId(),
         critique_id=uuid4(),
     )
 
@@ -136,11 +139,11 @@ def id_critique2():
 @pytest.fixture
 def valid_work_with_two_critiques():
     return Work.create(
-        title="Test Title",
-        content="Test content",
+        title=Title("Test Title"),
+        content=Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
-        member_id=uuid4(),
+        member_id=MemberId(),
         critiques=["critique1", "critique2"],
     )
 

@@ -28,7 +28,7 @@ def test_repository_can_save_a_basic_member(session, active_valid_member, valid_
     )
     assert rows == [
         (
-            db_utils.format_uuid_for_db(member.id),
+            member.id.get_uuid(),
             member.username,
             member.email,
             member.password,
@@ -36,7 +36,6 @@ def test_repository_can_save_a_basic_member(session, active_valid_member, valid_
             member.status.value,
         )
     ]
-
 
 def test_repository_can_get_a_member_by_id(session, valid_member, valid_work, valid_critique):
     member = valid_member
@@ -51,14 +50,8 @@ def test_repository_can_get_a_member_by_id(session, valid_member, valid_work, va
     assert len(member.critiques) == 1
     session.commit()
 
-    stmt = (
-        text(
-            'SELECT * FROM "members" WHERE id=:member_id'
-            # 'SELECT id, username, email, password, member_type, status, works, critiques FROM "members" WHERE id=:id'
-        )).bindparams(
-            bindparam("member_id", type_=Uuid),
-        ).bindparams(
-            member_id=valid_member.id,
+    stmt = text('SELECT * FROM "members" WHERE id=:id').bindparams(
+            id=valid_member.id.get_uuid(),
         )
     rows = session.execute(stmt).fetchall()
     assert len(rows) == 1
@@ -95,6 +88,7 @@ def test_resository_can_get_a_member_by_username(session, valid_member):
     session.commit()
 
     assert repo.get_member_by_username(valid_member.username) == valid_member
+
 
 def test_resository_can_get_a_list_of_members(session, valid_member, active_valid_member):
     member = valid_member

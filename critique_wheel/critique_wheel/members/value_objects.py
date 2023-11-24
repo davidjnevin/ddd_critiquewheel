@@ -1,5 +1,6 @@
-from dataclasses import dataclass, field
 import uuid
+from dataclasses import dataclass, field
+
 
 @dataclass(frozen=True)
 class MemberId:
@@ -8,6 +9,12 @@ class MemberId:
     def __str__(self):
         return str(self.id)
 
+    @property
+    def hex(self):
+        return self.id.hex
+
+    def get_uuid(self):
+        return str(self.id)
 
 @dataclass(frozen=True)
 class FirstName:
@@ -19,6 +26,7 @@ class FirstName:
         if not self.value:
             raise ValueError("First name cannot be empty.")
 
+
 @dataclass(frozen=True)
 class LastName:
     value: str
@@ -28,6 +36,7 @@ class LastName:
             raise ValueError("Last name must be under 50 characters.")
         if not self.value:
             raise ValueError("Last name cannot be empty.")
+
 
 @dataclass(frozen=True)
 class Bio:
@@ -39,10 +48,10 @@ class Bio:
         if len(self.value.split()) > word_limit or len(self.value) > char_limit:
             raise ValueError(f"Bio must be under {word_limit} words and {char_limit} characters.")
 
+
 @dataclass(frozen=True)
 class Visibility:
     value: bool
 
     def toggle(self):
         return Visibility(not self.value)
-

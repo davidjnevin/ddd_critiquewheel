@@ -1,3 +1,4 @@
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import critique_repository
@@ -24,8 +25,8 @@ def test_repository_can_save_a_critique(session, valid_critique):
             critique.content_successes,
             critique.content_weaknesses,
             critique.content_ideas,
-            format_uuid_for_db(critique.member_id),
-            format_uuid_for_db(critique.work_id),
+            critique.member_id.get_uuid(),
+            critique.work_id.get_uuid(),
             critique.status.value,
         )
     ]
@@ -50,8 +51,8 @@ def test_repository_can_get_a_work_by_id(session, valid_critique):
             critique.content_successes,
             critique.content_weaknesses,
             critique.content_ideas,
-            format_uuid_for_db(critique.member_id),
-            format_uuid_for_db(critique.work_id),
+            critique.member_id.get_uuid(),
+            critique.work_id.get_uuid(),
             critique.status.value,
         )
     ]

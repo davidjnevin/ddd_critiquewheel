@@ -12,23 +12,25 @@ from critique_wheel.domain.models.work import (
     WorkNotAvailableForCritiqueError,
     WorkStatus,
 )
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import Content, Title
 
 
 def test_create_work_with_valid_data():
-    title = "Sample Work"
-    content = "This is a sample fictional work for testing."
+    title_text = "Sample Work"
+    content_text = "This is a sample fictional work for testing."
     work = Work.create(
-        title=title,
-        content=content,
+        title=Title(title_text),
+        content=Content(content_text),
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
-        member_id=uuid4(),
+        member_id=MemberId(),
         critiques=["critique1", "critique2"],
     )
 
-    assert work.title == title
-    assert work.content == content
-    assert work.word_count == len(content.split())
+    assert str(work.title) == title_text
+    assert str(work.content) == content_text
+    assert work.word_count == len(content_text.split())
     assert work.status == WorkStatus.PENDING_REVIEW
     assert work.age_restriction == WorkAgeRestriction.ADULT
     assert work.genre == WorkGenre.OTHER
@@ -40,55 +42,55 @@ def test_create_work_with_valid_data():
 def test_create_work_without_title():
     with pytest.raises(MissingEntryError):
         Work.create(
-            title="",
-            content="Valid content",
+            title=Title(""),
+            content=Content("Valid content"),
             age_restriction=WorkAgeRestriction.ADULT,
             genre=WorkGenre.OTHER,
-            member_id=uuid4(),
+            member_id=MemberId(),
         )
 
 
 def test_create_work_without_content():
     with pytest.raises(MissingEntryError):
         Work.create(
-            title="Valid Title",
-            content="",
+            title=Title("Valid Title"),
+            content=Content(""),
             age_restriction=WorkAgeRestriction.ADULT,
             genre=WorkGenre.OTHER,
-            member_id=uuid4(),
+            member_id=MemberId(),
         )
 
 
 def test_create_work_without_genre():
     with pytest.raises(MissingEntryError):
         Work.create(
-            title="Valid Title",
-            content="valid content",
+            title=Title("Valid Title"),
+            content=Content("valid content"),
             age_restriction=WorkAgeRestriction.ADULT,
             genre=None,  # type: ignore
-            member_id=uuid4(),
+            member_id=MemberId(),
         )
 
 
 def test_create_work_without_age_restriction():
     with pytest.raises(MissingEntryError):
         Work.create(
-            title="Valid Title",
-            content="Valid content",
+            title=Title("Valid Title"),
+            content=Content("Valid content"),
             age_restriction=None,  # type: ignore
             genre=WorkGenre.OTHER,
-            member_id=uuid4(),
+            member_id=MemberId(),
         )
 
 
 def test_create_work_without_member_id():
     with pytest.raises(MissingEntryError):
         Work.create(
-            title="Valid Title",
-            content="Valid content",
+            title=Title("Valid Title"),
+            content=Content("Valid content"),
             age_restriction=None,  # type: ignore
             genre=WorkGenre.OTHER,
-            member_id=None,
+            member_id=MemberId(None),
         )
 
 
@@ -127,11 +129,11 @@ def test_cannot_add_same_critique_twice(valid_work_with_two_critiques):
 def test_word_count_calculation():
     content = "This is a test content with eight words."
     work = Work.create(
-        title="Test Title",
-        content=content,
+        title=Title("Test Title"),
+        content=Content(content),
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
-        member_id=uuid4(),
+        member_id=MemberId(),
     )
 
     assert work.word_count == 8
