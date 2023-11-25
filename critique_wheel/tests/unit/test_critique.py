@@ -1,19 +1,28 @@
 # Description: This file contains the unit tests for the Critique model.
 from datetime import datetime, timedelta
-from uuid import uuid4
 
 import pytest
 from pytest import raises
 
+from critique_wheel.critiques.value_objects import (
+    CritiqueAbout,
+    CritiqueIdeas,
+    CritiqueSuccesses,
+    CritiqueWeaknesses,
+)
 from critique_wheel.domain.models.critique import (
     Critique,
     CritiqueStatus,
     MissingEntryError,
 )
 from critique_wheel.domain.models.work import WorkStatus
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import WorkId
 
 
 class TestCritique:
+    text_longer_than_40_words = "words " * 45
+
     # Test Creation of Critique with All Required Content
     def test_ensure_a_critique_can_be_created_with_all_required_content_elements(
         self, valid_rating, another_valid_rating, valid_work, active_valid_member
@@ -23,20 +32,20 @@ class TestCritique:
         new_work = valid_work
         new_member = active_valid_member
         critique = Critique.create(
-            content_about="This is a test critique.",
-            content_successes="This is a test critique.",
-            content_weaknesses="This is a test critique.",
-            content_ideas="This is a test critique.",
+            critique_about=CritiqueAbout(self.text_longer_than_40_words),
+            critique_successes=CritiqueSuccesses(self.text_longer_than_40_words),
+            critique_weaknesses=CritiqueWeaknesses(self.text_longer_than_40_words),
+            critique_ideas=CritiqueIdeas(self.text_longer_than_40_words),
             member_id=new_member.id,
             work_id=new_work.id,
         )
         critique.add_rating(new_rating)
         critique.add_rating(another_rating)
 
-        assert critique.content_about == "This is a test critique."
-        assert critique.content_successes == "This is a test critique."
-        assert critique.content_weaknesses == "This is a test critique."
-        assert critique.content_ideas == "This is a test critique."
+        assert str(critique.critique_about) == self.text_longer_than_40_words
+        assert str(critique.critique_successes) == self.text_longer_than_40_words
+        assert str(critique.critique_weaknesses) == self.text_longer_than_40_words
+        assert str(critique.critique_ideas) == self.text_longer_than_40_words
         assert critique.member_id == new_member.id
         assert critique.work_id == new_work.id
         assert (
@@ -48,66 +57,66 @@ class TestCritique:
     def test_ensure_a_critique_cannot_be_created_if_about_is_empty(self):
         with raises(MissingEntryError):
             Critique.create(
-                content_about="",
-                content_successes="This is a test critique.",
-                content_weaknesses="This is a test critique.",
-                content_ideas="This is a test critique.",
-                member_id=uuid4(),
-                work_id=uuid4(),
+                critique_about=CritiqueAbout(""),
+                critique_successes=CritiqueSuccesses(self.text_longer_than_40_words),
+                critique_weaknesses=CritiqueWeaknesses(self.text_longer_than_40_words),
+                critique_ideas=CritiqueIdeas(self.text_longer_than_40_words),
+                member_id=MemberId(),
+                work_id=WorkId(),
             )
 
     def test_ensure_a_critique_cannot_be_created_if_successes_is_empty(self):
         with raises(MissingEntryError):
             Critique.create(
-                content_about="This is a test critique.",
-                content_successes="",
-                content_weaknesses="This is a test critique.",
-                content_ideas="This is a test critique.",
-                member_id=uuid4(),
-                work_id=uuid4(),
+                critique_about=CritiqueAbout(self.text_longer_than_40_words),
+                critique_successes=CritiqueSuccesses(""),
+                critique_weaknesses=CritiqueWeaknesses(self.text_longer_than_40_words),
+                critique_ideas=CritiqueIdeas(self.text_longer_than_40_words),
+                member_id=MemberId(),
+                work_id=WorkId(),
             )
 
     def test_ensure_a_critique_cannot_be_created_if_weaknesses_is_empty(self):
         with raises(MissingEntryError):
             Critique.create(
-                content_about="This is a test critique.",
-                content_successes="This is a test critique.",
-                content_weaknesses="",
-                content_ideas="This is a test critique.",
-                member_id=uuid4(),
-                work_id=uuid4(),
+                critique_about=CritiqueAbout(self.text_longer_than_40_words),
+                critique_successes=CritiqueSuccesses(self.text_longer_than_40_words),
+                critique_weaknesses=CritiqueWeaknesses(""),
+                critique_ideas=CritiqueIdeas(self.text_longer_than_40_words),
+                member_id=MemberId(),
+                work_id=WorkId(),
             )
 
     def test_ensure_a_critique_cannot_be_created_if_ideas_is_empty(self):
         with raises(MissingEntryError):
             Critique.create(
-                content_about="This is a test critique.",
-                content_successes="This is a test critique.",
-                content_weaknesses="This is a test critique.",
-                content_ideas="",
-                member_id=uuid4(),
-                work_id=uuid4(),
+                critique_about=CritiqueAbout(self.text_longer_than_40_words),
+                critique_successes=CritiqueSuccesses(self.text_longer_than_40_words),
+                critique_weaknesses=CritiqueWeaknesses(self.text_longer_than_40_words),
+                critique_ideas=CritiqueIdeas(""),
+                member_id=MemberId(),
+                work_id=WorkId(),
             )
 
     def test_ensure_a_critique_cannot_be_created_if_member_id_is_empty(self):
         with raises(MissingEntryError):
             Critique.create(
-                content_about="This is a test critique.",
-                content_successes="This is a test critique.",
-                content_weaknesses="This is a test critique.",
-                content_ideas="This is a test critique.",
+                critique_about=CritiqueAbout(self.text_longer_than_40_words),
+                critique_successes=CritiqueSuccesses(self.text_longer_than_40_words),
+                critique_weaknesses=CritiqueWeaknesses(self.text_longer_than_40_words),
+                critique_ideas=CritiqueIdeas(self.text_longer_than_40_words),
                 member_id=None,
-                work_id=uuid4(),
+                work_id=WorkId(),
             )
 
     def test_ensure_a_critique_cannot_be_created_if_work_id_is_empty(self):
         with raises(MissingEntryError):
             Critique.create(
-                content_about="This is a test critique.",
-                content_successes="This is a test critique.",
-                content_weaknesses="This is a test critique.",
-                content_ideas="This is a test critique.",
-                member_id=uuid4(),
+                critique_about=CritiqueAbout(self.text_longer_than_40_words),
+                critique_successes=CritiqueSuccesses(self.text_longer_than_40_words),
+                critique_weaknesses=CritiqueWeaknesses(self.text_longer_than_40_words),
+                critique_ideas=CritiqueIdeas(self.text_longer_than_40_words),
+                member_id=MemberId(),
                 work_id=None,
             )
 
@@ -122,7 +131,7 @@ class TestCritique:
 
     # Test Approving Critique Content:
     def test_ensure_the_last_updated_date_is_set_when_a_critique_s_content_is_approved(
-        self, valid_critique, valid_work
+        self, valid_critique
     ):
         critique = valid_critique
         critique.last_updated_date = datetime.now() - timedelta(days=1)

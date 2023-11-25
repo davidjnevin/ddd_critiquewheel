@@ -1,7 +1,6 @@
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import critique_repository
-from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
 
 
 def test_repository_can_save_a_critique(session, valid_critique):
@@ -13,17 +12,17 @@ def test_repository_can_save_a_critique(session, valid_critique):
     rows = list(
         session.execute(
             text(
-                'SELECT id, content_about, content_successes, content_weaknesses, content_ideas, member_id, work_id, status FROM "critiques"'
+                'SELECT id, critique_about, critique_successes, critique_weaknesses, critique_ideas, member_id, work_id, status FROM "critiques"'
             )
         )
     )
     assert rows == [
         (
-            format_uuid_for_db(critique.id),
-            critique.content_about,
-            critique.content_successes,
-            critique.content_weaknesses,
-            critique.content_ideas,
+            critique.id.get_uuid(),
+            str(critique.critique_about),
+            str(critique.critique_successes),
+            str(critique.critique_weaknesses),
+            str(critique.critique_ideas),
             critique.member_id.get_uuid(),
             critique.work_id.get_uuid(),
             critique.status.value,
@@ -31,25 +30,25 @@ def test_repository_can_save_a_critique(session, valid_critique):
     ]
 
 
-def test_repository_can_get_a_work_by_id(session, valid_critique):
+def test_repository_can_get_a_critique_by_id(session, valid_critique):
     critique = valid_critique
     repo = critique_repository.SqlAlchemyCritiqueRepository(session)
     repo.add(critique)
     session.commit()
 
-    id_to_get = critique.id
+    id_to_get = critique.id.get_uuid()
     stmt = text(
-        'SELECT id, content_about, content_successes, content_weaknesses, content_ideas, member_id, work_id, status FROM "critiques" WHERE id=:id_to_get'
+        'SELECT id, critique_about, critique_successes, critique_weaknesses, critique_ideas, member_id, work_id, status FROM "critiques" WHERE id=:id_to_get'
     ).bindparams(id_to_get=id_to_get)
 
     rows = session.execute(stmt).fetchall()
     assert rows == [
         (
-            format_uuid_for_db(critique.id),
-            critique.content_about,
-            critique.content_successes,
-            critique.content_weaknesses,
-            critique.content_ideas,
+            critique.id.get_uuid(),
+            str(critique.critique_about),
+            str(critique.critique_successes),
+            str(critique.critique_weaknesses),
+            str(critique.critique_ideas),
             critique.member_id.get_uuid(),
             critique.work_id.get_uuid(),
             critique.status.value,

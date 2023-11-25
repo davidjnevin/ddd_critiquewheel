@@ -5,6 +5,13 @@ from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Tabl
 from sqlalchemy.orm import registry, relationship
 from sqlalchemy.types import CHAR, TypeDecorator
 
+from critique_wheel.critiques.value_objects import (
+    CritiqueAbout,
+    CritiqueId,
+    CritiqueIdeas,
+    CritiqueSuccesses,
+    CritiqueWeaknesses,
+)
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique, CritiqueStatus
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
@@ -67,6 +74,61 @@ class MemberUUIDType(TypeDecorator):
         return MemberId(id=uuid.UUID(value)) if value is not None else None
 
 
+class CritiqueUUIDType(TypeDecorator):
+    impl = CHAR
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return str(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return CritiqueId(id=uuid.UUID(value)) if value is not None else None
+
+
+class CritiqueAboutType(TypeDecorator):
+    impl = String
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return value.value if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return CritiqueAbout(value) if value is not None else None
+
+
+class CritiqueSuccesesType(TypeDecorator):
+    impl = String
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return value.value if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return CritiqueSuccesses(value) if value is not None else None
+
+
+class CritiqueWeaknessesType(TypeDecorator):
+    impl = String
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return value.value if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return CritiqueWeaknesses(value) if value is not None else None
+
+
+class CritiqueIdeasType(TypeDecorator):
+    impl = String
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return value.value if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return CritiqueIdeas(value) if value is not None else None
+
+
 work_table = Table(
     "works",
     mapper_registry.metadata,
@@ -87,11 +149,11 @@ work_table = Table(
 critique_table = Table(
     "critiques",
     mapper_registry.metadata,
-    Column("id", Uuid(as_uuid=True), primary_key=True),
-    Column("content_about", String),
-    Column("content_successes", String),
-    Column("content_weaknesses", String),
-    Column("content_ideas", String),
+    Column("id", CritiqueUUIDType, primary_key=True, nullable=False),
+    Column("critique_about", CritiqueAboutType),
+    Column("critique_successes", CritiqueSuccesesType),
+    Column("critique_weaknesses", CritiqueWeaknessesType),
+    Column("critique_ideas", CritiqueIdeasType),
     Column("status", Enum(CritiqueStatus)),
     Column("submission_date", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),

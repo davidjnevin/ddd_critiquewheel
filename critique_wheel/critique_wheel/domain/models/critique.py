@@ -1,67 +1,86 @@
 from datetime import datetime
-from enum import Enum
-from uuid import UUID, uuid4
 
-
-class MissingEntryError(Exception):
-    pass
-
-
-class CritiqueStatus(str, Enum):
-    PENDING_REVIEW = "PENDING REVIEW"
-    ACTIVE = "ACTIVE"
-    REJECTED = "REJECTED"
-    ARCHIVED = "ARCHIVED"
-    MARKED_FOR_DELETION = "MARKED FOR DELETION"
+from critique_wheel.critiques.value_objects import (
+    CritiqueAbout,
+    CritiqueId,
+    CritiqueIdeas,
+    CritiqueStatus,
+    CritiqueSuccesses,
+    CritiqueWeaknesses,
+    MissingEntryError,
+)
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.value_objects import WorkId
 
 
 class Critique:
     def __init__(
         self,
-        content_about,
-        content_successes,
-        content_weaknesses,
-        content_ideas,
+        critique_about,
+        critique_successes,
+        critique_weaknesses,
+        critique_ideas,
         member_id,
         work_id,
         ratings,
         status=CritiqueStatus.ACTIVE,
         critique_id=None,
     ) -> None:
-        self.id = critique_id or uuid4()
-        self.content_about: str = content_about
-        self.content_successes: str = content_successes
-        self.content_weaknesses: str = content_weaknesses
-        self.content_ideas: str = content_ideas
+        self.id: CritiqueId = critique_id or CritiqueId()
+        self.critique_about: CritiqueAbout = critique_about
+        self.critique_successes: CritiqueSuccesses = critique_successes
+        self.critique_weaknesses: CritiqueWeaknesses = critique_weaknesses
+        self.critique_ideas: CritiqueIdeas = critique_ideas
         self.status: CritiqueStatus = status
         self.submission_date: datetime = datetime.now()
         self.last_updated_date: datetime = datetime.now()
         self.archive_date = None
-        self.member_id: UUID = member_id
-        self.work_id: UUID = work_id
+        self.member_id: MemberId = member_id
+        self.work_id: WorkId = work_id
         self.ratings = ratings or []
 
     @classmethod
     def create(
         cls,
-        content_about,
-        content_successes,
-        content_weaknesses,
-        content_ideas,
+        critique_about,
+        critique_successes,
+        critique_weaknesses,
+        critique_ideas,
         member_id,
         work_id,
         critique_id=None,
         ratings=None,
     ):
-        if not content_about or not content_successes or not content_weaknesses or not content_ideas:
+        if (
+            not critique_about
+            or not critique_successes
+            or not critique_weaknesses
+            or not critique_ideas
+        ):
             raise MissingEntryError()
         if not member_id or not work_id:
             raise MissingEntryError()
+        if critique_about.is_minimum_word_length():
+            raise ValueError(
+                f"The about text should be at least {critique_about.minimum_words} words."
+            )
+        if critique_successes.is_minimum_word_length():
+            raise ValueError(
+                f"The successes text should be at least {critique_successes.minimum_words} words."
+            )
+        if critique_weaknesses.is_minimum_word_length():
+            raise ValueError(
+                f"The weaknesses text should be at least {critique_weaknesses.minimum_words} words."
+            )
+        if critique_ideas.is_minimum_word_length():
+            raise ValueError(
+                f"The ideas text should be at least {critique_ideas.minimum_words} words."
+            )
         return cls(
-            content_about=content_about,
-            content_successes=content_successes,
-            content_weaknesses=content_weaknesses,
-            content_ideas=content_ideas,
+            critique_about=critique_about,
+            critique_successes=critique_successes,
+            critique_weaknesses=critique_weaknesses,
+            critique_ideas=critique_ideas,
             member_id=member_id,
             work_id=work_id,
             critique_id=critique_id,

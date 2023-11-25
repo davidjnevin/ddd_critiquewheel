@@ -1,11 +1,16 @@
-from uuid import uuid4
-
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
+from critique_wheel.critiques.value_objects import (
+    CritiqueAbout,
+    CritiqueId,
+    CritiqueIdeas,
+    CritiqueSuccesses,
+    CritiqueWeaknesses,
+)
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
@@ -54,7 +59,7 @@ def valid_credit():
         amount=5,
         transaction_type=TransactionType.CRITIQUE_GIVEN,
         work_id=WorkId(),
-        critique_id=uuid4(),
+        critique_id=CritiqueId(),
     )
 
 
@@ -64,7 +69,7 @@ def valid_rating():
         member_id=MemberId(),
         score=5,
         comment="This is a test rating.",
-        critique_id=uuid4(),
+        critique_id=CritiqueId(),
     )
 
 
@@ -74,19 +79,21 @@ def another_valid_rating():
         member_id=MemberId(),
         score=4,
         comment="This is a test rating.",
-        critique_id=uuid4(),
+        critique_id=CritiqueId(),
     )
 
 
 @pytest.fixture
 def valid_critique():
+    text = "Word " * 45
     return Critique.create(
+        critique_about=CritiqueAbout(text),
+        critique_successes=CritiqueSuccesses(text),
+        critique_weaknesses=CritiqueWeaknesses(text),
+        critique_ideas=CritiqueIdeas(text),
         member_id=MemberId(),
         work_id=WorkId(),
-        content_about="About content.",
-        content_successes="This is a test critique.",
-        content_weaknesses="This is a test critique.",
-        content_ideas="This is a test critique.",
+        critique_id=CritiqueId(),
         ratings=None,
     )
 
@@ -116,28 +123,30 @@ def another_valid_work():
 
 
 @pytest.fixture
-def id_critique1():
+def valid_critique1():
+    text = "Word " * 45
     return Critique.create(
-        content_about="About content.",
-        content_successes="This is a test critique.",
-        content_weaknesses="This is a test critique.",
-        content_ideas="This is a test critique.",
+        critique_about=CritiqueAbout(text),
+        critique_successes=CritiqueSuccesses(text),
+        critique_weaknesses=CritiqueWeaknesses(text),
+        critique_ideas=CritiqueIdeas(text),
         member_id=MemberId(),
         work_id=WorkId(),
-        critique_id=uuid4(),
+        critique_id=CritiqueId(),
     )
 
 
 @pytest.fixture
-def id_critique2():
+def valid_critique2():
+    text = "Word " * 45
     return Critique.create(
-        content_about="About content.",
-        content_successes="This is a test critique.",
-        content_weaknesses="This is a test critique.",
-        content_ideas="This is a test critique.",
+        critique_about=CritiqueAbout(text),
+        critique_successes=CritiqueSuccesses(text),
+        critique_weaknesses=CritiqueWeaknesses(text),
+        critique_ideas=CritiqueIdeas(text),
         member_id=MemberId(),
         work_id=WorkId(),
-        critique_id=uuid4(),
+        critique_id=CritiqueId(),
     )
 
 

@@ -35,7 +35,7 @@ def test_repository_can_save_a_critique_credit_transaction(
             credit.amount,
             credit.transaction_type.value,
             None,
-            format_uuid_for_db(critique.id),
+            critique.id.get_uuid(),
         )
     ]
 

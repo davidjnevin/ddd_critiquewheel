@@ -1,5 +1,4 @@
 # Throwaway test file for testing ORM functionality
-
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
@@ -46,7 +45,7 @@ class TestOrm:
 
     # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retrieve_work(
-        self, session, id_critique1, id_critique2, valid_member, valid_work
+        self, session, valid_critique1, valid_critique2, valid_member, valid_work
     ):
         # Arrange
         # Arrange work
@@ -54,9 +53,9 @@ class TestOrm:
         new_work = valid_work
         new_work.status = WorkStatus.ACTIVE
         # Arrange critiques
-        new_critique_1 = id_critique1
+        new_critique_1 = valid_critique1
         new_critique_1.work_id = new_work.id
-        new_critique_2 = id_critique2
+        new_critique_2 = valid_critique2
         new_critique_2.work_id = new_work.id
         # TODO: Does this add_critique break my pure work model?
         new_work.add_critique(new_critique_1)
@@ -101,16 +100,17 @@ class TestOrm:
         session.add(new_critique)
         session.commit()
         retrieved_critique = (
-            session.query(Critique).filter_by(content_about="About content.").one()
+            session.query(Critique).filter_by(id=valid_critique.id).one()
         )
 
         # Assert
         assert retrieved_critique.id == new_critique.id
-        assert retrieved_critique.content_about == "About content."
-        assert retrieved_critique.content_about == "About content."
-        assert retrieved_critique.content_successes == "This is a test critique."
-        assert retrieved_critique.content_weaknesses == "This is a test critique."
-        assert retrieved_critique.content_ideas == "This is a test critique."
+        assert retrieved_critique.critique_about == new_critique.critique_about
+        assert retrieved_critique.critique_successes == new_critique.critique_successes
+        assert (
+            retrieved_critique.critique_weaknesses == new_critique.critique_weaknesses
+        )
+        assert retrieved_critique.critique_ideas == new_critique.critique_ideas
         assert retrieved_critique.work_id == valid_work.id
         assert retrieved_critique.ratings == [new_rating]
 
