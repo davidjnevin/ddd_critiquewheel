@@ -1,8 +1,8 @@
 import abc
 from typing import List, Optional
-from uuid import UUID
 
 from critique_wheel.domain.models.rating import Rating
+from critique_wheel.ratings.value_objects import RatingId
 
 
 class AbstractRatingRepository(abc.ABC):
@@ -11,7 +11,7 @@ class AbstractRatingRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, rating_id: UUID) -> Optional[Rating]:
+    def get(self, rating_id: RatingId) -> Optional[Rating]:
         raise NotImplementedError
 
     @abc.abstractmethod

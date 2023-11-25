@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.rating_repository import AbstractRatingRepository
+from critique_wheel.ratings.value_objects import RatingId
 
 
 class SqlAlchemyRatingRepository(AbstractRatingRepository):
@@ -13,7 +14,7 @@ class SqlAlchemyRatingRepository(AbstractRatingRepository):
     def add(self, rating: Rating) -> None:
         self.session.add(rating)
 
-    def get(self, rating_id: str) -> Optional[Rating]:
+    def get(self, rating_id: RatingId) -> Optional[Rating]:
         return self.session.query(Rating).filter_by(id=rating_id).one_or_none()
 
     def list(self) -> list[Rating]:

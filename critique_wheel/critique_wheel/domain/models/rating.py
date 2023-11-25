@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
-from uuid import uuid4
+
+from critique_wheel.ratings.value_objects import RatingId, RatingScore
 
 
 class MissingEntryError(Exception):
@@ -25,8 +26,8 @@ class Rating:
         status=RatingStatus.ACTIVE,
         rating_id=None,
     ) -> None:
-        self.id = rating_id or uuid4()
-        self.score: int = score
+        self.id = rating_id or RatingId()
+        self.score: RatingScore = score
         self.comment: str = comment
         self.status: RatingStatus = status
         self.submission_date: datetime = datetime.now()
