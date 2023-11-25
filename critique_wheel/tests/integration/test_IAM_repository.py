@@ -68,7 +68,7 @@ def test_repository_can_get_a_member_by_id(
         session.query(Critique).filter_by(member_id=valid_member.id).all()
     )
     assert len(retrieved_critiques) == 1
-    assert retrieved_critiques[0].content_about == valid_critique.content_about
+    assert retrieved_critiques[0].critique_about == valid_critique.critique_about
 
     assert retrieved_works[0].member_id == valid_member.id
     assert retrieved_critiques[0].member_id == valid_member.id

@@ -1,11 +1,9 @@
-import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import credit_repository
 from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
 
 
-@pytest.mark.current
 def test_repository_can_save_a_critique_credit_transaction(
     session, valid_credit, valid_member, valid_critique
 ):
@@ -42,7 +40,6 @@ def test_repository_can_save_a_critique_credit_transaction(
     ]
 
 
-@pytest.mark.current
 def test_repository_can_save_a_work_credit_transaction(
     session, valid_credit, valid_member, valid_work
 ):

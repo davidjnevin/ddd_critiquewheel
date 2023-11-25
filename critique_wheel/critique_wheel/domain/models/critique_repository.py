@@ -1,7 +1,7 @@
 import abc
 from typing import List, Optional
-from uuid import UUID
 
+from critique_wheel.critiques.value_objects import CritiqueId
 from critique_wheel.domain.models.critique import Critique
 
 
@@ -11,7 +11,7 @@ class AbstractCritiqueRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, critique_id: UUID) -> Optional[Critique]:
+    def get(self, critique_id: CritiqueId) -> Optional[Critique]:
         raise NotImplementedError
 
     @abc.abstractmethod

@@ -35,16 +35,76 @@ class CritiqueId:
 
 
 @dataclass(frozen=True)
-class Content:
+class CritiqueAbout:
     value: str
+    minimum_words = 20
 
-    def __post_init__(self):
-        char_limit = 8500
-        if len(self.value) > char_limit:
-            raise ValueError(f"Work text must be under {char_limit} characters.")
+    def is_minimum_word_length(self):
+        return satisfies_minimum_word_count(self.value, self.minimum_words)
 
     def __str__(self):
         return str(self.value)
 
     def __len__(self):
         return len(self.value)
+
+    def word_count(self):
+        return len(self.value.split())
+
+
+@dataclass(frozen=True)
+class CritiqueSuccesses:
+    value: str
+    minimum_words = 40
+
+    def is_minimum_word_length(self):
+        return satisfies_minimum_word_count(self.value, self.minimum_words)
+
+    def __str__(self):
+        return str(self.value)
+
+    def __len__(self):
+        return len(self.value)
+
+    def word_count(self):
+        return len(self.value.split())
+
+
+@dataclass(frozen=True)
+class CritiqueWeaknesses:
+    value: str
+    minimum_words = 40
+
+    def is_minimum_word_length(self):
+        return satisfies_minimum_word_count(self.value, self.minimum_words)
+
+    def __str__(self):
+        return str(self.value)
+
+    def __len__(self):
+        return len(self.value)
+
+    def word_count(self):
+        return len(self.value.split())
+
+
+@dataclass(frozen=True)
+class CritiqueIdeas:
+    value: str
+    minimum_words = 40
+
+    def is_minimum_word_length(self):
+        return satisfies_minimum_word_count(self.value, self.minimum_words)
+
+    def __str__(self):
+        return str(self.value)
+
+    def __len__(self):
+        return len(self.value)
+
+    def word_count(self):
+        return len(self.value.split())
+
+
+def satisfies_minimum_word_count(value, minimum_words):
+    return len(value.split()) <= minimum_words

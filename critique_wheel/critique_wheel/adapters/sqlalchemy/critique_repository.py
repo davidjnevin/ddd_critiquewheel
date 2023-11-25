@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from critique_wheel.critiques.value_objects import CritiqueId
 from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.critique_repository import AbstractCritiqueRepository
 
@@ -13,7 +14,7 @@ class SqlAlchemyCritiqueRepository(AbstractCritiqueRepository):
     def add(self, critique: Critique) -> None:
         self.session.add(critique)
 
-    def get(self, critique_id: str) -> Optional[Critique]:
+    def get(self, critique_id: CritiqueId) -> Optional[Critique]:
         return self.session.query(Critique).filter_by(id=critique_id).one_or_none()
 
     def list(self) -> list[Critique]:
