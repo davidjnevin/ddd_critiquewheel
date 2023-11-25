@@ -4,6 +4,7 @@ from critique_wheel.domain.models.critique import Critique
 from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating
 from critique_wheel.domain.models.work import Work
+from critique_wheel.ratings.value_objects import RatingScore
 from critique_wheel.works.value_objects import (
     Content,
     Title,
@@ -131,7 +132,7 @@ class TestOrm:
         # Assert
         assert retrieved_rating.id == new_rating.id
         assert retrieved_rating.member_id == new_rating.member_id
-        assert retrieved_rating.score == 5
+        assert retrieved_rating.score == RatingScore(5)
 
     # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
     def test_create_and_retreive_credit(self, session, valid_credit):

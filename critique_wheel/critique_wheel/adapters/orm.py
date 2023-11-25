@@ -18,6 +18,7 @@ from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating, RatingStatus
 from critique_wheel.domain.models.work import Work
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.ratings.value_objects import RatingComment, RatingId, RatingScore
 from critique_wheel.works.value_objects import (
     Content,
     Title,
@@ -129,6 +130,39 @@ class CritiqueIdeasType(TypeDecorator):
         return CritiqueIdeas(value) if value is not None else None
 
 
+class RatingUUIDType(TypeDecorator):
+    impl = CHAR
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return str(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return RatingId(id=uuid.UUID(value)) if value is not None else None
+
+
+class RatingScoreType(TypeDecorator):
+    impl = Integer
+    cache_ok = False  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return int(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return RatingScore(value) if value is not None else None
+
+
+class RatingCommentStringType(TypeDecorator):
+    impl = String
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return value.value if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return RatingComment(value) if value is not None else None
+
+
 work_table = Table(
     "works",
     mapper_registry.metadata,
@@ -165,8 +199,8 @@ critique_table = Table(
 rating_table = Table(
     "ratings",
     mapper_registry.metadata,
-    Column("id", Uuid(as_uuid=True), primary_key=True),
-    Column("score", Integer),
+    Column("id", RatingUUIDType, primary_key=True),
+    Column("score", RatingScoreType),
     Column("comment", String),
     Column("status", Enum(RatingStatus)),
     Column("member_id", ForeignKey("members.id"), nullable=False),
