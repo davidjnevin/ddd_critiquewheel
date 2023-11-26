@@ -1,4 +1,5 @@
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -14,6 +15,7 @@ from critique_wheel.critiques.value_objects import (
     CritiqueWeaknesses,
 )
 from critique_wheel.infrastructure.config import config
+from critique_wheel.main import app
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.ratings.models.rating import Rating
@@ -25,6 +27,12 @@ from critique_wheel.works.value_objects import (
     WorkGenre,
     WorkId,
 )
+
+
+@pytest.fixture(scope="module")
+def restart_api():
+    client = TestClient(app)
+    yield client
 
 
 @pytest.fixture
