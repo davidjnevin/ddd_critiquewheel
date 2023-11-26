@@ -2,6 +2,8 @@ import uuid
 from dataclasses import dataclass, field
 from enum import Enum
 
+from critique_wheel.config import config
+
 
 class BaseWorkDomainError(Exception):
     pass
@@ -86,12 +88,15 @@ class Content:
     value: str
 
     def __post_init__(self):
-        char_limit = 8500
-        if len(self.value) > char_limit:
-            raise ValueError(f"Work text must be under {char_limit} characters.")
+        word_limit = config.WORK_MAX_LENGTH
+        if self.word_count() > word_limit:
+            raise ValueError(f"Work text must be under {word_limit} words.")
 
     def __str__(self):
         return str(self.value)
 
     def __len__(self):
         return len(self.value)
+
+    def word_count(self):
+        return len(self.value.split())

@@ -16,6 +16,8 @@ class BaseConfig(BaseSettings):
 
 
 class GlobalConfig(BaseConfig):
+    # Work configuration
+    WORK_MAX_WORDS: Optional[int] = 8000
     LOG_FILE: Optional[str] = None
     LOGTAIL_API_KEY: Optional[str] = None
     # JWT_ALGORITHM: Optional[str] = None
