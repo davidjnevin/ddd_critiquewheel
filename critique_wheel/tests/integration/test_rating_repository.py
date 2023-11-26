@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import rating_repository
@@ -38,7 +37,6 @@ def test_repo_can_list_and_get_ratings(session, valid_rating):
     assert repo.list() == [rating]
 
 
-@pytest.mark.current
 def test_repository_can_get_a_work_by_id(session, valid_rating):
     rating = valid_rating
     repo = rating_repository.SqlAlchemyRatingRepository(session)
