@@ -2,11 +2,11 @@ from uuid import uuid4
 
 import pytest
 
-from critique_wheel.domain.services.work_service import (
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.services.work_service import (
     DuplicateWorkError,
     InvalidDataError,
 )
-from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.value_objects import Content, Title
 
 

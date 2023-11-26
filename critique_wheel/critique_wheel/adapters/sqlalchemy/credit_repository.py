@@ -2,9 +2,9 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from critique_wheel.credits.models.credit import CreditManager
+from critique_wheel.credits.models.credit_repository import AbstractCreditRepository
 from critique_wheel.credits.value_objects import TransactionId
-from critique_wheel.domain.models.credit import CreditManager
-from critique_wheel.domain.models.credit_repository import AbstractCreditRepository
 
 
 class SqlAlchemyCreditRepository(AbstractCreditRepository):

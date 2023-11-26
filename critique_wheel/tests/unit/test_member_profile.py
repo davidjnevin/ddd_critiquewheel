@@ -2,7 +2,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from critique_wheel.domain.models.member_profile import MemberProfile
+from critique_wheel.members.models.member_profile import MemberProfile
 from critique_wheel.members.value_objects import (
     Bio,
     FirstName,

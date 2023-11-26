@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from critique_wheel.domain.models.credit import CreditManager, TransactionType
+from critique_wheel.credits.models.credit import CreditManager, TransactionType
 
 # Mock database setup
 mock_db = {
@@ -52,7 +52,7 @@ class TestTransactionType:
         )
         assert ct.id == 23
         assert ct.member_id == 42
-        assert ct.critique_id == None
+        assert ct.critique_id is None
         assert ct.work_id == 45
         assert ct.amount == 3
         assert ct.transaction_type == TransactionType.WORK_SUBMITTED
@@ -139,7 +139,9 @@ class TestTransactionType:
         amount = 3
         transaction_type = TransactionType.WORK_SUBMITTED
 
-        with pytest.raises(ValueError, match="Work submission must only have an associated work_id."):
+        with pytest.raises(
+            ValueError, match="Work submission must only have an associated work_id."
+        ):
             CreditManager.create(
                 member_id=member_id,
                 amount=amount,
@@ -235,31 +237,50 @@ class TestTransactionType:
             CreditManager.validate_credit_rules({"critique": valid_rules["critique"]})
 
         # Missing 'critique' key
-        with pytest.raises(ValueError, match="YAML file must contain 'submission' and 'critique' rules."):
-            CreditManager.validate_credit_rules({"submission": valid_rules["submission"]})
+        with pytest.raises(
+            ValueError,
+            match="YAML file must contain 'submission' and 'critique' rules.",
+        ):
+            CreditManager.validate_credit_rules(
+                {"submission": valid_rules["submission"]}
+            )
 
         # 'submission' is not a list
         with pytest.raises(ValueError, match="'submission' must be a list of rules."):
-            CreditManager.validate_credit_rules({"submission": {}, "critique": valid_rules["critique"]})
+            CreditManager.validate_credit_rules(
+                {"submission": {}, "critique": valid_rules["critique"]}
+            )
 
         # Missing 'max_words' in a rule
-        with pytest.raises(ValueError, match="Each rule in 'submission' must contain 'max_words' and 'credits'."):
+        with pytest.raises(
+            ValueError,
+            match="Each rule in 'submission' must contain 'max_words' and 'credits'.",
+        ):
             CreditManager.validate_credit_rules(
                 {"submission": [{"credits": 3}], "critique": valid_rules["critique"]}
             )
 
         # 'max_words' is neither integer nor 'max'
-        with pytest.raises(ValueError, match="'max_words' in 'submission' must be an integer or 'max'."):
+        with pytest.raises(
+            ValueError, match="'max_words' in 'submission' must be an integer or 'max'."
+        ):
             CreditManager.validate_credit_rules(
-                {"submission": [{"max_words": "three thousand", "credits": 3}], "critique": valid_rules["critique"]}
+                {
+                    "submission": [{"max_words": "three thousand", "credits": 3}],
+                    "critique": valid_rules["critique"],
+                }
             )
 
         # 'credits' is not a number
-        with pytest.raises(ValueError, match="'credits' in 'submission' must be a number."):
+        with pytest.raises(
+            ValueError, match="'credits' in 'submission' must be a number."
+        ):
             CreditManager.validate_credit_rules(
-                {"submission": [{"max_words": 3000, "credits": "three"}], "critique": valid_rules["critique"]}
+                {
+                    "submission": [{"max_words": 3000, "credits": "three"}],
+                    "critique": valid_rules["critique"],
+                }
             )
-
 
     def test_credits_for_submission(self):
         assert CreditManager.credits_for_submission(2500) == 3
@@ -272,4 +293,3 @@ class TestTransactionType:
         assert CreditManager.credits_for_critique(3500) == 1.5
         assert CreditManager.credits_for_critique(4500) == 2
         assert CreditManager.credits_for_critique(6000) == 2.5
-

@@ -3,7 +3,7 @@
 import pytest
 from pytest import raises
 
-from critique_wheel.domain.models.rating import MissingEntryError, Rating, RatingStatus
+from critique_wheel.ratings.models.rating import MissingEntryError, Rating, RatingStatus
 
 
 @pytest.fixture

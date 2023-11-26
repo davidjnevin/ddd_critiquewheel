@@ -2,9 +2,11 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from critique_wheel.critiques.models.critique import Critique
+from critique_wheel.critiques.models.critique_repository import (
+    AbstractCritiqueRepository,
+)
 from critique_wheel.critiques.value_objects import CritiqueId
-from critique_wheel.domain.models.critique import Critique
-from critique_wheel.domain.models.critique_repository import AbstractCritiqueRepository
 
 
 class SqlAlchemyCritiqueRepository(AbstractCritiqueRepository):

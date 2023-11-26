@@ -2,7 +2,8 @@ from datetime import datetime
 
 import pytest
 
-from critique_wheel.domain.models.work import (
+from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.models.work import (
     CritiqueDuplicateError,
     MissingEntryError,
     Work,
@@ -11,7 +12,6 @@ from critique_wheel.domain.models.work import (
     WorkNotAvailableForCritiqueError,
     WorkStatus,
 )
-from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.value_objects import Content, Title
 
 
