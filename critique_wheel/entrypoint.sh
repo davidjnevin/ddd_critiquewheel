@@ -40,7 +40,7 @@ case $1 in
 		wait_other_containers ;\
 	 	if [ "$FASTAPI_DEBUG" = "true" ]; then
         uvicorn \
-            critique_wheel.fast_api:app \
+            critique_wheel.main:app \
 			--host 0.0.0.0 \
             --port 8000 \
             --workers 2 \
@@ -48,7 +48,7 @@ case $1 in
             --log-level debug
 		else
 			uvicorn \
-				critique_wheel.fast_api:app \
+				critique_wheel.main:app \
 				--host 0.0.0.0 \
 				--port 8000 \
 				--workers 2

@@ -74,6 +74,11 @@ bash:
 lint:
 	${PRE_RUN_API_COMMAND} lint
 
+# target: server - run uvicorn server
+.PHONY: server
+server:
+	${PRE_RUN_API_COMMAND} server
+
 # target: shell - Obtain a django shell
 .PHONY: shell
 shell:
