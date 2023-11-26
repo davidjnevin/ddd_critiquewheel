@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from critique_wheel.config import config
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import (
     CritiqueDuplicateError,
@@ -90,6 +91,19 @@ def test_create_work_without_member_id():
             age_restriction=None,  # type: ignore
             genre=WorkGenre.OTHER,
             member_id=MemberId(None),
+        )
+
+
+@pytest.mark.current
+def test_create_work_content_exceeding_limit():
+    with pytest.raises(ValueError):
+        long_content = "word " * (config.WORK_MAX_WORDS + 1)  # type: ignore
+        Work.create(
+            title=Title("Valid Title"),
+            content=Content(long_content),
+            age_restriction=WorkAgeRestriction.ADULT,
+            genre=WorkGenre.OTHER,
+            member_id=MemberId(),
         )
 
 
