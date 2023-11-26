@@ -88,7 +88,7 @@ class Content:
     value: str
 
     def __post_init__(self):
-        word_limit = config.WORK_MAX_LENGTH
+        word_limit = config.WORK_MAX_WORDS
         if self.word_count() > word_limit:
             raise ValueError(f"Work text must be under {word_limit} words.")
 

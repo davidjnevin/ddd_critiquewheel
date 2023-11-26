@@ -18,6 +18,10 @@ class BaseConfig(BaseSettings):
 class GlobalConfig(BaseConfig):
     # Work configuration
     WORK_MAX_WORDS: Optional[int] = 8000
+    CRITIQUE_ABOUT_MIN_WORDS: Optional[int] = 20
+    CRITIQUE_SUCCESSES_MIN_WORDS: Optional[int] = 40
+    CRITIQUE_WEAKNESSES_MIN_WORDS: Optional[int] = 40
+    CRITIQUE_IDEAS_MIN_WORDS: Optional[int] = 40
     LOG_FILE: Optional[str] = None
     LOGTAIL_API_KEY: Optional[str] = None
     # JWT_ALGORITHM: Optional[str] = None

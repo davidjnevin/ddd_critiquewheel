@@ -2,6 +2,8 @@ import uuid
 from dataclasses import dataclass, field
 from enum import Enum
 
+from critique_wheel.config import config
+
 
 class BaseCritiqueDomainError(Exception):
     pass
@@ -37,7 +39,7 @@ class CritiqueId:
 @dataclass(frozen=True)
 class CritiqueAbout:
     value: str
-    minimum_words = 20
+    minimum_words = config.CRITIQUE_ABOUT_MIN_WORDS
 
     def is_minimum_word_length(self):
         return satisfies_minimum_word_count(self.value, self.minimum_words)
@@ -55,7 +57,7 @@ class CritiqueAbout:
 @dataclass(frozen=True)
 class CritiqueSuccesses:
     value: str
-    minimum_words = 40
+    minimum_words = config.CRITIQUE_SUCCESSES_MIN_WORDS
 
     def is_minimum_word_length(self):
         return satisfies_minimum_word_count(self.value, self.minimum_words)
@@ -73,7 +75,7 @@ class CritiqueSuccesses:
 @dataclass(frozen=True)
 class CritiqueWeaknesses:
     value: str
-    minimum_words = 40
+    minimum_words = config.CRITIQUE_WEAKNESSES_MIN_WORDS
 
     def is_minimum_word_length(self):
         return satisfies_minimum_word_count(self.value, self.minimum_words)
@@ -91,7 +93,7 @@ class CritiqueWeaknesses:
 @dataclass(frozen=True)
 class CritiqueIdeas:
     value: str
-    minimum_words = 40
+    minimum_words = config.CRITIQUE_IDEAS_MIN_WORDS
 
     def is_minimum_word_length(self):
         return satisfies_minimum_word_count(self.value, self.minimum_words)
