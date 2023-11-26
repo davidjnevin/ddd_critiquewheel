@@ -11,7 +11,7 @@ class AbstractCreditRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, credit_id: UUID) -> Optional[CreditManager]:
+    def get(self, transaction_id: UUID) -> Optional[CreditManager]:
         raise NotImplementedError
 
     @abc.abstractmethod

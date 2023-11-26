@@ -1,7 +1,6 @@
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import credit_repository
-from critique_wheel.infrastructure.utils.db_utils import format_uuid_for_db
 
 
 def test_repository_can_save_a_critique_credit_transaction(
@@ -30,7 +29,7 @@ def test_repository_can_save_a_critique_credit_transaction(
     )
     assert rows == [
         (
-            format_uuid_for_db(credit.id),
+            credit.id.get_uuid(),
             member.id.get_uuid(),
             credit.amount,
             credit.transaction_type.value,
@@ -66,7 +65,7 @@ def test_repository_can_save_a_work_credit_transaction(
     )
     assert rows == [
         (
-            format_uuid_for_db(credit.id),
+            credit.id.get_uuid(),
             member.id.get_uuid(),
             credit.amount,
             credit.transaction_type.value,
