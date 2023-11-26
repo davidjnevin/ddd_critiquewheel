@@ -1,9 +1,8 @@
 from typing import Optional
 
-from sqlalchemy import UUID
-
-from critique_wheel.domain.models.IAM import Member
-from critique_wheel.domain.models.iam_repository import AbstractMemberRepository
+from critique_wheel.members.models.IAM import Member
+from critique_wheel.members.models.iam_repository import AbstractMemberRepository
+from critique_wheel.members.value_objects import MemberId
 
 
 class FakeMemberRepository(AbstractMemberRepository):
@@ -14,7 +13,7 @@ class FakeMemberRepository(AbstractMemberRepository):
     def add(self, member: Member) -> None:
         self._members.add(member)
 
-    def get_member_by_id(self, member_id: UUID) -> Optional[Member]:
+    def get_member_by_id(self, member_id: MemberId) -> Optional[Member]:
         for m in self._members:
             if m.id == member_id:
                 return m

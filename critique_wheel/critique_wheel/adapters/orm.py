@@ -15,9 +15,9 @@ from critique_wheel.critiques.value_objects import (
 )
 from critique_wheel.domain.models.credit import CreditManager, TransactionType
 from critique_wheel.domain.models.critique import Critique, CritiqueStatus
-from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.domain.models.rating import Rating, RatingStatus
 from critique_wheel.domain.models.work import Work
+from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.ratings.value_objects import RatingComment, RatingId, RatingScore
 from critique_wheel.works.value_objects import (

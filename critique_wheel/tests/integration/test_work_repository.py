@@ -3,7 +3,7 @@ from uuid import uuid4
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import work_repository
-from critique_wheel.domain.models.IAM import MemberStatus
+from critique_wheel.members.models.IAM import MemberStatus
 
 
 def test_repository_can_save_a_work(

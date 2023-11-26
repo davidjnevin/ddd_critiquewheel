@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
-from critique_wheel.domain.models.IAM_domain_exceptions import (
+from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
+from critique_wheel.members.models.IAM_domain_exceptions import (
     AdminOnlyError,
     CritiqueAlreadyExistsError,
     IncorrectCredentialsError,

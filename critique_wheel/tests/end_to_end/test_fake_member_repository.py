@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from critique_wheel.domain.models.IAM import MemberRole, MemberStatus
+from critique_wheel.members.models.IAM import MemberRole, MemberStatus
 from tests.end_to_end.fake_iam_repository import FakeMemberRepository
 
 

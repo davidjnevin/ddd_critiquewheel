@@ -3,8 +3,8 @@ from typing import Optional
 from sqlalchemy import UUID
 from sqlalchemy.orm import Session
 
-from critique_wheel.domain.models.IAM import Member
-from critique_wheel.domain.models.iam_repository import AbstractMemberRepository
+from critique_wheel.members.models.IAM import Member
+from critique_wheel.members.models.iam_repository import AbstractMemberRepository
 
 
 class SqlAlchemyMemberRepository(AbstractMemberRepository):

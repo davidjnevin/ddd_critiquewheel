@@ -1,12 +1,11 @@
 from typing import Optional
 
-from sqlalchemy import UUID
-
 from critique_wheel.domain.models.critique import Critique
-from critique_wheel.domain.models.IAM import Member
-from critique_wheel.domain.models.IAM_domain_exceptions import BaseIAMDomainError
-from critique_wheel.domain.models.iam_repository import AbstractMemberRepository
 from critique_wheel.domain.models.work import Work
+from critique_wheel.members.models.IAM import Member
+from critique_wheel.members.models.IAM_domain_exceptions import BaseIAMDomainError
+from critique_wheel.members.models.iam_repository import AbstractMemberRepository
+from critique_wheel.members.value_objects import MemberId
 
 
 class BaseIAMServiceError(Exception):
@@ -62,12 +61,12 @@ class IAMService:
     def get_member_by_username(self, username: str) -> Optional[Member]:
         return self._repository.get_member_by_username(username)
 
-    def get_member_by_id(self, member_id: UUID) -> Optional[Member]:
+    def get_member_by_id(self, member_id: MemberId) -> Optional[Member]:
         return self._repository.get_member_by_id(member_id)
 
     # This was added here because the since each
     # Work has a member_id and is closely related to a Member,
-    def add_work_to_member(self, member_id: UUID, work: Work) -> None:
+    def add_work_to_member(self, member_id: MemberId, work: Work) -> None:
         member = self._repository.get_member_by_id(member_id)
         if member:
             member.add_work(work)
@@ -77,7 +76,7 @@ class IAMService:
 
     # This was added here because the since each
     # critique has a member_id and is closely related to a Member,
-    def add_critique_to_member(self, member_id: UUID, critique: Critique) -> None:
+    def add_critique_to_member(self, member_id: MemberId, critique: Critique) -> None:
         member = self._repository.get_member_by_id(member_id)
         if member:
             member.add_critique(critique)
@@ -85,14 +84,14 @@ class IAMService:
         else:
             raise MemberNotFoundException("Member not found")
 
-    def list_member_works(self, member_id: UUID) -> list[Work]:
+    def list_member_works(self, member_id: MemberId) -> list[Work]:
         member = self._repository.get_member_by_id(member_id)  # type: ignore
         if member:
             return member.list_works()
         else:
             raise MemberNotFoundException("Member not found")
 
-    def list_member_critiques(self, member_id: UUID) -> list[Critique]:
+    def list_member_critiques(self, member_id: MemberId) -> list[Critique]:
         member = self._repository.get_member_by_id(member_id)
         if member:
             return member.list_critiques()
