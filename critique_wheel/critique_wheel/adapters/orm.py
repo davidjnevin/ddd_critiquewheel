@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Table, Uuid
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import registry, relationship
 from sqlalchemy.types import CHAR, TypeDecorator
 
+from critique_wheel.credits.value_objects import TransactionId
 from critique_wheel.critiques.value_objects import (
     CritiqueAbout,
     CritiqueId,
@@ -163,6 +164,17 @@ class RatingCommentStringType(TypeDecorator):
         return RatingComment(value) if value is not None else None
 
 
+class TransactionUUIDType(TypeDecorator):
+    impl = CHAR
+    cache_ok = True  # Indicate that this type is safe to cache
+
+    def process_bind_param(self, value, dialect):
+        return str(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return TransactionId(id=uuid.UUID(value)) if value is not None else None
+
+
 work_table = Table(
     "works",
     mapper_registry.metadata,
@@ -213,7 +225,7 @@ rating_table = Table(
 credit_table = Table(
     "credits",
     mapper_registry.metadata,
-    Column("id", Uuid(as_uuid=True), primary_key=True),
+    Column("id", TransactionUUIDType, primary_key=True),
     Column("member_id", ForeignKey("members.id")),
     Column("critique_id", ForeignKey("critiques.id")),
     Column("work_id", ForeignKey("works.id")),
