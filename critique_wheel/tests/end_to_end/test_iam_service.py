@@ -1,8 +1,8 @@
 import pytest
 
-from critique_wheel.domain.models.IAM import MemberRole, MemberStatus
-from critique_wheel.domain.models.IAM_domain_exceptions import BaseIAMDomainError
-from critique_wheel.domain.services.iam_service import (
+from critique_wheel.members.models.IAM import MemberRole, MemberStatus
+from critique_wheel.members.models.IAM_domain_exceptions import BaseIAMDomainError
+from critique_wheel.members.services.iam_service import (
     DuplicateEntryError,
     InvalidCredentials,
 )

@@ -1,8 +1,8 @@
 import abc
 from typing import List, Optional
-from uuid import UUID
 
-from critique_wheel.domain.models.IAM import Member
+from critique_wheel.members.models.IAM import Member
+from critique_wheel.members.value_objects import MemberId
 
 
 class AbstractMemberRepository(abc.ABC):
@@ -11,7 +11,7 @@ class AbstractMemberRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_member_by_id(self, member_id: UUID) -> Optional[Member]:
+    def get_member_by_id(self, member_id: MemberId) -> Optional[Member]:
         raise NotImplementedError
 
     @abc.abstractmethod

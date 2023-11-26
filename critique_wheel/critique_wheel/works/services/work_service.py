@@ -1,8 +1,8 @@
 from typing import Optional
 
-from critique_wheel.domain.models.work import Work, WorkAgeRestriction, WorkGenre
-from critique_wheel.domain.models.work_repository import AbstractWorkRepository
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.models.work import Work, WorkAgeRestriction, WorkGenre
+from critique_wheel.works.models.work_repository import AbstractWorkRepository
 from critique_wheel.works.value_objects import Content, MissingEntryError, Title, WorkId
 
 
@@ -46,7 +46,9 @@ class WorkService:
             raise InvalidDataError(f"Invalid data encountered: {e}") from e
         if work_id:
             if self._repository.get_work_by_id(new_work.id):
-                raise DuplicateWorkError(f"Work with id {str(new_work.id)} already exists")
+                raise DuplicateWorkError(
+                    f"Work with id {str(new_work.id)} already exists"
+                )
         self._repository.add(new_work)
         return new_work
 

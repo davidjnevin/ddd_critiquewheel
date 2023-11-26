@@ -3,9 +3,9 @@ from uuid import uuid4
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import iam_repository
-from critique_wheel.domain.models.critique import Critique
-from critique_wheel.domain.models.IAM import MemberStatus
-from critique_wheel.domain.models.work import Work
+from critique_wheel.critiques.models.critique import Critique
+from critique_wheel.members.models.IAM import MemberStatus
+from critique_wheel.works.models.work import Work
 
 
 def test_repository_can_save_a_basic_member(

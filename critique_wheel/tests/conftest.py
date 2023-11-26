@@ -4,6 +4,8 @@ from sqlalchemy.orm import clear_mappers, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from critique_wheel.adapters.orm import mapper_registry, start_mappers
+from critique_wheel.credits.models.credit import CreditManager, TransactionType
+from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.critiques.value_objects import (
     CritiqueAbout,
     CritiqueId,
@@ -11,13 +13,11 @@ from critique_wheel.critiques.value_objects import (
     CritiqueSuccesses,
     CritiqueWeaknesses,
 )
-from critique_wheel.domain.models.credit import CreditManager, TransactionType
-from critique_wheel.domain.models.critique import Critique
-from critique_wheel.domain.models.IAM import Member, MemberRole, MemberStatus
-from critique_wheel.domain.models.rating import Rating
-from critique_wheel.domain.models.work import Work
 from critique_wheel.infrastructure.config import config
+from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.ratings.models.rating import Rating
+from critique_wheel.works.models.work import Work
 from critique_wheel.works.value_objects import (
     Content,
     Title,

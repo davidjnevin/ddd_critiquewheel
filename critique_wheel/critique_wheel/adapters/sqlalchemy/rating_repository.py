@@ -2,8 +2,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from critique_wheel.domain.models.rating import Rating
-from critique_wheel.domain.models.rating_repository import AbstractRatingRepository
+from critique_wheel.ratings.models.rating import Rating
+from critique_wheel.ratings.models.rating_repository import AbstractRatingRepository
 from critique_wheel.ratings.value_objects import RatingId
 
 

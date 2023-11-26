@@ -2,7 +2,7 @@ import abc
 from typing import List, Optional
 from uuid import UUID
 
-from critique_wheel.domain.models.credit import CreditManager
+from critique_wheel.credits.models.credit import CreditManager
 
 
 class AbstractCreditRepository(abc.ABC):

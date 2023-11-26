@@ -2,9 +2,9 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from critique_wheel.domain.models.work import Work
-from critique_wheel.domain.models.work_repository import AbstractWorkRepository
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.models.work import Work
+from critique_wheel.works.models.work_repository import AbstractWorkRepository
 from critique_wheel.works.value_objects import WorkId
 
 

@@ -4,19 +4,19 @@ from datetime import datetime, timedelta
 import pytest
 from pytest import raises
 
+from critique_wheel.critiques.models.critique import (
+    Critique,
+    CritiqueStatus,
+    MissingEntryError,
+)
 from critique_wheel.critiques.value_objects import (
     CritiqueAbout,
     CritiqueIdeas,
     CritiqueSuccesses,
     CritiqueWeaknesses,
 )
-from critique_wheel.domain.models.critique import (
-    Critique,
-    CritiqueStatus,
-    MissingEntryError,
-)
-from critique_wheel.domain.models.work import WorkStatus
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.models.work import WorkStatus
 from critique_wheel.works.value_objects import WorkId
 
 

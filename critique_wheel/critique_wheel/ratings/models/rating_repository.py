@@ -1,7 +1,7 @@
 import abc
 from typing import List, Optional
 
-from critique_wheel.domain.models.rating import Rating
+from critique_wheel.ratings.models.rating import Rating
 from critique_wheel.ratings.value_objects import RatingId
 
 
