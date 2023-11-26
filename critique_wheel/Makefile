@@ -49,6 +49,11 @@ logs:
 test:
 	${PRE_RUN_API_COMMAND} test
 
+# target: test - test code
+.PHONY: test-fast
+test-fast:
+	${PRE_RUN_API_COMMAND} test-fast
+
 # target: test with current flag- populate function
 .PHONY: test-current
 test-current:
