@@ -5,6 +5,7 @@ isort
 ruff
 # PyTest
 pytest
+pytest-xdist
 pytest-cov
 pytest-mock
 # MyPy

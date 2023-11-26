@@ -58,6 +58,10 @@ case $1 in
 		wait_other_containers ;\
 		pytest
 		;;
+	"test-fast")
+		wait_other_containers ;\
+		pytest -n 4
+		;;
 	"test-current")
 		wait_other_containers ;\
 		pytest -m current --no-header
