@@ -289,7 +289,7 @@ def test_add_work_to_member_adds_work_to_member(
     genre = work_details["genre"]
     age_restriction = work_details["age_restriction"]
 
-    new_work = work_service.create_work(
+    new_work = work_service.add_work(
         title=title,
         content=content,
         genre=genre,
