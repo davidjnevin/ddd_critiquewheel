@@ -12,4 +12,6 @@ rich
 asgi-correlation-id
 python-json-logger
 logtail-python
+databases[asyncpg]
+databases[aiosqlite]
 httpx
