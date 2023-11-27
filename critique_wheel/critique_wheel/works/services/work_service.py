@@ -22,7 +22,7 @@ class WorkService:
     def __init__(self, repository: AbstractWorkRepository):
         self._repository = repository
 
-    def create_work(
+    def add_work(
         self,
         title: Title,
         content: Content,
