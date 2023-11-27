@@ -193,7 +193,7 @@ def session(in_memory_db):
 
 @pytest.fixture
 def postgres_db():
-    engine = create_engine(config.get_postgres_uri(), echo=True)
+    engine = create_engine(config.get_postgres_uri(), echo=False)
     mapper_registry.metadata.create_all(engine)
     return engine
 
