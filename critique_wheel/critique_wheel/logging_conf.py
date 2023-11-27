@@ -3,10 +3,11 @@ from logging.config import dictConfig
 
 from critique_wheel.config import DevConfig, config
 
+handlers = ["default", "rotating_file"]
 # To ensure that logtail is only used for production
-handlers = ["default", "rotating_file", "logtail"]
 # if not isinstance(config, DevConfig):
-#     handlers.append("logtail")
+if isinstance(config, DevConfig):
+    handlers.append("logtail")
 
 
 def obfuscated(email: str, obfuscated_length: int) -> str:
