@@ -24,6 +24,7 @@ class GlobalConfig(BaseConfig):
     CRITIQUE_IDEAS_MIN_WORDS: Optional[int] = 40
     LOG_FILE: Optional[str] = None
     LOGTAIL_API_KEY: Optional[str] = None
+    FORCE_ROLLBACK: Optional[bool] = False
     # JWT_ALGORITHM: Optional[str] = None
     # JWT_SECRET_KEY: Optional[str] = None
     # MAILGUN_API_KEY: Optional[str] = None
