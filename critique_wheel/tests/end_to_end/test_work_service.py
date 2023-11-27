@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 import pytest
 
 from critique_wheel.members.value_objects import MemberId
@@ -10,9 +8,9 @@ from critique_wheel.works.services.work_service import (
 from critique_wheel.works.value_objects import Content, Title
 
 
-def test_create_work(work_service, work_details):
-    member_id = uuid4()
-    work = work_service.create_work(
+def test_add_work(work_service, work_details):
+    member_id = MemberId()
+    work = work_service.add_work(
         title=work_details["title"],
         content=work_details["content"],
         age_restriction=work_details["age_restriction"],
@@ -30,14 +28,14 @@ def test_create_work(work_service, work_details):
 
 def test_create_dupliacte_work_raises_DuplicateWorkError(work_service, work_details):
     member_id = MemberId()
-    work_1 = work_service.create_work(
+    work_1 = work_service.add_work(
         title=Title(work_details["title"]),
         content=Content(work_details["content"]),
         age_restriction=work_details["age_restriction"],
         member_id=member_id,
     )
     with pytest.raises(DuplicateWorkError):
-        work_service.create_work(
+        work_service.add_work(
             work_id=work_1.id,
             title=Title(work_details["title"]),
             content=Content(work_details["content"]),
@@ -47,12 +45,12 @@ def test_create_dupliacte_work_raises_DuplicateWorkError(work_service, work_deta
         )
 
 
-def test_create_work_raises_InvalidDataError_when_title_is_empty(
+def test_add_work_raises_InvalidDataError_when_title_is_empty(
     work_service, work_details
 ):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work_service.create_work(
+        work_service.add_work(
             title=Title(""),
             content=Content(work_details["content"]),
             age_restriction=work_details["age_restriction"],
@@ -61,12 +59,12 @@ def test_create_work_raises_InvalidDataError_when_title_is_empty(
         )
 
 
-def test_create_work_raises_InvalidDataError_when_age_restriction_is_empty(
+def test_add_work_raises_InvalidDataError_when_age_restriction_is_empty(
     work_service, work_details
 ):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work_service.create_work(
+        work_service.add_work(
             title=Title(work_details["title"]),
             content=Content("test content"),
             age_restriction="",
@@ -75,12 +73,12 @@ def test_create_work_raises_InvalidDataError_when_age_restriction_is_empty(
         )
 
 
-def test_create_work_raises_InvalidDataError_when_genre_is_empty(
+def test_add_work_raises_InvalidDataError_when_genre_is_empty(
     work_service, work_details
 ):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work_service.create_work(
+        work_service.add_work(
             title=Title(work_details["title"]),
             content=Content("test content"),
             age_restriction=work_details["age_restriction"],
@@ -89,12 +87,12 @@ def test_create_work_raises_InvalidDataError_when_genre_is_empty(
         )
 
 
-def test_create_work_raises_InvalidDataError_when_content_is_empty(
+def test_add_work_raises_InvalidDataError_when_content_is_empty(
     work_service, work_details
 ):
     member_id = MemberId()
     with pytest.raises(InvalidDataError):
-        work_service.create_work(
+        work_service.add_work(
             title=Title(work_details["title"]),
             content=Content(""),
             age_restriction=work_details["age_restriction"],
@@ -103,11 +101,11 @@ def test_create_work_raises_InvalidDataError_when_content_is_empty(
         )
 
 
-def test_create_work_raises_InvalidDataError_when_member_id_is_None(
+def test_add_work_raises_InvalidDataError_when_member_id_is_None(
     work_service, work_details
 ):
     with pytest.raises(InvalidDataError):
-        work_service.create_work(
+        work_service.add_work(
             title=Title(work_details["title"]),
             content=Content(work_details["content"]),
             age_restriction=work_details["age_restriction"],
@@ -118,14 +116,14 @@ def test_create_work_raises_InvalidDataError_when_member_id_is_None(
 
 def test_list_works(work_service, work_details):
     member_id = MemberId()
-    work_1 = work_service.create_work(
+    work_1 = work_service.add_work(
         title=Title(work_details["title"]),
         content=Content(work_details["content"]),
         age_restriction=work_details["age_restriction"],
         genre=work_details["genre"],
         member_id=member_id,
     )
-    work_2 = work_service.create_work(
+    work_2 = work_service.add_work(
         title=work_details["title"],
         content=work_details["content"],
         age_restriction=work_details["age_restriction"],
