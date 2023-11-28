@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime
 
@@ -29,6 +30,7 @@ from critique_wheel.works.value_objects import (
     WorkStatus,
 )
 
+logger = logging.getLogger(__name__)
 mapper_registry = registry()
 
 
@@ -251,6 +253,7 @@ member_table = Table(
 
 
 def start_mappers():
+    logger.debug("Starting orm mappers")
     # CRITIQUE
     mapper_registry.map_imperatively(
         Critique,
@@ -267,7 +270,7 @@ def start_mappers():
         work_table,
         properties={
             "critiques": relationship(
-                Critique, backref="work", order_by=critique_table.c.id
+                Critique, backref="works", order_by=critique_table.c.id
             ),
         },
     )
