@@ -16,6 +16,7 @@ DATABASE_TYPE = os.getenv("DATABASE_TYPE")
 # Feature flags based on the database type
 TESTING_USING_SQLITE = DATABASE_TYPE == "sqlite"
 
+
 # DB configuration
 def get_postgres_uri():
     host = os.getenv("DB_HOST", "localhost")
@@ -25,8 +26,9 @@ def get_postgres_uri():
     db_name = os.getenv("DB_NAME", "abc123")
     return f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
 
+
 # API configuration
 def get_api_url():
     host = os.getenv("API_HOST", "localhost")
-    port = 5005 if host == "localhost" else 80
+    port = 8000 if host == "localhost" else 80
     return f"http://{host}:{port}"
