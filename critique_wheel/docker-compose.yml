@@ -6,12 +6,13 @@ services:
     build:
       dockerfile: dockerfiles/Dockerfile
       context: .
-    depends_on:
-      - critiquewheel-db
     env_file:
       - ./.env
+    # command: server
     ports:
-      - "8000:8000"
+      - 8000:8000
+    depends_on:
+    - critiquewheel-db
     volumes:
       - .:/app
       - postgres_socket:/var/run/postgresql
