@@ -1,23 +1,37 @@
-from fastapi import FastAPI
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import logging
+
+import fastapi
+import fastapi.exception_handlers
+from asgi_correlation_id import CorrelationIdMiddleware
 
 from critique_wheel.adapters import orm
-from critique_wheel.api.ping import router as ping_router
-from critique_wheel.infrastructure.config import config
+from critique_wheel.api.routers import healthcheck, works
+from critique_wheel.logging_conf import configure_logging
 
-app = FastAPI(title="Critique Wheel API", openapi_url="/openapi.json")
+logger = logging.getLogger(__name__)
+logger.debug(f"Starting {__name__}...")
+configure_logging()
+
+logger.debug("Creating database engine...")
+
+# app = fastapi.FastAPI()
+app = fastapi.FastAPI(
+    title="Critique Wheel API", version="0.0.1", openapi_url="/openapi.json"
+)
+app.add_middleware(CorrelationIdMiddleware)
+
+app.include_router(healthcheck.router)
+app.include_router(works.router)
 
 
-def get_db_session():
-    get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
-    return get_session()
+@app.exception_handler(fastapi.HTTPException)
+async def http_exception_handle_logging(request, exc):
+    logger.error(f"HTTPException: {exc.status_code}  {exc.detail}")
+    return await fastapi.exception_handlers.http_exception_handler(request, exc)
 
-
-app.include_router(ping_router)
 
 if __name__ == "__main__":
     import uvicorn
 
     orm.start_mappers()
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app)
