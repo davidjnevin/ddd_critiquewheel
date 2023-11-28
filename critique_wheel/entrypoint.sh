@@ -41,17 +41,15 @@ case $1 in
 	 	if [ "$FASTAPI_DEBUG" = "true" ]; then
         uvicorn \
             critique_wheel.main:app \
-			--host 0.0.0.0 \
-            --port 8000 \
-            --workers 2 \
             --reload \
-            --log-level debug
+			--host 0.0.0.0 \
+			--port 8000
 		else
 			uvicorn \
 				critique_wheel.main:app \
+				--workers 2 \
 				--host 0.0.0.0 \
-				--port 8000 \
-				--workers 2
+				--port 8000
 		fi
 	;;
 	"test")
