@@ -22,7 +22,7 @@ def test_repository_can_save_a_work(
     rows = list(
         session.execute(
             text(
-                'SELECT id, title, content, age_restriction, genre, member_id FROM "works"'
+                "SELECT id, title, content, age_restriction, genre, member_id FROM works"
             )
         )
     )
@@ -54,7 +54,7 @@ def test_repository_can_get_a_work_by_id(session, valid_work):
 
     id_to_get = work.id
     stmt = text(
-        'SELECT id, title, content, age_restriction, genre, member_id FROM "works" WHERE id=:id'
+        "SELECT id, title, content, age_restriction, genre, member_id FROM works WHERE id=:id"
     ).bindparams(id=work.id.get_uuid())
     rows = session.execute(stmt).fetchall()
     assert rows == [
@@ -80,7 +80,7 @@ def test_repository_can_get_work_by_member_id(session, valid_work):
 
     member_id_to_get = str(work.member_id)
     stmt = text(
-        'SELECT id, title, content, age_restriction, genre, member_id FROM "works" WHERE member_id=:member_id'
+        "SELECT id, title, content, age_restriction, genre, member_id FROM works WHERE member_id=:member_id"
     ).bindparams(member_id=member_id_to_get)
     rows = session.execute(stmt).fetchall()
     assert rows == [
