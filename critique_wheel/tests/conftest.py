@@ -206,6 +206,7 @@ def postgres_session(postgres_db):
     clear_mappers()
     # session.close()
 
+
 @pytest.fixture
 def add_work(postgres_session):
     works_added = set()
