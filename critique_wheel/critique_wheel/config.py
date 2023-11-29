@@ -25,6 +25,10 @@ class GlobalConfig(BaseConfig):
     LOG_FILE: Optional[str] = None
     LOGTAIL_API_KEY: Optional[str] = None
     FORCE_ROLLBACK: Optional[bool] = False
+    DB_HOST: Optional[str] = "localhost"
+    DB_PASSWORD: Optional[str] = "abc123"
+    DB_USER: Optional[str] = "abc123"
+    DB_NAME: Optional[str] = "abc123"
     # JWT_ALGORITHM: Optional[str] = None
     # JWT_SECRET_KEY: Optional[str] = None
     # MAILGUN_API_KEY: Optional[str] = None
@@ -62,3 +66,20 @@ def get_config(env_state: str):
 
 logger.debug(f"Loading config for {BaseConfig().ENV_STATE}")
 config = get_config(BaseConfig().ENV_STATE)
+
+
+# DB configuration
+def get_postgres_uri():
+    host = config.DB_HOST
+    port = 54321 if host == "localhost" else 5432
+    password = config.DB_PASSWORD
+    user = config.DB_USER
+    db_name = config.DB_NAME
+    return f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
+
+
+# API configuration
+def get_api_url():
+    host = config.API_HOST
+    port = 8000 if host == "localhost" else 80
+    return f"http://{host}:{port}"
