@@ -94,7 +94,6 @@ def test_create_work_without_member_id():
         )
 
 
-@pytest.mark.current
 def test_create_work_content_exceeding_limit():
     with pytest.raises(ValueError):
         long_content = "word " * (config.WORK_MAX_WORDS + 1)  # type: ignore
