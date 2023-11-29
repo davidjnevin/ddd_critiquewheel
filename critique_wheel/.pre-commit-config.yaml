@@ -7,7 +7,7 @@ repos:
       - id: ruff
         args: [ --fix ]
       # Run the formatter.
-      # - id: ruff-format
+      - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.10.1  # Use the specific version of isort you want
