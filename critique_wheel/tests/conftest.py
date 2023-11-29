@@ -232,3 +232,8 @@ def add_work(postgres_session):
         postgres_session.commit()
 
     yield _add_work
+
+    # cleanup
+    for work_id in works_added:
+        postgres_session.execute("DELETE FROM works WHERE id=:id", dict(id=work_id))
+        postgres_session.commit()
