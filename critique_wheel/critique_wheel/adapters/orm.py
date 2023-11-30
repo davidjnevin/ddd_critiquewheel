@@ -247,7 +247,7 @@ member_table = Table(
     Column("status", Enum(MemberStatus)),
     Column("last_login", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
-    Column("crated_date", DateTime, default=datetime.now),
+    Column("created_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
 )
 
