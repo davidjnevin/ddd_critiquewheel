@@ -3,10 +3,10 @@ from logging.config import dictConfig
 
 from critique_wheel.config import DevConfig, config
 
+handlers = ["default", "rotating_file"]
 # To ensure that logtail is only used for production
-handlers = ["default", "rotating_file", "logtail"]
-# if not isinstance(config, DevConfig):
-#     handlers.append("logtail")
+if not isinstance(config, DevConfig):
+    handlers.append("logtail")
 
 
 def obfuscated(email: str, obfuscated_length: int) -> str:
@@ -66,7 +66,7 @@ def configure_logging() -> None:
                     "class": "logging.handlers.RotatingFileHandler",
                     "level": "DEBUG",
                     "formatter": "file",
-                    "filename": "critique_wheel.log",
+                    "filename": config.LOG_FILE,
                     "maxBytes": 1024 * 1024 * 5,  # 5 MB
                     "backupCount": 5,
                     "encoding": "utf8",
@@ -83,7 +83,7 @@ def configure_logging() -> None:
             "loggers": {
                 "uvicorn": {
                     "handlers": ["default", "rotating_file"],
-                    "level": "INFO",
+                    "level": "DEBUG" if isinstance(config, DevConfig) else "INFO",
                 },
                 "critique_wheel": {
                     "handlers": handlers,
@@ -96,10 +96,10 @@ def configure_logging() -> None:
                 },
                 "fastapi": {
                     "handlers": ["default"],
-                    "level": "WARNING",
+                    "level": "DEBUG" if isinstance(config, DevConfig) else "WARNING",
                     "propagate": False,
                 },
-                "aiosqlite": {
+                "asyncpg": {
                     "handlers": ["default"],
                     "level": "WARNING",
                 },

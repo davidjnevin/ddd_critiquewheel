@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11
 
 
 ENV PYTHONUNBUFFERED 1
@@ -10,7 +10,8 @@ COPY requirements-dev.txt /tmp/requirements-dev.txt
 RUN set -ex ;\
 	apt-get update -y ; \
 	apt-get install -y --no-install-recommends gettext ;\
-	pip install --no-cache-dir -r /tmp/requirements-dev.txt ;\
+	pip install --no-cache-dir --upgrade pip ;\
+	pip install --no-cache-dir --upgrade -r /tmp/requirements-dev.txt ;\
 	useradd -U app_user ;\
 	install -d -m 0755 -o app_user -g app_user /app/static ;\
 	rm -rf \
@@ -20,5 +21,6 @@ WORKDIR /app
 USER app_user:app_user
 
 COPY --chown=app_user:app_user . .
+
 ENTRYPOINT [ "/app/entrypoint.sh" ]
 CMD ["server"]

@@ -1,21 +1,28 @@
 from uuid import uuid4
 
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import iam_repository
 from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.members.models.IAM import MemberStatus
+from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
+from critique_wheel.works.value_objects import WorkId
 
 
 def test_repository_can_save_a_basic_member(
     session, active_valid_member, valid_work, valid_critique
 ):
     member = active_valid_member
+    member.id = MemberId()
     repo = iam_repository.SqlAlchemyMemberRepository(session)
     assert member.works == []
     assert member.critiques == []
     repo.add(member)
+    valid_work.id = WorkId()
+    valid_work.member_id = member.id
+
     member.add_work(valid_work)
     member.add_critique(valid_critique)
     session.commit()
@@ -23,7 +30,7 @@ def test_repository_can_save_a_basic_member(
     rows = list(
         session.execute(
             text(
-                'SELECT id, username, email, password, member_type, status FROM "members"'
+                "SELECT id, username, email, password, member_type, status FROM members"
             )
         )
     )
@@ -39,11 +46,13 @@ def test_repository_can_save_a_basic_member(
     ]
 
 
+@pytest.mark.current
 def test_repository_can_get_a_member_by_id(
     session, valid_member, valid_work, valid_critique
 ):
-    member = valid_member
+    valid_member.id = MemberId()
     valid_member.status = MemberStatus.ACTIVE
+    member = valid_member
     repo = iam_repository.SqlAlchemyMemberRepository(session)
     repo.add(member)
     valid_work.member_id = member.id
@@ -64,37 +73,41 @@ def test_repository_can_get_a_member_by_id(
     assert len(retrieved_works) == 1
     assert retrieved_works[0].title == valid_work.title
 
-    retrieved_critiques = (
-        session.query(Critique).filter_by(member_id=valid_member.id).all()
-    )
+    retrieved_critiques = session.query(Critique).filter_by(member_id=member.id).all()
     assert len(retrieved_critiques) == 1
     assert retrieved_critiques[0].critique_about == valid_critique.critique_about
 
-    assert retrieved_works[0].member_id == valid_member.id
-    assert retrieved_critiques[0].member_id == valid_member.id
+    assert retrieved_works[0].member_id == member.id
+    assert retrieved_critiques[0].member_id == member.id
 
-    assert repo.get_member_by_id(valid_member.id) == valid_member
-    assert repo.list() == [valid_member]
+    assert repo.get_member_by_id(member.id) == member
+    assert member in repo.list()
 
 
-def test_resository_can_get_a_member_by_email(session, valid_member):
-    member = valid_member
+@pytest.mark.current
+def test_repository_can_get_a_member_by_email(session, valid_member):
+    valid_member.id = MemberId()
     valid_member.status = MemberStatus.ACTIVE
+    valid_member.email = "another_email@davidnevin.net"
+    member = valid_member
     repo = iam_repository.SqlAlchemyMemberRepository(session)
     repo.add(member)
     session.commit()
 
-    assert repo.get_member_by_email(valid_member.email) == valid_member
+    assert repo.get_member_by_email(member.email) == member
 
 
+@pytest.mark.current
 def test_resository_can_get_a_member_by_username(session, valid_member):
-    member = valid_member
+    valid_member.id = MemberId()
     valid_member.status = MemberStatus.ACTIVE
+    valid_member.username = "yet_another_username"
+    member = valid_member
     repo = iam_repository.SqlAlchemyMemberRepository(session)
     repo.add(member)
     session.commit()
 
-    assert repo.get_member_by_username(valid_member.username) == valid_member
+    assert repo.get_member_by_username(member.username) == member
 
 
 def test_resository_can_get_a_list_of_members(

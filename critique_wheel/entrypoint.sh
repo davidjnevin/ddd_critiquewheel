@@ -40,18 +40,16 @@ case $1 in
 		wait_other_containers ;\
 	 	if [ "$FASTAPI_DEBUG" = "true" ]; then
         uvicorn \
-            critique_wheel.fast_api:app \
-			--host 0.0.0.0 \
-            --port 8000 \
-            --workers 2 \
+            critique_wheel.main:app \
             --reload \
-            --log-level debug
+			--host 0.0.0.0 \
+			--port 8000
 		else
 			uvicorn \
-				critique_wheel.fast_api:app \
+				critique_wheel.main:app \
+				--workers 2 \
 				--host 0.0.0.0 \
-				--port 8000 \
-				--workers 2
+				--port 8000
 		fi
 	;;
 	"test")
@@ -69,6 +67,22 @@ case $1 in
 	"test-current-v")
 		wait_other_containers ;\
 		pytest -vv -m current
+		;;
+	"test-api")
+		wait_other_containers ;\
+		pytest tests/api
+		;;
+	"test-unit")
+		wait_other_containers ;\
+		pytest tests/unit
+		;;
+	"test-e2e")
+		wait_other_containers ;\
+		pytest tests/e2e
+		;;
+	"test-int")
+		wait_other_containers ;\
+		pytest tests/integration
 		;;
 	"lint")
 		isort critique_wheel tests

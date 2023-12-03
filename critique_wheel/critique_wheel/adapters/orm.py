@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime
 
@@ -29,11 +30,12 @@ from critique_wheel.works.value_objects import (
     WorkStatus,
 )
 
+logger = logging.getLogger(__name__)
 mapper_registry = registry()
 
 
 class WorkUUIDType(TypeDecorator):
-    impl = CHAR
+    impl = CHAR(36)
     cache_ok = True  # Indicate that this type is safe to cache
 
     def process_bind_param(self, value, dialect):
@@ -66,7 +68,7 @@ class ContentType(TypeDecorator):
 
 
 class MemberUUIDType(TypeDecorator):
-    impl = CHAR
+    impl = CHAR(36)
     cache_ok = True  # Indicate that this type is safe to cache
 
     def process_bind_param(self, value, dialect):
@@ -77,7 +79,7 @@ class MemberUUIDType(TypeDecorator):
 
 
 class CritiqueUUIDType(TypeDecorator):
-    impl = CHAR
+    impl = CHAR(36)
     cache_ok = True  # Indicate that this type is safe to cache
 
     def process_bind_param(self, value, dialect):
@@ -132,7 +134,7 @@ class CritiqueIdeasType(TypeDecorator):
 
 
 class RatingUUIDType(TypeDecorator):
-    impl = CHAR
+    impl = CHAR(36)
     cache_ok = True  # Indicate that this type is safe to cache
 
     def process_bind_param(self, value, dialect):
@@ -165,7 +167,7 @@ class RatingCommentStringType(TypeDecorator):
 
 
 class TransactionUUIDType(TypeDecorator):
-    impl = CHAR
+    impl = CHAR(36)
     cache_ok = True  # Indicate that this type is safe to cache
 
     def process_bind_param(self, value, dialect):
@@ -238,64 +240,74 @@ member_table = Table(
     "members",
     mapper_registry.metadata,
     Column("id", MemberUUIDType, primary_key=True),
-    Column("username", String),
-    Column("email", String),
-    Column("password", String),
+    Column("username", String(255)),
+    Column("email", String(255)),
+    Column("password", String(60)),
     Column("member_type", Enum(MemberRole)),
     Column("status", Enum(MemberStatus)),
     Column("last_login", DateTime, default=datetime.now),
     Column("last_update_date", DateTime, default=datetime.now),
-    Column("crated_date", DateTime, default=datetime.now),
+    Column("created_date", DateTime, default=datetime.now),
     Column("archive_date", DateTime),
 )
 
 
-def start_mappers():
-    # CRITIQUE
-    mapper_registry.map_imperatively(
-        Critique,
-        critique_table,
-        properties={
-            "ratings": relationship(
-                Rating, backref="critiques", order_by=rating_table.c.id
-            )
-        },
-    )
-    # WORK
-    mapper_registry.map_imperatively(
-        Work,
-        work_table,
-        properties={
-            "critiques": relationship(
-                Critique, backref="work", order_by=critique_table.c.id
-            ),
-        },
-    )
-    # MEMBER
-    mapper_registry.map_imperatively(
-        Member,
-        member_table,
-        properties={
-            "works": relationship(Work, backref="members", order_by=work_table.c.id),
-            "critiques": relationship(
-                Critique, backref="members", order_by=critique_table.c.id
-            ),
-            "ratings": relationship(
-                Rating, backref="members", order_by=rating_table.c.id
-            ),
-        },
-    )
+class MapperRegistry:
+    _is_initialized = False
 
-    # RATING
-    # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
-    # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
-    mapper_registry.map_imperatively(
-        Rating,
-        rating_table,
-        properties={
-            "_critique_id": rating_table.c.critique_id,
-            "_member_id": rating_table.c.member_id,
-        },
-    )
-    # CREDIT
-    mapper_registry.map_imperatively(CreditManager, credit_table)
+    @classmethod
+    def start_mappers(cls):
+        if cls._is_initialized:
+            return
+        logger.debug("Starting orm mappers")
+        # CRITIQUE
+        mapper_registry.map_imperatively(
+            Critique,
+            critique_table,
+            properties={
+                "ratings": relationship(
+                    Rating, backref="critiques", order_by=rating_table.c.id
+                )
+            },
+        )
+        # WORK
+        mapper_registry.map_imperatively(
+            Work,
+            work_table,
+            properties={
+                "critiques": relationship(
+                    Critique, backref="works", order_by=critique_table.c.id
+                ),
+            },
+        )
+        # MEMBER
+        mapper_registry.map_imperatively(
+            Member,
+            member_table,
+            properties={
+                "works": relationship(
+                    Work, backref="members", order_by=work_table.c.id
+                ),
+                "critiques": relationship(
+                    Critique, backref="members", order_by=critique_table.c.id
+                ),
+                "ratings": relationship(
+                    Rating, backref="members", order_by=rating_table.c.id
+                ),
+            },
+        )
+
+        # RATING
+        # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
+        # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
+        mapper_registry.map_imperatively(
+            Rating,
+            rating_table,
+            properties={
+                "_critique_id": rating_table.c.critique_id,
+                "_member_id": rating_table.c.member_id,
+            },
+        )
+        # CREDIT
+        mapper_registry.map_imperatively(CreditManager, credit_table)
+        cls._is_initialized = True

@@ -1,9 +1,16 @@
 from typing import Optional
 
 from critique_wheel.members.value_objects import MemberId
-from critique_wheel.works.models.work import Work, WorkAgeRestriction, WorkGenre
+from critique_wheel.works.models.work import Work
 from critique_wheel.works.models.work_repository import AbstractWorkRepository
-from critique_wheel.works.value_objects import Content, MissingEntryError, Title, WorkId
+from critique_wheel.works.value_objects import (
+    Content,
+    MissingEntryError,
+    Title,
+    WorkAgeRestriction,
+    WorkGenre,
+    WorkId,
+)
 
 
 class BaseWorkServiceError(Exception):
@@ -22,7 +29,7 @@ class WorkService:
     def __init__(self, repository: AbstractWorkRepository):
         self._repository = repository
 
-    def create_work(
+    def add_work(
         self,
         title: Title,
         content: Content,

@@ -64,6 +64,22 @@ test-current:
 test-current-v:
 	${PRE_RUN_API_COMMAND} test-current-v
 
+.PHONY: test-e2e
+test-e2e:
+	${PRE_RUN_API_COMMAND} test-e2e
+
+.PHONY: test-int
+test-int:
+	${PRE_RUN_API_COMMAND} test-int
+
+.PHONY: test-unit
+test-unit:
+	${PRE_RUN_API_COMMAND} test-unit
+
+.PHONY: test-api
+test-api:
+	${PRE_RUN_API_COMMAND} test-api
+
 # target: bash - bash code
 .PHONY: bash
 bash:
@@ -73,6 +89,11 @@ bash:
 .PHONY: lint
 lint:
 	${PRE_RUN_API_COMMAND} lint
+
+# target: server - run uvicorn server
+.PHONY: server
+server:
+	${PRE_RUN_API_COMMAND} server
 
 # target: shell - Obtain a django shell
 .PHONY: shell

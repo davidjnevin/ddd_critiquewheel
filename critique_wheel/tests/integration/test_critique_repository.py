@@ -1,10 +1,12 @@
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import critique_repository
+from critique_wheel.critiques.value_objects import CritiqueId
 
 
 def test_repository_can_save_a_critique(session, valid_critique):
     critique = valid_critique
+    critique.id = CritiqueId()
     repo = critique_repository.SqlAlchemyCritiqueRepository(session)
     repo.add(critique)
     session.commit()
@@ -12,7 +14,9 @@ def test_repository_can_save_a_critique(session, valid_critique):
     rows = list(
         session.execute(
             text(
-                'SELECT id, critique_about, critique_successes, critique_weaknesses, critique_ideas, member_id, work_id, status FROM "critiques"'
+                "SELECT id, critique_about, critique_successes, critique_weaknesses, critique_ideas, member_id, work_id, status FROM critiques WHERE id=:id"
+            ).bindparams(
+                id=critique.id.get_uuid(),
             )
         )
     )
@@ -32,6 +36,7 @@ def test_repository_can_save_a_critique(session, valid_critique):
 
 def test_repository_can_get_a_critique_by_id(session, valid_critique):
     critique = valid_critique
+    critique.id = CritiqueId()
     repo = critique_repository.SqlAlchemyCritiqueRepository(session)
     repo.add(critique)
     session.commit()
@@ -55,4 +60,4 @@ def test_repository_can_get_a_critique_by_id(session, valid_critique):
         )
     ]
     assert critique == repo.get(critique.id)
-    assert repo.list() == [critique]
+    assert critique in repo.list()

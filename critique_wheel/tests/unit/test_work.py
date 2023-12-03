@@ -25,7 +25,7 @@ def test_create_work_with_valid_data():
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
         member_id=MemberId(),
-        critiques=["critique1", "critique2"],
+        critiques=[],
     )
 
     assert str(work.title) == title_text
@@ -36,7 +36,7 @@ def test_create_work_with_valid_data():
     assert work.genre == WorkGenre.OTHER
     assert work.member_id is not None
     assert work.submission_date is not None
-    assert work.critiques == ["critique1", "critique2"]
+    assert work.critiques == []
 
 
 def test_create_work_without_title():
@@ -94,7 +94,6 @@ def test_create_work_without_member_id():
         )
 
 
-@pytest.mark.current
 def test_create_work_content_exceeding_limit():
     with pytest.raises(ValueError):
         long_content = "word " * (config.WORK_MAX_WORDS + 1)  # type: ignore
@@ -109,14 +108,16 @@ def test_create_work_content_exceeding_limit():
 
 def test_list_critiques(valid_work_with_two_critiques):
     work = valid_work_with_two_critiques
-    assert work.list_critiques() == ["critique1", "critique2"]
+    assert len(work.list_critiques()) == 2  # ["critique1", "critique2"]
 
 
-def test_add_critique(valid_work_with_two_critiques):
+def test_add_critique(valid_work_with_two_critiques, valid_critique):
     work = valid_work_with_two_critiques
     work.status = WorkStatus.ACTIVE
-    work.add_critique("critique3")
-    assert work.critiques == ["critique1", "critique2", "critique3"]
+    assert len(work.critiques) == 2
+    valid_critique.work_id = work.id
+    work.add_critique(valid_critique)
+    assert len(work.critiques) == 3
 
 
 def test_cannot_add_critique_to_non_active_work(valid_work):
@@ -132,11 +133,12 @@ def test_cannot_add_critique_to_non_active_work(valid_work):
 def test_cannot_add_same_critique_twice(valid_work_with_two_critiques):
     work = valid_work_with_two_critiques
     work.status = WorkStatus.ACTIVE
+    existing_critique = work.critiques[0]
     with pytest.raises(
         CritiqueDuplicateError,
         match="Critique already exists",
     ):
-        work.add_critique("critique1")
+        work.add_critique(existing_critique)
 
 
 def test_word_count_calculation():
@@ -195,7 +197,7 @@ def test_active_work_availability_for_critique(valid_work):
 
 def test_non_active_work_availability_for_critique(valid_work):
     work = valid_work
-    work.WorkStatus = WorkStatus.PENDING_REVIEW
+    work.status = WorkStatus.PENDING_REVIEW
     assert work.is_available_for_critique() is False
 
     work.archive()

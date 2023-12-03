@@ -1,9 +1,17 @@
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import clear_mappers, sessionmaker
-from sqlalchemy.pool import StaticPool
+import logging
+import time
+from pathlib import Path
 
-from critique_wheel.adapters.orm import mapper_registry, start_mappers
+import pytest
+import requests
+import sqlalchemy
+from requests.exceptions import ConnectionError
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import clear_mappers, sessionmaker
+
+from critique_wheel.adapters.orm import MapperRegistry, mapper_registry
+from critique_wheel.config import get_api_url, get_postgres_uri
 from critique_wheel.credits.models.credit import CreditManager, TransactionType
 from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.critiques.value_objects import (
@@ -13,7 +21,6 @@ from critique_wheel.critiques.value_objects import (
     CritiqueSuccesses,
     CritiqueWeaknesses,
 )
-from critique_wheel.infrastructure.config import config
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.ratings.models.rating import Rating
@@ -24,12 +31,22 @@ from critique_wheel.works.value_objects import (
     WorkAgeRestriction,
     WorkGenre,
     WorkId,
+    WorkStatus,
 )
+
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="module")
+def restart_api():
+    (Path(__file__).parent.parent / "critique_wheel" / "main.py").touch()
+    time.sleep(0.5)  # hack to force reload in dev mode
+    wait_for_webapp_to_come_up()
 
 
 @pytest.fixture
 def valid_member():
-    return Member.create(
+    yield Member.create(
         username="test_username",
         password="secure_unguessab1e_p@ssword",
         email="email_address@davidneivn.net",
@@ -41,7 +58,7 @@ def valid_member():
 
 @pytest.fixture
 def active_valid_member():
-    return Member.create(
+    yield Member.create(
         username="active_test_username",
         password="secure_unguessab1e_p@ssword",
         email="active_email_address@davidneivn.net",
@@ -52,7 +69,7 @@ def active_valid_member():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def valid_credit():
     return CreditManager.create(
         member_id=MemberId(),
@@ -63,7 +80,7 @@ def valid_credit():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def valid_rating():
     yield Rating.create(
         member_id=MemberId(),
@@ -73,7 +90,7 @@ def valid_rating():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def another_valid_rating():
     yield Rating.create(
         member_id=MemberId(),
@@ -83,7 +100,7 @@ def another_valid_rating():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def valid_critique():
     text = "Word " * 45
     return Critique.create(
@@ -98,9 +115,9 @@ def valid_critique():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def valid_work():
-    return Work.create(
+    yield Work.create(
         title=Title("Test Title"),
         content=Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
@@ -110,7 +127,7 @@ def valid_work():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def another_valid_work():
     return Work.create(
         title=Title("Test Title 2"),
@@ -122,7 +139,7 @@ def another_valid_work():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def valid_critique1():
     text = "Word " * 45
     return Critique.create(
@@ -136,7 +153,7 @@ def valid_critique1():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def valid_critique2():
     text = "Word " * 45
     return Critique.create(
@@ -150,50 +167,169 @@ def valid_critique2():
     )
 
 
-@pytest.fixture
-def valid_work_with_two_critiques():
-    return Work.create(
+@pytest.fixture(scope="module")
+def valid_work_with_two_critiques(valid_critique1, valid_critique2):
+    work = Work.create(
         title=Title("Test Title"),
         content=Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
         genre=WorkGenre.OTHER,
         member_id=MemberId(),
-        critiques=["critique1", "critique2"],
+        critiques=[],
     )
+    work.status = WorkStatus.ACTIVE
+    valid_critique1.work_id = work.id
+    valid_critique2.work_id = work.id
+    work.add_critique(valid_critique1)
+    work.add_critique(valid_critique2)
+    return work
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def in_memory_db():
-    engine = create_engine(
-        "sqlite+pysqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-        # echo=True,
-    )
+    engine = create_engine("sqlite:///:memory:")
     mapper_registry.metadata.create_all(engine)
-    return engine
+    yield engine
+    mapper_registry.metadata.drop_all(engine)
+    engine.dispose()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def session(in_memory_db):
-    start_mappers()
+    MapperRegistry.start_mappers()
     session = sessionmaker(bind=in_memory_db)()
     yield session
     clear_mappers()
     session.close()
 
 
-@pytest.fixture
+def wait_for_postgres_to_come_up(engine):
+    deadline = time.time() + 1
+    while time.time() < deadline:
+        try:
+            return engine.connect()
+        except OperationalError:
+            time.sleep(0.5)
+    pytest.fail("Postgres never came up")
+
+
+def wait_for_webapp_to_come_up():
+    deadline = time.time() + 5
+    url = get_api_url()
+    logger.debug(f"Waiting for {url} to come up")
+    while time.time() < deadline:
+        try:
+            return requests.get(url)
+        except ConnectionError:
+            time.sleep(0.5)
+    pytest.fail("API never came up")
+
+
+@pytest.fixture(scope="session")
 def postgres_db():
-    engine = create_engine(config.get_postgres_uri(), echo=True)
+    engine = create_engine(get_postgres_uri(), echo=True)
+    wait_for_postgres_to_come_up(engine)
     mapper_registry.metadata.create_all(engine)
     return engine
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def postgres_session(postgres_db):
-    start_mappers()
+    MapperRegistry.start_mappers()
     session = sessionmaker(bind=postgres_db)()
     yield session
     clear_mappers()
-    # session.close()
+    session.close()
+
+
+@pytest.fixture(scope="session")
+def add_work(postgres_session):
+    members_added = set()
+    works_added = set()
+
+    def _add_work(work: Work):
+        # add a member first then add a work
+
+        stmt = sqlalchemy.text(
+            """
+            INSERT INTO members (id, username, password, email, member_type, status)
+            VALUES (:id, :username, :password, :email, :member_type, :status)
+            """
+        )
+        member_id = MemberId()
+        postgres_session.execute(
+            stmt,
+            {
+                "id": str(member_id),
+                "username": "api_user_test",
+                "password": "Some_test_23423_pass_@@",
+                "email": "api_test_user_email@davidnevin.net",
+                "member_type": MemberRole.MEMBER.value,
+                "status": MemberStatus.ACTIVE.value,
+            },
+        )
+
+        stmt = sqlalchemy.text(
+            """
+        INSERT INTO works (id, title, content, member_id)
+        VALUES (:id, :title, :content, :member_id)
+        """
+        )
+        members_added.add(member_id)
+        postgres_session.execute(
+            stmt,
+            {
+                "id": str(work.id),
+                "title": str(work.title),
+                "content": str(work.content),
+                # "age_restriction":str(work.age_restriction.value),
+                # "genre":str(work.genre.value),
+                "member_id": str(member_id),
+            },
+        )
+        stmt = sqlalchemy.text(
+            """
+            SELECT id FROM works WHERE title=:title AND content=:content
+            """
+        )
+        [[work_id]] = postgres_session.execute(
+            stmt,
+            dict(
+                title=str(work.title),
+                content=str(work.content),
+            ),
+        )
+        works_added.add(work_id)
+        postgres_session.commit()
+
+    yield _add_work
+
+    # cleanup
+    for work_id in works_added:
+        postgres_session.execute("DELETE FROM works WHERE id=:id", dict(id=work_id))
+        postgres_session.commit()
+    for member_id in works_added:
+        postgres_session.execute("DELETE FROM members WHERE id=:id", dict(id=member_id))
+        postgres_session.commit()
+
+
+@pytest.fixture
+def member_details():
+    return {
+        "username": "test_username",
+        "email": "testing_email@davidnevin.net",
+        "password": "secure_unguessable_p@ssword",
+        "member_type": MemberRole.MEMBER,
+        "status": MemberStatus.INACTIVE,
+    }
+
+
+@pytest.fixture
+def work_details():
+    return {
+        "title": "Test Title",
+        "content": "Test content",
+        "status": WorkStatus.PENDING_REVIEW,
+        "age_restriction": WorkAgeRestriction.ADULT,
+        "genre": WorkGenre.YOUNGADULT,
+    }
