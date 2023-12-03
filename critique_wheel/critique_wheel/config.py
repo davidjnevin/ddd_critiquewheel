@@ -29,6 +29,7 @@ class GlobalConfig(BaseConfig):
     DB_PASSWORD: Optional[str] = "abc123"
     DB_USER: Optional[str] = "abc123"
     DB_NAME: Optional[str] = "abc123"
+    API_HOST: Optional[str] = "localhost"
     # JWT_ALGORITHM: Optional[str] = None
     # JWT_SECRET_KEY: Optional[str] = None
     # MAILGUN_API_KEY: Optional[str] = None
@@ -81,5 +82,5 @@ def get_postgres_uri():
 # API configuration
 def get_api_url():
     host = config.API_HOST
-    port = 8000 if host == "localhost" else 80
+    port = 8000 if host == "localhost" else 8000
     return f"http://{host}:{port}"
