@@ -12,9 +12,7 @@ logger = logging.getLogger(__name__)
 logger.debug(f"Starting {__name__}...")
 configure_logging()
 
-logger.debug("Creating database engine...")
 
-# app = fastapi.FastAPI()
 app = fastapi.FastAPI(
     title="Critique Wheel API", version="0.0.1", openapi_url="/openapi.json"
 )
@@ -33,5 +31,7 @@ async def http_exception_handle_logging(request, exc):
 if __name__ == "__main__":
     import uvicorn
 
-    orm.start_mappers()
+    logger.debug("Creating database engine...")
+    orm.MapperRegistry.start_mappers()
+
     uvicorn.run(app)
