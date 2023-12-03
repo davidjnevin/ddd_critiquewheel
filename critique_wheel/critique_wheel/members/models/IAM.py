@@ -54,7 +54,7 @@ class Member:
         self.id = member_id or MemberId()
         self.username: str = username
         self.email: str = email
-        self.password: bytes = password
+        self.password: str = password
         self.member_type: MemberRole = member_type
         self.status: MemberStatus = status
         self.works = works or []
