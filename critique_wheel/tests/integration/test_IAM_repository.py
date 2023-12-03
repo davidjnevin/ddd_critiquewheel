@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import iam_repository
@@ -46,7 +45,6 @@ def test_repository_can_save_a_basic_member(
     ]
 
 
-@pytest.mark.current
 def test_repository_can_get_a_member_by_id(
     session, valid_member, valid_work, valid_critique
 ):
@@ -84,7 +82,6 @@ def test_repository_can_get_a_member_by_id(
     assert member in repo.list()
 
 
-@pytest.mark.current
 def test_repository_can_get_a_member_by_email(session, valid_member):
     valid_member.id = MemberId()
     valid_member.status = MemberStatus.ACTIVE
@@ -97,7 +94,6 @@ def test_repository_can_get_a_member_by_email(session, valid_member):
     assert repo.get_member_by_email(member.email) == member
 
 
-@pytest.mark.current
 def test_resository_can_get_a_member_by_username(session, valid_member):
     valid_member.id = MemberId()
     valid_member.status = MemberStatus.ACTIVE
