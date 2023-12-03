@@ -26,6 +26,19 @@ def test_add_work(work_service, work_details):
     assert work.critiques == []
 
 
+def test_get_work_by_id(work_service, work_details):
+    member_id = MemberId()
+    work = work_service.add_work(
+        title=Title(work_details["title"]),
+        content=Content(work_details["content"]),
+        age_restriction=work_details["age_restriction"],
+        genre=work_details["genre"],
+        member_id=member_id,
+    )
+    retrieved_work = work_service.get_work_by_id(work_id=work.id)
+    assert retrieved_work == work
+
+
 def test_create_dupliacte_work_raises_DuplicateWorkError(work_service, work_details):
     member_id = MemberId()
     work_1 = work_service.add_work(
