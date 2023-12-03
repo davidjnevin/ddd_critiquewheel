@@ -306,10 +306,12 @@ def add_work(postgres_session):
 
     # cleanup
     for work_id in works_added:
-        postgres_session.execute("DELETE FROM works WHERE id=:id", dict(id=work_id))
+        stmt = sqlalchemy.text("DELETE FROM works WHERE id=:id")
+        postgres_session.execute(stmt, dict(id=work_id))
         postgres_session.commit()
     for member_id in works_added:
-        postgres_session.execute("DELETE FROM members WHERE id=:id", dict(id=member_id))
+        stmt = sqlalchemy.text("DELETE FROM members WHERE id=:id")
+        postgres_session.execute(stmt, dict(id=member_id))
         postgres_session.commit()
 
 
