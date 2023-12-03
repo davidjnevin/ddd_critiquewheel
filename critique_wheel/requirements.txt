@@ -3,6 +3,7 @@ python-dotenv
 PyYAML
 sqlalchemy
 fastapi
+fastapi-sqlalchemy
 pydantic
 uvicorn[standard]
 psycopg2-binary
