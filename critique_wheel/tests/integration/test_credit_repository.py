@@ -15,7 +15,6 @@ def test_repository_can_save_a_critique_credit_transaction(
     critique.member_id = member.id
     credit.work_id = None
     credit.critique_id = critique.id
-
     repo = credit_repository.SqlAlchemyCreditRepository(session)
     repo.add(credit)
     session.commit()
@@ -23,7 +22,7 @@ def test_repository_can_save_a_critique_credit_transaction(
     rows = list(
         session.execute(
             text(
-                'SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits"'
+                "SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM credits"
             )
         )
     )
@@ -59,7 +58,9 @@ def test_repository_can_save_a_work_credit_transaction(
     rows = list(
         session.execute(
             text(
-                'SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM "credits"'
+                "SELECT id, member_id, amount, transaction_type, work_id, critique_id FROM credits WHERE id=:id"
+            ).bindparams(
+                id=credit.id.get_uuid(),
             )
         )
     )
