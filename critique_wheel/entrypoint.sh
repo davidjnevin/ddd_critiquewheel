@@ -68,6 +68,22 @@ case $1 in
 		wait_other_containers ;\
 		pytest -vv -m current
 		;;
+	"test-api")
+		wait_other_containers ;\
+		pytest tests/api
+		;;
+	"test-unit")
+		wait_other_containers ;\
+		pytest tests/unit
+		;;
+	"test-e2e")
+		wait_other_containers ;\
+		pytest tests/e2e
+		;;
+	"test-int")
+		wait_other_containers ;\
+		pytest tests/integration
+		;;
 	"lint")
 		isort critique_wheel tests
 		ruff check . --fix
