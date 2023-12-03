@@ -1,36 +1,43 @@
 import pytest
 
-from critique_wheel.members.models.IAM import MemberRole, MemberStatus
+from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.models.IAM_domain_exceptions import BaseIAMDomainError
 from critique_wheel.members.services.iam_service import (
     DuplicateEntryError,
     InvalidCredentials,
+    create_member,
 )
+from critique_wheel.members.value_objects import MemberId
+from tests.e2e.fake_iam_repository import FakeMemberRepository
 
 
-def test_create_member(iam_repo, iam_service, member_details):
+class FakeSession:
+    commited = False
+
+    def commit(self):
+        self.commited = True
+
+
+@pytest.mark.current
+def test_create_member(member_details):
     # Arrange
-    username = member_details["username"]
-    email = member_details["email"]
-    password = member_details["password"]
-    member_type = member_details["member_type"]
-    status = member_details["status"]
+    new_member = Member(
+        username=member_details["username"],
+        email=member_details["email"],
+        password=member_details["password"],
+        member_type=member_details["member_type"],
+        status=member_details["status"],
+    )
 
+    repo = FakeMemberRepository([])
+    session = FakeSession()
     # Act
-    new_member = iam_service.create_member(username, email, password)
+    result = create_member(new_member, repo, session)
 
     # Assert
-    assert new_member is not None
-    assert new_member.username == username
-    assert new_member.email == email
-    assert new_member.password != password
-    assert new_member.member_type == member_type
-    assert new_member.status == status
-    assert new_member.works == []
-    assert new_member.critiques == []
-
-    assert iam_repo.get_member_by_id(new_member.id) == new_member  # type: ignore
-    assert iam_repo.list() == [new_member]  # type: ignore
+    assert result is not None
+    assert isinstance(result, MemberId) is True
+    assert session.commited is True
 
 
 def test_login_member_valid_credentials(iam_service, member_details):
