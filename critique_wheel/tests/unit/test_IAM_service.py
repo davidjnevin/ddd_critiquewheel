@@ -4,7 +4,9 @@ from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.models.IAM_domain_exceptions import BaseIAMDomainError
 from critique_wheel.members.services import iam_service
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.services import work_service
 from tests.e2e.fake_iam_repository import FakeMemberRepository
+from tests.e2e.fake_work_repository import FakeWorkRepository
 
 
 class FakeSession:
@@ -354,11 +356,11 @@ def test_get_member_by_username_returns_None_for_nonexistent_username():
     )
 
 
-def test_add_work_to_member_adds_work_to_member(
-    member_details, work_service, work_details
-):
+@pytest.mark.current
+def test_add_work_to_member_adds_work_to_member(member_details, work_details):
     # Arrange
     repo = FakeMemberRepository([])
+    work_repo = FakeWorkRepository([])
     session = FakeSession()
     new_member_1 = Member(
         username=member_details["username"],
@@ -379,6 +381,8 @@ def test_add_work_to_member_adds_work_to_member(
         genre=genre,
         age_restriction=age_restriction,
         member_id=new_member_1_id,
+        repo=work_repo,
+        session=session,
     )
 
     # Act
