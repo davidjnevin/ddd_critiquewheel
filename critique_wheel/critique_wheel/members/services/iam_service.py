@@ -24,55 +24,87 @@ class DuplicateEntryError(BaseIAMServiceError):
     pass
 
 
+def create_member(member: Member, repo: AbstractMemberRepository, session) -> MemberId:
+    new_member = Member.create(
+        username=member.username, email=member.email, password=member.password
+    )
+    repo.add(new_member)
+    session.commit()
+    return new_member.id
+
+
+def login_member(
+    email: str, password: str, repo: AbstractMemberRepository, session
+) -> Member:
+    try:
+        member = repo.get_member_by_email(email)
+    except BaseIAMDomainError:
+        raise InvalidCredentials("Invalid credentials")
+    if member and member.verify_password(password):
+        session.commit()
+        return member
+    else:
+        raise InvalidCredentials("Invalid credentials")
+
+
+def register_member(
+    username: str,
+    email: str,
+    password: str,
+    confirm_password: str,
+    repo: AbstractMemberRepository,
+    session,
+) -> Member:
+    check_for_unique_parameters(username, email, repo, session)
+    new_member = Member.register(username, email, password, confirm_password)
+    repo.add(new_member)
+    session.commit()
+    return new_member
+
+
+def check_for_unique_parameters(
+    username: str, email: str, repo: AbstractMemberRepository, session
+) -> None:
+    if repo.get_member_by_email(email):
+        raise DuplicateEntryError("Email already in use")
+    if repo.get_member_by_username(username):
+        raise DuplicateEntryError("Email already in use")
+
+
+def list_members(repo, session) -> list[Member]:
+    return repo.list()
+
+
+def get_member_by_username(
+    username: str, repo: AbstractMemberRepository, session
+) -> Optional[Member]:
+    return repo.get_member_by_username(username)
+
+
+def get_member_by_id(
+    member_id: MemberId, repo: AbstractMemberRepository, session
+) -> Optional[Member]:
+    return repo.get_member_by_id(member_id)
+
+
+# This was added here because each Work
+# has a member_id and is closely related to a Member,
+
+
+def add_work_to_member(
+    member_id: MemberId, work: Work, repo: AbstractMemberRepository, session
+) -> None:
+    member = repo.get_member_by_id(member_id)
+    if member:
+        member.add_work(work)
+        repo.add(member)
+    else:
+        raise MemberNotFoundException("Member not found")
+
+
 class IAMService:
     def __init__(self, repository: AbstractMemberRepository):
         self._repository = repository
-
-    def create_member(self, username: str, email: str, password: str) -> Member:
-        new_member = Member.create(username=username, email=email, password=password)
-        self._repository.add(new_member)
-        return new_member
-
-    def login_member(self, email: str, password: str) -> Member:
-        try:
-            member = self._repository.get_member_by_email(email)
-        except BaseIAMDomainError:
-            raise InvalidCredentials("Invalid credentials")
-        if member and member.verify_password(password):
-            return member
-        else:
-            raise InvalidCredentials("Invalid credentials")
-
-    def register_member(
-        self,
-        username: str,
-        email: str,
-        password: str,
-        confirm_password: str,
-    ) -> Member:
-        self.check_for_unique_parameters(username, email)
-        new_member = Member.register(username, email, password, confirm_password)
-        self._repository.add(new_member)
-        return new_member
-
-    def list_members(self) -> list[Member]:
-        return self._repository.list()
-
-    def get_member_by_username(self, username: str) -> Optional[Member]:
-        return self._repository.get_member_by_username(username)
-
-    def get_member_by_id(self, member_id: MemberId) -> Optional[Member]:
-        return self._repository.get_member_by_id(member_id)
-
-    # This was added here because the since each
-    # Work has a member_id and is closely related to a Member,
-    def add_work_to_member(self, member_id: MemberId, work: Work) -> None:
-        member = self._repository.get_member_by_id(member_id)
-        if member:
-            member.add_work(work)
-            self._repository.add(member)
-        else:
-            raise MemberNotFoundException("Member not found")
 
     # This was added here because the since each
     # critique has a member_id and is closely related to a Member,
@@ -97,9 +129,3 @@ class IAMService:
             return member.list_critiques()
         else:
             raise MemberNotFoundException("Member not found")
-
-    def check_for_unique_parameters(self, username: str, email: str) -> None:
-        if self._repository.get_member_by_email(email):
-            raise DuplicateEntryError("Email already in use")
-        if self._repository.get_member_by_username(username):
-            raise DuplicateEntryError("Email already in use")

@@ -227,7 +227,7 @@ def wait_for_webapp_to_come_up():
 
 @pytest.fixture(scope="session")
 def postgres_db():
-    engine = create_engine(get_postgres_uri(), echo=True)
+    engine = create_engine(get_postgres_uri())  # echo=True option
     wait_for_postgres_to_come_up(engine)
     mapper_registry.metadata.create_all(engine)
     return engine
@@ -257,48 +257,61 @@ def add_work(postgres_session):
             """
         )
         member_id = MemberId()
+        params = {
+            "id": str(member_id),
+            "username": "api_user_test",
+            "password": "Some_test_23423_pass_@@",
+            "email": "api_test_user_email@davidnevin.net",
+            "member_type": MemberRole.MEMBER.value,
+            "status": MemberStatus.ACTIVE.value,
+        }
+
         postgres_session.execute(
             stmt,
-            {
-                "id": str(member_id),
-                "username": "api_user_test",
-                "password": "Some_test_23423_pass_@@",
-                "email": "api_test_user_email@davidnevin.net",
-                "member_type": MemberRole.MEMBER.value,
-                "status": MemberStatus.ACTIVE.value,
-            },
+            params,
         )
 
+        logger.debug(f"Executing SQL Statement: {stmt}")
+        logger.debug(f"With Parameters: {params}")
+
+        members_added.add(member_id)
         stmt = sqlalchemy.text(
             """
         INSERT INTO works (id, title, content, member_id)
         VALUES (:id, :title, :content, :member_id)
         """
         )
-        members_added.add(member_id)
+        params = {
+            "id": str(work.id),
+            "title": str(work.title),
+            "content": str(work.content),
+            # "age_restriction":str(work.age_restriction.value),
+            # "genre":str(work.genre.value),
+            "member_id": str(member_id),
+        }
         postgres_session.execute(
             stmt,
-            {
-                "id": str(work.id),
-                "title": str(work.title),
-                "content": str(work.content),
-                # "age_restriction":str(work.age_restriction.value),
-                # "genre":str(work.genre.value),
-                "member_id": str(member_id),
-            },
+            params,
         )
+        logger.debug(f"Executing SQL Statement: {stmt}")
+        logger.debug(f"With Parameters: {params}")
+
         stmt = sqlalchemy.text(
             """
             SELECT id FROM works WHERE title=:title AND content=:content
             """
         )
+        params = {
+            "title": str(work.title),
+            "content": str(work.content),
+        }
         [[work_id]] = postgres_session.execute(
             stmt,
-            dict(
-                title=str(work.title),
-                content=str(work.content),
-            ),
+            params,
         )
+        logger.debug(f"Executing SQL Statement: {stmt}")
+        logger.debug(f"With Parameters: {params}")
+
         works_added.add(work_id)
         postgres_session.commit()
 
@@ -306,10 +319,12 @@ def add_work(postgres_session):
 
     # cleanup
     for work_id in works_added:
-        postgres_session.execute("DELETE FROM works WHERE id=:id", dict(id=work_id))
+        stmt = sqlalchemy.text("DELETE FROM works WHERE id=:id")
+        postgres_session.execute(stmt, dict(id=work_id))
         postgres_session.commit()
     for member_id in works_added:
-        postgres_session.execute("DELETE FROM members WHERE id=:id", dict(id=member_id))
+        stmt = sqlalchemy.text("DELETE FROM members WHERE id=:id")
+        postgres_session.execute(stmt, dict(id=member_id))
         postgres_session.commit()
 
 

@@ -1,14 +1,17 @@
 import pytest
-import requests
+from httpx import AsyncClient
 
-from critique_wheel import config
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.value_objects import Content, Title, WorkId
 
 
-@pytest.mark.usefixtures("restart_api")
-def test_work_api_returns_work(work_details, add_work):
+@pytest.mark.anyio
+async def test_work_api_returns_work(
+    async_client: AsyncClient,
+    work_details,
+    add_work,
+):
     work = Work(
         work_id=WorkId(),
         title=Title(work_details["title"]),
@@ -18,8 +21,6 @@ def test_work_api_returns_work(work_details, add_work):
         member_id=MemberId(),
     )
     add_work(work)
-    url = config.get_api_url()
-
-    response = requests.get(f"{url}/works/{work.id}")
+    response = await async_client.get(f"/works/{work.id}")
     assert response.status_code == 200
-    assert response.json()["title"] == work_details["title"]
+    assert response.json()["title"]["value"] == work_details["title"]

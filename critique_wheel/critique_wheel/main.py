@@ -8,9 +8,9 @@ from critique_wheel.adapters import orm
 from critique_wheel.api.routers import healthcheck, works
 from critique_wheel.logging_conf import configure_logging
 
+configure_logging()
 logger = logging.getLogger(__name__)
 logger.debug(f"Starting {__name__}...")
-configure_logging()
 
 
 app = fastapi.FastAPI(
