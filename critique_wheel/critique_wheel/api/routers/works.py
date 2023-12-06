@@ -25,13 +25,9 @@ async def get_work_by_id(work_id: str):
     session = get_db_session()
     repo = SqlAlchemyWorkRepository(session)
     logger.info(f"Getting work {work_id}.")
-    try:
-        work = work_service.get_work_by_id(WorkId.from_string(work_id), repo)
-        if not work:
-            raise fastapi.HTTPException(
-                status_code=404, detail=f"Post with id {work_id} not found"
-            )
-    except Exception as e:
-        logger.error(f"Error encountered: {e}")
-        raise fastapi.HTTPException(status_code=500, detail="Internal server error")
+    work = work_service.get_work_by_id(WorkId.from_string(work_id), repo)
+    if not work:
+        raise fastapi.HTTPException(
+            status_code=404, detail=f"Work with id {work_id} not found"
+        )
     return work

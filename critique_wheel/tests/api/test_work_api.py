@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from httpx import AsyncClient
 
@@ -24,3 +26,12 @@ async def test_work_api_returns_work(
     response = await async_client.get(f"/works/{work.id}")
     assert response.status_code == 200
     assert response.json()["title"]["value"] == work_details["title"]
+
+
+@pytest.mark.anyio
+async def test_work_api_returns_404_if_id_does_not_exist(
+    async_client: AsyncClient,
+):
+    nonexistant_work_id = uuid.uuid4()
+    response = await async_client.get(f"/works/{nonexistant_work_id}")
+    assert response.status_code == 404
