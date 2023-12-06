@@ -257,8 +257,7 @@ def add_work(postgres_session):
             """
         )
         member_id = MemberId()
-        postgres_session.execute(
-            stmt,
+        params = (
             {
                 "id": str(member_id),
                 "username": "api_user_test",
@@ -268,16 +267,22 @@ def add_work(postgres_session):
                 "status": MemberStatus.ACTIVE.value,
             },
         )
+        postgres_session.execute(
+            stmt,
+            params,
+        )
 
+        logger.debug(f"Executing SQL Statement: {stmt}")
+        logger.debug(f"With Parameters: {params}")
+
+        members_added.add(member_id)
         stmt = sqlalchemy.text(
             """
         INSERT INTO works (id, title, content, member_id)
         VALUES (:id, :title, :content, :member_id)
         """
         )
-        members_added.add(member_id)
-        postgres_session.execute(
-            stmt,
+        params = (
             {
                 "id": str(work.id),
                 "title": str(work.title),
@@ -287,18 +292,28 @@ def add_work(postgres_session):
                 "member_id": str(member_id),
             },
         )
+        postgres_session.execute(
+            stmt,
+            params,
+        )
+        logger.debug(f"Executing SQL Statement: {stmt}")
+        logger.debug(f"With Parameters: {params}")
+
         stmt = sqlalchemy.text(
             """
             SELECT id FROM works WHERE title=:title AND content=:content
             """
         )
+        params = {
+            "title": str(work.title),
+            "content": str(work.content),
+        }
         [[work_id]] = postgres_session.execute(
             stmt,
-            dict(
-                title=str(work.title),
-                content=str(work.content),
-            ),
         )
+        logger.debug(f"Executing SQL Statement: {stmt}")
+        logger.debug(f"With Parameters: {params}")
+
         works_added.add(work_id)
         postgres_session.commit()
 
