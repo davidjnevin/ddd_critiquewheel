@@ -257,16 +257,15 @@ def add_work(postgres_session):
             """
         )
         member_id = MemberId()
-        params = (
-            {
-                "id": str(member_id),
-                "username": "api_user_test",
-                "password": "Some_test_23423_pass_@@",
-                "email": "api_test_user_email@davidnevin.net",
-                "member_type": MemberRole.MEMBER.value,
-                "status": MemberStatus.ACTIVE.value,
-            },
-        )
+        params = {
+            "id": str(member_id),
+            "username": "api_user_test",
+            "password": "Some_test_23423_pass_@@",
+            "email": "api_test_user_email@davidnevin.net",
+            "member_type": MemberRole.MEMBER.value,
+            "status": MemberStatus.ACTIVE.value,
+        }
+
         postgres_session.execute(
             stmt,
             params,
@@ -282,16 +281,14 @@ def add_work(postgres_session):
         VALUES (:id, :title, :content, :member_id)
         """
         )
-        params = (
-            {
-                "id": str(work.id),
-                "title": str(work.title),
-                "content": str(work.content),
-                # "age_restriction":str(work.age_restriction.value),
-                # "genre":str(work.genre.value),
-                "member_id": str(member_id),
-            },
-        )
+        params = {
+            "id": str(work.id),
+            "title": str(work.title),
+            "content": str(work.content),
+            # "age_restriction":str(work.age_restriction.value),
+            # "genre":str(work.genre.value),
+            "member_id": str(member_id),
+        }
         postgres_session.execute(
             stmt,
             params,
@@ -310,6 +307,7 @@ def add_work(postgres_session):
         }
         [[work_id]] = postgres_session.execute(
             stmt,
+            params,
         )
         logger.debug(f"Executing SQL Statement: {stmt}")
         logger.debug(f"With Parameters: {params}")
