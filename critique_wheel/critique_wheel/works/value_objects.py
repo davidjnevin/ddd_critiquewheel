@@ -67,6 +67,14 @@ class WorkId:
     def get_uuid(self):
         return str(self.id)
 
+    @classmethod
+    def from_string(cls, uuid_string: str):
+        try:
+            uuid_obj = uuid.UUID(uuid_string)
+            return cls(id=uuid_obj)
+        except ValueError:
+            raise ValueError(f"Invalid UUID string: '{uuid_string}'")
+
 
 @dataclass(frozen=True)
 class Title:
