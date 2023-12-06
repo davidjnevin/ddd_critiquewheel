@@ -1,13 +1,16 @@
+import logging
+
 import fastapi
 import fastapi.exception_handlers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from critique_wheel.api.schemas.work_schemas import (
-    WorkPayloadSchema,
-    WorkResponseSchema,
-)
+from critique_wheel.adapters.sqlalchemy.work_repository import SqlAlchemyWorkRepository
 from critique_wheel.config import get_postgres_uri
+from critique_wheel.works.services import work_service
+from critique_wheel.works.value_objects import WorkId
+
+logger = logging.getLogger(__name__)
 
 router = fastapi.APIRouter()
 
@@ -17,6 +20,18 @@ def get_db_session():
     return get_session()
 
 
-@router.post("/works", response_model=WorkResponseSchema, status_code=201)
-def create_work(payload: WorkPayloadSchema):
-    pass
+@router.get("/works/{work_id}")
+async def get_work_by_id(work_id: str):
+    session = get_db_session()
+    repo = SqlAlchemyWorkRepository(session)
+    logger.info(f"Getting work {work_id}.")
+    try:
+        work = work_service.get_work_by_id(WorkId.from_string(work_id), repo)
+        if not work:
+            raise fastapi.HTTPException(
+                status_code=404, detail=f"Post with id {work_id} not found"
+            )
+    except Exception as e:
+        logger.error(f"Error encountered: {e}")
+        raise fastapi.HTTPException(status_code=500, detail="Internal server error")
+    return work
