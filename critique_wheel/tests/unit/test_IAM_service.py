@@ -1,7 +1,9 @@
+from uuid import uuid4
+
 import pytest
 
+from critique_wheel.members.exceptions import exceptions
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
-from critique_wheel.members.models.IAM_domain_exceptions import BaseIAMDomainError
 from critique_wheel.members.services import iam_service
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.services import work_service
@@ -143,7 +145,7 @@ def test_register_new_member_with_non_matching_passwords_raises_BaseIAMDomainErr
     # Act
 
     # Assert
-    with pytest.raises(BaseIAMDomainError):
+    with pytest.raises(exceptions.BaseIAMDomainError):
         iam_service.register_member(
             username, email, password, confirm_password, repo, session
         )
@@ -161,7 +163,7 @@ def test_register_new_member_with_missing_username_raises_BaseIAMDomainError(
     repo = FakeMemberRepository([])
     session = FakeSession()
     # Assert
-    with pytest.raises(iam_service.BaseIAMDomainError):
+    with pytest.raises(exceptions.BaseIAMDomainError):
         iam_service.register_member(
             username, email, password, confirm_password, repo, session
         )
@@ -179,7 +181,7 @@ def test_register_new_member_with_missing_email_raises_BaseIAMDomainError(
     repo = FakeMemberRepository([])
     session = FakeSession()
     # Assert
-    with pytest.raises(iam_service.BaseIAMDomainError):
+    with pytest.raises(exceptions.BaseIAMDomainError):
         iam_service.register_member(
             username, email, password, confirm_password, repo, session
         )
@@ -197,7 +199,7 @@ def test_register_new_member_with_missing_password_raises_BaseIAMDomainError(
     repo = FakeMemberRepository([])
     session = FakeSession()
     # Assert
-    with pytest.raises(iam_service.BaseIAMDomainError):
+    with pytest.raises(exceptions.BaseIAMDomainError):
         iam_service.register_member(
             username, email, password, confirm_password, repo, session
         )
@@ -215,7 +217,7 @@ def test_new_member_with_missing_confirm_password_raises_BaseIAMDomainError(
     repo = FakeMemberRepository([])
     session = FakeSession()
     # Assert
-    with pytest.raises(iam_service.BaseIAMDomainError):
+    with pytest.raises(exceptions.BaseIAMDomainError):
         iam_service.register_member(
             username, email, password, confirm_password, repo, session
         )
@@ -323,7 +325,7 @@ def test_get_member_by_id_returns_member_with_matching_id(member_details):
 def test_get_member_by_id_returns_None_for_nonexistent_id():
     repo = FakeMemberRepository([])
     session = FakeSession()
-    nonexistent_id = 999
+    nonexistent_id = str(uuid4())
     assert iam_service.get_member_by_id(nonexistent_id, repo, session) is None
 
 
