@@ -2,15 +2,8 @@ import os
 
 import pytest
 
+from critique_wheel.members.exceptions import exceptions
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
-from critique_wheel.members.models.IAM_domain_exceptions import (
-    AdminOnlyError,
-    CritiqueAlreadyExistsError,
-    IncorrectCredentialsError,
-    MissingEntryError,
-    WeakPasswordError,
-    WorkAlreadyExistsError,
-)
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MOCK_YAML_PATH = os.path.join(CURRENT_DIR, "mock_rbac.yaml")
@@ -65,7 +58,7 @@ class TestRegistrationAndLogin:
 
     def test_create_with_missing_username(self):
         with pytest.raises(
-            MissingEntryError,
+            exceptions.MissingEntryError,
             match="Missing required fields",
         ):
             Member.create(
@@ -81,7 +74,9 @@ class TestRegistrationAndLogin:
         assert member.verify_password("new_p@ssword10")
 
     def test_password_change_incorrect_old_password(self, member):
-        with pytest.raises(IncorrectCredentialsError, match="Incorrect old password"):
+        with pytest.raises(
+            exceptions.IncorrectCredentialsError, match="Incorrect old password"
+        ):
             member.change_password(
                 old_password="wrong_old_p@ssword", new_password="new_p@ssword"
             )
@@ -91,28 +86,28 @@ class TestRegistrationAndLogin:
 
     def test_validate_password_strength_too_short(self):
         with pytest.raises(
-            WeakPasswordError,
+            exceptions.WeakPasswordError,
             match="Password does not meet the policy requirements: Minimum length of 8 characters required",
         ):
             Member.validate_password_strength("short")
 
     def test_validate_password_strength_all_letters(self):
         with pytest.raises(
-            WeakPasswordError,
+            exceptions.WeakPasswordError,
             match="Password does not meet the policy requirements: Mix of letters, numbers, and symbols required.",
         ):
             Member.validate_password_strength("allletters")
 
     def test_validate_password_strength_all_numbers(self):
         with pytest.raises(
-            WeakPasswordError,
+            exceptions.WeakPasswordError,
             match="Password does not meet the policy requirements: Mix of letters, numbers, and symbols required.",
         ):
             Member.validate_password_strength("123499900990990")
 
     def test_validate_password_strength_no_symbols(self):
         with pytest.raises(
-            WeakPasswordError,
+            exceptions.WeakPasswordError,
             match="Password does not meet the policy requirements: Mix of letters, numbers, and symbols required.",
         ):
             Member.validate_password_strength("123helloworld")
@@ -120,7 +115,7 @@ class TestRegistrationAndLogin:
     def test_validate_password_strength_easily_guessable(self):
         weak_passwords = ["password", "abcdefg", "12345678", "qwerty"]
         for password in weak_passwords:
-            with pytest.raises(WeakPasswordError):
+            with pytest.raises(exceptions.WeakPasswordError):
                 Member.create(
                     username="test_user", email="test@example.com", password=password
                 )
@@ -142,7 +137,7 @@ class TestMemberActivationEmailVerification:
         admin.member_type = MemberRole.MEMBER
         another_member = admin
         with pytest.raises(
-            AdminOnlyError,
+            exceptions.AdminOnlyError,
             match="Only admins can deactivate members.",
         ):
             another_member.deactivate_member(member)
@@ -244,7 +239,7 @@ class TestMemberContributions:
         assert member.works == [valid_work]
 
         with pytest.raises(
-            WorkAlreadyExistsError,
+            exceptions.WorkAlreadyExistsError,
             match="Work already exists",
         ):
             member.add_work(valid_work)
@@ -272,7 +267,7 @@ class TestMemberContributions:
         assert reviewer.critiques == [valid_critique]
 
         with pytest.raises(
-            CritiqueAlreadyExistsError,
+            exceptions.CritiqueAlreadyExistsError,
             match="Critique already exists",
         ):
             reviewer.add_critique(valid_critique)
