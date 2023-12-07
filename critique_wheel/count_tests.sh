@@ -12,7 +12,7 @@ count_occurrences() {
 tempfile=$(mktemp)
 
 # Find all 'test_*.py' files and process them
-for file in $(find . -type f -name "test_*.py")
+for file in $(find ./tests -type f -name "test_*.py")
 do
     count_occurrences "$file" >> "$tempfile"
 done
