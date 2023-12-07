@@ -17,11 +17,11 @@ do
     count_occurrences "$file" >> "$tempfile"
 done
 
-# Aggregate counts by directory and sort by test count
+# Aggregate counts by directory, sort by test count, and format the output
 sort -k1,1 "$tempfile" | \
     awk '{count[$1]+=$2} END {for (dir in count) print dir, count[dir]}' | \
-    sort -k2,2nr | \
-    awk '{printf "%-20s (%3d) ", $1, $2; for (i=0; i<$2; i++) printf "x"; print ""}'
+    sort -k2,2n | \
+    awk -v scale=10 '{printf "%-20s (%3d) ", $1, $2; scaled_count=int(($2+scale-1)/scale); for (i=0; i<scaled_count; i++) printf "x"; print ""}'
 
 # Clean up
 rm "$tempfile"
