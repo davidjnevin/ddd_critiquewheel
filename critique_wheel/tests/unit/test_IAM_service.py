@@ -356,7 +356,6 @@ def test_get_member_by_username_returns_None_for_nonexistent_username():
     )
 
 
-@pytest.mark.current
 def test_add_work_to_member_adds_work_to_member(member_details, work_details):
     # Arrange
     repo = FakeMemberRepository([])
