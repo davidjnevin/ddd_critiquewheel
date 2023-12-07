@@ -2,6 +2,10 @@ class BaseWorkDomainError(Exception):
     pass
 
 
+class InvalidEntryError(BaseWorkDomainError):
+    pass
+
+
 class MissingEntryError(BaseWorkDomainError):
     pass
 
