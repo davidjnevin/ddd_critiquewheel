@@ -21,7 +21,7 @@ done
 sort -k1,1 "$tempfile" | \
     awk '{count[$1]+=$2} END {for (dir in count) print dir, count[dir]}' | \
     sort -k2,2n | \
-    awk -v scale=10 '{printf "%-20s (%3d) ", $1, $2; scaled_count=int(($2+scale-1)/scale); for (i=0; i<scaled_count; i++) printf "x"; print ""}'
+    awk -v scale=5 '{printf "%-20s (%3d) ", $1, $2; scaled_count=int(($2+scale-1)/scale); for (i=0; i<scaled_count; i++) printf "x"; print ""}'
 
 # Clean up
 rm "$tempfile"
