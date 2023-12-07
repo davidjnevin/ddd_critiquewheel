@@ -1,7 +1,7 @@
 import uuid
 from dataclasses import dataclass, field
 
-from critique_wheel.works.exceptions.exceptions import InvalidEntryError
+from critique_wheel.members.exceptions import exceptions
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class MemberId:
             uuid_obj = uuid.UUID(uuid_string)
             return cls(id=uuid_obj)
         except ValueError:
-            raise InvalidEntryError(f"Invalid UUID string: '{uuid_string}'")
+            raise exceptions.InvalidEntryError(f"Invalid UUID string: '{uuid_string}'")
 
 
 @dataclass(frozen=True)
@@ -33,9 +33,11 @@ class FirstName:
 
     def __post_init__(self):
         if len(self.value) > 50:
-            raise InvalidEntryError("First name must be under 50 characters.")
+            raise exceptions.InvalidEntryError(
+                "First name must be under 50 characters."
+            )
         if not self.value:
-            raise InvalidEntryError("First name cannot be empty.")
+            raise exceptions.InvalidEntryError("First name cannot be empty.")
 
 
 @dataclass(frozen=True)
@@ -44,9 +46,9 @@ class LastName:
 
     def __post_init__(self):
         if len(self.value) > 50:
-            raise InvalidEntryError("Last name must be under 50 characters.")
+            raise exceptions.InvalidEntryError("Last name must be under 50 characters.")
         if not self.value:
-            raise InvalidEntryError("Last name cannot be empty.")
+            raise exceptions.InvalidEntryError("Last name cannot be empty.")
 
 
 @dataclass(frozen=True)
@@ -57,7 +59,7 @@ class Bio:
         word_limit = 200
         char_limit = 1200
         if len(self.value.split()) > word_limit or len(self.value) > char_limit:
-            raise InvalidEntryError(
+            raise exceptions.InvalidEntryError(
                 f"Bio must be under {word_limit} words and {char_limit} characters."
             )
 
