@@ -1,8 +1,8 @@
 from typing import Optional
 
 from critique_wheel.critiques.models.critique import Critique
+from critique_wheel.members.exceptions import exceptions
 from critique_wheel.members.models.IAM import Member
-from critique_wheel.members.models.IAM_domain_exceptions import BaseIAMDomainError
 from critique_wheel.members.models.iam_repository import AbstractMemberRepository
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
@@ -38,7 +38,7 @@ def login_member(
 ) -> Member:
     try:
         member = repo.get_member_by_email(email)
-    except BaseIAMDomainError:
+    except exceptions.BaseIAMDomainError:
         raise InvalidCredentials("Invalid credentials")
     if member and member.verify_password(password):
         session.commit()
