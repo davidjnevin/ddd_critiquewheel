@@ -1,24 +1,15 @@
 from datetime import datetime
 
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.exceptions import exceptions
 from critique_wheel.works.value_objects import (
-    BaseWorkDomainError,
     Content,
-    MissingEntryError,
     Title,
     WorkAgeRestriction,
     WorkGenre,
     WorkId,
     WorkStatus,
 )
-
-
-class WorkNotAvailableForCritiqueError(BaseWorkDomainError):
-    pass
-
-
-class CritiqueDuplicateError(BaseWorkDomainError):
-    pass
 
 
 class Work:
@@ -58,9 +49,9 @@ class Work:
         work_id: WorkId = None,
     ):
         if not title or not content:
-            raise MissingEntryError()
+            raise exceptions.MissingEntryError()
         if not genre or not age_restriction or not member_id:
-            raise MissingEntryError()
+            raise exceptions.MissingEntryError()
         return cls(
             title=title,
             content=content,
@@ -103,11 +94,11 @@ class Work:
 
     def add_critique(self, critique) -> None:
         if not self.is_available_for_critique():
-            raise WorkNotAvailableForCritiqueError(
+            raise exceptions.WorkNotAvailableForCritiqueError(
                 "This work is not available for critique",
             )
         if critique not in self.critiques:
             self.critiques.append(critique)
             self.last_update_date = datetime.now()
         else:
-            raise CritiqueDuplicateError("Critique already exists")
+            raise exceptions.CritiqueDuplicateError("Critique already exists")
