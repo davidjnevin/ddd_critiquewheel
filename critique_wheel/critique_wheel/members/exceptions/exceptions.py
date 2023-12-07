@@ -34,5 +34,9 @@ class WorkAlreadyExistsError(BaseIAMDomainError):
     pass
 
 
+class InvalidEntryError(BaseIAMDomainError):
+    pass
+
+
 class CritiqueAlreadyExistsError(BaseIAMDomainError):
     pass
