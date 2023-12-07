@@ -5,8 +5,8 @@ from critique_wheel.members.models.IAM_domain_exceptions import BaseIAMDomainErr
 from critique_wheel.members.services import iam_service
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.services import work_service
-from tests.e2e.fake_iam_repository import FakeMemberRepository
-from tests.e2e.fake_work_repository import FakeWorkRepository
+from tests.integration.fake_iam_repository import FakeMemberRepository
+from tests.integration.fake_work_repository import FakeWorkRepository
 
 
 class FakeSession:

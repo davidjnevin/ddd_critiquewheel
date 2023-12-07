@@ -3,7 +3,7 @@ import pytest
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.services import work_service
 from critique_wheel.works.value_objects import Content, Title
-from tests.e2e.fake_work_repository import FakeWorkRepository
+from tests.integration.fake_work_repository import FakeWorkRepository
 
 
 class FakeSession:
