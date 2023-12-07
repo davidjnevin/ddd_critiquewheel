@@ -1,16 +1,10 @@
 from typing import Optional
 
 from critique_wheel.members.value_objects import MemberId
+from critique_wheel.works.exceptions import exceptions
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.models.work_repository import AbstractWorkRepository
-from critique_wheel.works.value_objects import (
-    Content,
-    MissingEntryError,
-    Title,
-    WorkAgeRestriction,
-    WorkGenre,
-    WorkId,
-)
+from critique_wheel.works.value_objects import Content, Title, WorkId
 
 
 class BaseWorkServiceError(Exception):
@@ -26,27 +20,27 @@ class InvalidDataError(BaseWorkServiceError):
 
 
 def add_work(
+    title: str,
+    content: str,
+    member_id: str,
     repo: AbstractWorkRepository,
     session,
-    title: Title,
-    content: Content,
-    member_id: MemberId,
-    genre=WorkGenre.OTHER,
-    age_restriction=WorkAgeRestriction.ADULT,
+    genre,
+    age_restriction,
+    work_id: str = "",
     critiques=None,
-    work_id=None,
 ) -> Work:
     try:
         new_work = Work.create(
-            work_id=work_id or WorkId(),
-            title=title,
-            content=content,
+            work_id=WorkId.from_string(uuid_string=work_id) or WorkId(),
+            title=Title(title),
+            content=Content(content),
+            member_id=MemberId.from_string(uuid_string=member_id),
             age_restriction=age_restriction,
             genre=genre,
-            member_id=member_id,
             critiques=critiques,
         )
-    except MissingEntryError as e:
+    except exceptions.MissingEntryError as e:
         raise InvalidDataError(f"Invalid data encountered: {e}") from e
     if work_id:
         if repo.get_work_by_id(new_work.id):
@@ -60,5 +54,5 @@ def list_works(repo) -> list[Work]:
     return repo.list()
 
 
-def get_work_by_id(work_id: WorkId, repo: AbstractWorkRepository) -> Optional[Work]:
-    return repo.get_work_by_id(work_id)
+def get_work_by_id(work_id: str, repo: AbstractWorkRepository) -> Optional[Work]:
+    return repo.get_work_by_id(WorkId.from_string(uuid_string=work_id))
