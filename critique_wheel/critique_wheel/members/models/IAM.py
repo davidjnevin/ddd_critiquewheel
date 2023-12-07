@@ -8,7 +8,7 @@ import bcrypt
 import yaml
 from dotenv import load_dotenv
 
-from critique_wheel.members.models import IAM_domain_exceptions as exceptions
+from critique_wheel.members.exceptions import exceptions
 from critique_wheel.members.value_objects import MemberId
 
 load_dotenv()
