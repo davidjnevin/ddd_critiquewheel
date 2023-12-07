@@ -4,16 +4,15 @@ import pytest
 
 from critique_wheel.config import config
 from critique_wheel.members.value_objects import MemberId
-from critique_wheel.works.models.work import (
-    CritiqueDuplicateError,
-    MissingEntryError,
-    Work,
+from critique_wheel.works.exceptions import exceptions
+from critique_wheel.works.models.work import Work
+from critique_wheel.works.value_objects import (
+    Content,
+    Title,
     WorkAgeRestriction,
     WorkGenre,
-    WorkNotAvailableForCritiqueError,
     WorkStatus,
 )
-from critique_wheel.works.value_objects import Content, Title
 
 
 def test_create_work_with_valid_data():
@@ -40,7 +39,7 @@ def test_create_work_with_valid_data():
 
 
 def test_create_work_without_title():
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(exceptions.MissingEntryError):
         Work.create(
             title=Title(""),
             content=Content("Valid content"),
@@ -51,7 +50,7 @@ def test_create_work_without_title():
 
 
 def test_create_work_without_content():
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(exceptions.MissingEntryError):
         Work.create(
             title=Title("Valid Title"),
             content=Content(""),
@@ -62,7 +61,7 @@ def test_create_work_without_content():
 
 
 def test_create_work_without_genre():
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(exceptions.MissingEntryError):
         Work.create(
             title=Title("Valid Title"),
             content=Content("valid content"),
@@ -73,7 +72,7 @@ def test_create_work_without_genre():
 
 
 def test_create_work_without_age_restriction():
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(exceptions.MissingEntryError):
         Work.create(
             title=Title("Valid Title"),
             content=Content("Valid content"),
@@ -84,7 +83,7 @@ def test_create_work_without_age_restriction():
 
 
 def test_create_work_without_member_id():
-    with pytest.raises(MissingEntryError):
+    with pytest.raises(exceptions.MissingEntryError):
         Work.create(
             title=Title("Valid Title"),
             content=Content("Valid content"),
@@ -124,7 +123,7 @@ def test_cannot_add_critique_to_non_active_work(valid_work):
     work = valid_work
     work.status = WorkStatus.PENDING_REVIEW
     with pytest.raises(
-        WorkNotAvailableForCritiqueError,
+        exceptions.WorkNotAvailableForCritiqueError,
         match="This work is not available for critique",
     ):
         work.add_critique("critique3")
@@ -135,7 +134,7 @@ def test_cannot_add_same_critique_twice(valid_work_with_two_critiques):
     work.status = WorkStatus.ACTIVE
     existing_critique = work.critiques[0]
     with pytest.raises(
-        CritiqueDuplicateError,
+        exceptions.CritiqueDuplicateError,
         match="Critique already exists",
     ):
         work.add_critique(existing_critique)
