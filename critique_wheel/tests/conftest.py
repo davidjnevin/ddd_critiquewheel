@@ -36,13 +36,6 @@ from critique_wheel.works.value_objects import (
 logger = logging.getLogger(__name__)
 
 
-# @pytest.fixture(scope="module")
-# def restart_api():
-#     (Path(__file__).parent.parent / "critique_wheel" / "main.py").touch()
-#     time.sleep(0.5)  # hack to force reload in dev mode
-#     wait_for_webapp_to_come_up()
-
-
 @pytest.fixture
 def valid_member():
     yield Member.create(
