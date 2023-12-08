@@ -57,8 +57,9 @@ def add_work(
 
 
 def list_works(repo) -> list[Work]:
-    return repo.list()
+    return [work.to_dict() for work in repo.list()]
 
 
-def get_work_by_id(work_id: str, repo: AbstractWorkRepository) -> Optional[Work]:
-    return repo.get_work_by_id(WorkId.from_string(uuid_string=work_id))
+def get_work_by_id(work_id: str, repo: AbstractWorkRepository) -> Optional[dict]:
+    work = repo.get_work_by_id(WorkId.from_string(uuid_string=work_id))
+    return work.to_dict() if work else None
