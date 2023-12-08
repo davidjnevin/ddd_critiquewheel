@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 import string
@@ -11,6 +12,7 @@ from dotenv import load_dotenv
 from critique_wheel.members.exceptions import exceptions
 from critique_wheel.members.value_objects import MemberId
 
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 ROLES_FILE_PATH = os.getenv("ROLES_FILE_PATH")
@@ -102,7 +104,8 @@ class Member:
         )
         try:
             cls.validate_password_strength(password)
-        except exceptions.WeakPasswordError:
+        except exceptions.WeakPasswordError as e:
+            logger.exception(f"Password does not meet the policy requirements {e}")
             raise exceptions.WeakPasswordError(
                 "Password does not meet the policy requirements"
             )

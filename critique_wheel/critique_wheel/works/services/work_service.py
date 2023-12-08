@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from critique_wheel.members.value_objects import MemberId
@@ -5,6 +6,8 @@ from critique_wheel.works.exceptions import exceptions
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.models.work_repository import AbstractWorkRepository
 from critique_wheel.works.value_objects import Content, Title, WorkId
+
+logger = logging.getLogger(__name__)
 
 
 class BaseWorkServiceError(Exception):
@@ -45,8 +48,10 @@ def add_work(
             critiques=critiques,
         )
     except exceptions.MissingEntryError as e:
+        logger.exception(f"Missing entry encountered: {e}")
         raise InvalidDataError(f"Invalid data encountered: {e}") from e
     except Exception as e:
+        logger.exception(f"Invalid data encountered: {e}")
         raise InvalidDataError(f"Invalid data encountered: {e}") from e
     if work_id:
         if repo.get_work_by_id(new_work.id):
