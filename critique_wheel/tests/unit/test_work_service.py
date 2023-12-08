@@ -28,13 +28,13 @@ def test_add_work(work_details):
         repo=repo,
         session=session,
     )
-    assert str(work.title) == "Test Title"
-    assert str(work.content) == "Test content"
-    assert work.member_id is not None
-    assert work.genre == "YOUNG ADULT"
-    assert work.status == "PENDING REVIEW"
-    assert work.age_restriction == "ADULT"
-    assert work.critiques == []
+    assert work["title"] == "Test Title"
+    assert work["content"] == "Test content"
+    assert work["member_id"] is not None
+    assert work["genre"] == "YOUNG ADULT"
+    assert work["status"] == "PENDING REVIEW"
+    assert work["age_restriction"] == "ADULT"
+    assert work["critiques"] == []
     assert session.committed is True
 
 

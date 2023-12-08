@@ -355,7 +355,7 @@ def test_add_work_to_member_adds_work_to_member(member_details, work_details):
     # Act
     iam_service.add_work_to_member(
         member_id=str(new_member_1_id),
-        work_id=str(new_work.id),
+        work_id=new_work["id"],
         repo=repo,
         work_repo=work_repo,
         session=session,
@@ -366,7 +366,7 @@ def test_add_work_to_member_adds_work_to_member(member_details, work_details):
 
     # Assert
     assert len(new_member.works) == 1
-    assert new_work in new_member.works
+    assert new_work == new_member.works[0].to_dict()
 
 
 def test_add_work_to_member_with_no_work_raises_InvalidEntryError(
