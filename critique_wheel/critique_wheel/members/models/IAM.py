@@ -145,12 +145,14 @@ class Member:
 
     def change_password(self, old_password, new_password):
         self.validate_password_strength(new_password)
-        if not bcrypt.checkpw(old_password.encode(), self.password):
+        stored_password = self.password.encode()
+        if not bcrypt.checkpw(old_password.encode(), stored_password):
             raise exceptions.IncorrectCredentialsError("Incorrect old password")
         self.password = self.hash_password(new_password)
 
     def verify_password(self, password):
-        return bcrypt.checkpw(password.encode(), self.password)
+        stored_password = self.password.encode()
+        return bcrypt.checkpw(password.encode(), stored_password)
 
     def deactivate_self(self):
         self.status = MemberStatus.INACTIVE
