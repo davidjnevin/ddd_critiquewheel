@@ -15,16 +15,20 @@ class DuplicateWorkError(BaseWorkServiceError):
     pass
 
 
+class WorkNotFoundError(BaseWorkServiceError):
+    pass
+
+
 class InvalidDataError(BaseWorkServiceError):
     pass
 
 
 def add_work(
+    repo: AbstractWorkRepository,
+    session,
     title: str,
     content: str,
     member_id: str,
-    repo: AbstractWorkRepository,
-    session,
     genre,
     age_restriction,
     work_id: str = "",
@@ -41,6 +45,8 @@ def add_work(
             critiques=critiques,
         )
     except exceptions.MissingEntryError as e:
+        raise InvalidDataError(f"Invalid data encountered: {e}") from e
+    except Exception as e:
         raise InvalidDataError(f"Invalid data encountered: {e}") from e
     if work_id:
         if repo.get_work_by_id(new_work.id):
