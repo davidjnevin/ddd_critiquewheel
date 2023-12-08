@@ -64,10 +64,11 @@ class Member:
         self.created_date: datetime = datetime.now()
 
     @staticmethod
-    def hash_password(password: str) -> bytes:
+    def hash_password(password: str) -> str:
         bcrypt.gensalt(rounds=4)  # Set the number of rounds for testing to 4
         salt = bcrypt.gensalt()
-        return bcrypt.hashpw(password.encode(), salt)
+        hashed_password = bcrypt.hashpw(password.encode(), salt)
+        return hashed_password.decode("utf-8")
 
     @classmethod
     def create(
