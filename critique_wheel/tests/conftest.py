@@ -200,6 +200,7 @@ def wait_for_postgres_to_come_up(engine):
         try:
             return engine.connect()
         except OperationalError:
+            logger.exception("Postgres not up yet")
             time.sleep(0.5)
     pytest.fail("Postgres never came up")
 
@@ -212,6 +213,7 @@ def wait_for_webapp_to_come_up():
         try:
             return requests.get(url)
         except ConnectionError:
+            logger.exception("Webapp not up yet")
             time.sleep(0.5)
     pytest.fail("API never came up")
 

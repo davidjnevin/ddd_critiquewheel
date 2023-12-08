@@ -1,9 +1,12 @@
+import logging
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
 
 from critique_wheel.config import config
 from critique_wheel.works.exceptions import exceptions
+
+logger = logging.getLogger(__name__)
 
 
 class WorkStatus(str, Enum):
@@ -67,6 +70,7 @@ class WorkId:
                 uuid_obj = uuid.UUID(uuid_string)
                 return cls(id=uuid_obj)
             except ValueError:
+                logger.exception(f"Invalid UUID string: '{uuid_string}'")
                 raise exceptions.InvalidEntryError(
                     f"Invalid UUID string: '{uuid_string}'"
                 )

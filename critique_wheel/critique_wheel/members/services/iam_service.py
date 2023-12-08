@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from critique_wheel.critiques.models.critique import Critique
@@ -31,6 +32,9 @@ class InvalidEntryError(BaseIAMServiceError):
     pass
 
 
+logger = logging.getLogger(__name__)
+
+
 def create_member(
     username: str, email: str, password: str, repo: AbstractMemberRepository, session
 ) -> MemberId:
@@ -45,7 +49,8 @@ def login_member(
 ) -> Member:
     try:
         member = repo.get_member_by_email(email)
-    except exceptions.BaseIAMDomainError:
+    except exceptions.BaseIAMDomainError as e:
+        logger.exception(f"An error occurred while logging in: {e}")
         raise InvalidCredentials("Invalid credentials")
     if member and member.verify_password(password):
         session.commit()
@@ -106,10 +111,12 @@ def add_work_to_member(
     try:
         workId = WorkId.from_string(uuid_string=work_id)
     except exceptions.MissingEntryError as e:
+        logger.exception(f"An error occurred while adding work to member: {e}")
         raise work_service.WorkNotFoundError(f"Invalid data encountered: {e}") from e
     try:
         memberId = MemberId.from_string(uuid_string=member_id)
     except exceptions.InvalidEntryError as e:
+        logger.exception(f"An error occurred while adding work to member: {e}")
         raise MemberNotFoundException(f"Invalid data encountered: {e}") from e
 
     work = work_repo.get_work_by_id(workId)
