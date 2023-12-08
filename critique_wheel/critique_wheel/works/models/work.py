@@ -62,6 +62,26 @@ class Work:
             work_id=work_id,
         )
 
+    def to_dict(self) -> dict:
+        return {
+            "id": str(self.id),  # Assuming WorkId has a __str__ method
+            "title": str(self.title),  # Assuming Title has a __str__ method
+            "content": str(self.content),  # Assuming Content has a __str__ method
+            "age_restriction": self.age_restriction.value,  # If it's an enum
+            "genre": self.genre.value,  # If it's an enum
+            "status": self.status.value,  # If it's an enum
+            "word_count": self.word_count,
+            "submission_date": self.submission_date.isoformat(),
+            "last_update_date": self.last_update_date.isoformat(),
+            "archive_date": self.archive_date.isoformat()
+            if self.archive_date
+            else None,
+            "member_id": str(self.member_id),  # Assuming MemberId has a __str__ method
+            "critiques": [
+                critique.to_dict() for critique in self.critiques
+            ],  # Assuming each critique can be converted to a dictionary
+        }
+
     def approve(self) -> None:
         self.status = WorkStatus.ACTIVE
         self.archive_date = datetime.now()
