@@ -6,6 +6,9 @@ from critique_wheel.members.models.IAM import Member
 from critique_wheel.members.models.iam_repository import AbstractMemberRepository
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
+from critique_wheel.works.models.work_repository import AbstractWorkRepository
+from critique_wheel.works.services import work_service
+from critique_wheel.works.value_objects import WorkId
 
 
 class BaseIAMServiceError(Exception):
@@ -24,10 +27,14 @@ class DuplicateEntryError(BaseIAMServiceError):
     pass
 
 
-def create_member(member: Member, repo: AbstractMemberRepository, session) -> MemberId:
-    new_member = Member.create(
-        username=member.username, email=member.email, password=member.password
-    )
+class InvalidEntryError(BaseIAMServiceError):
+    pass
+
+
+def create_member(
+    username: str, email: str, password: str, repo: AbstractMemberRepository, session
+) -> MemberId:
+    new_member = Member.create(username, email, password)
     repo.add(new_member)
     session.commit()
     return new_member.id
@@ -76,30 +83,44 @@ def list_members(repo, session) -> list[Member]:
 
 
 def get_member_by_username(
-    username: str, repo: AbstractMemberRepository, session
+    username: str, repo: AbstractMemberRepository
 ) -> Optional[Member]:
     return repo.get_member_by_username(username)
 
 
 def get_member_by_id(
-    member_id: MemberId, repo: AbstractMemberRepository, session
+    member_id: str, repo: AbstractMemberRepository
 ) -> Optional[Member]:
-    return repo.get_member_by_id(member_id)
+    return repo.get_member_by_id(MemberId.from_string(uuid_string=member_id))
 
 
 # This was added here because each Work
 # has a member_id and is closely related to a Member,
-
-
 def add_work_to_member(
-    member_id: MemberId, work: Work, repo: AbstractMemberRepository, session
+    member_id: str,
+    work_id: str,
+    repo: AbstractMemberRepository,
+    work_repo: AbstractWorkRepository,
+    session,
 ) -> None:
-    member = repo.get_member_by_id(member_id)
-    if member:
+    try:
+        workId = WorkId.from_string(uuid_string=work_id)
+    except exceptions.MissingEntryError as e:
+        raise work_service.WorkNotFoundError(f"Invalid data encountered: {e}") from e
+    try:
+        memberId = MemberId.from_string(uuid_string=member_id)
+    except exceptions.InvalidEntryError as e:
+        raise MemberNotFoundException(f"Invalid data encountered: {e}") from e
+
+    work = work_repo.get_work_by_id(workId)
+    member = repo.get_member_by_id(memberId)
+
+    if member and work:
         member.add_work(work)
         repo.add(member)
+        session.commit()
     else:
-        raise MemberNotFoundException("Member not found")
+        raise InvalidEntryError("Member not found")
 
 
 class IAMService:
