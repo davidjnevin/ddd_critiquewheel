@@ -33,7 +33,7 @@ def add_work(
     age_restriction,
     work_id: str = "",
     critiques=None,
-) -> Work:
+) -> dict:
     try:
         new_work = Work.create(
             work_id=WorkId.from_string(uuid_string=work_id) or WorkId(),
@@ -53,7 +53,7 @@ def add_work(
             raise DuplicateWorkError(f"Work with id {str(new_work.id)} already exists")
     repo.add(new_work)
     session.commit()
-    return new_work
+    return new_work.to_dict()
 
 
 def list_works(repo) -> list[Work]:
