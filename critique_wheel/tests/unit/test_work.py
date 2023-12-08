@@ -94,7 +94,7 @@ def test_create_work_without_member_id():
 
 
 def test_create_work_content_exceeding_limit():
-    with pytest.raises(ValueError):
+    with pytest.raises(exceptions.InvalidEntryError):
         long_content = "word " * (config.WORK_MAX_WORDS + 1)  # type: ignore
         Work.create(
             title=Title("Valid Title"),
