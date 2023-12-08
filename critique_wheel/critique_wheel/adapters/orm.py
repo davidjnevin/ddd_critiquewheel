@@ -242,7 +242,7 @@ member_table = Table(
     Column("id", MemberUUIDType, primary_key=True),
     Column("username", String(255)),
     Column("email", String(255)),
-    Column("password", String(60)),
+    Column("password", String(255)),
     Column("member_type", Enum(MemberRole)),
     Column("status", Enum(MemberStatus)),
     Column("last_login", DateTime, default=datetime.now),

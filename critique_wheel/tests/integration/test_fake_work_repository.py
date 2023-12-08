@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from critique_wheel.members.models.IAM import MemberStatus
-from tests.e2e import fake_work_repository
+from tests.integration import fake_work_repository
 
 
 def test_repository_can_save_a_work(

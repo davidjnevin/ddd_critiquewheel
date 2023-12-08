@@ -2,6 +2,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from critique_wheel.members.exceptions import exceptions
 from critique_wheel.members.models.member_profile import MemberProfile
 from critique_wheel.members.value_objects import (
     Bio,
@@ -46,7 +47,7 @@ class TestMemberProfile:
         assert member.id is not None
 
     def test_create_invalid_name(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(exceptions.InvalidEntryError):
             MemberProfile.create(
                 member_id=MOCK_MEMBER_ID,
                 first_name=FirstName("a" * 51),
@@ -55,7 +56,7 @@ class TestMemberProfile:
             )
 
     def test_create_invalid_bio(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(exceptions.InvalidEntryError):
             MemberProfile.create(
                 MOCK_MEMBER_ID,
                 VALID_FIRST_NAME,

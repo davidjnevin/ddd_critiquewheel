@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from critique_wheel.members.models.IAM import MemberRole, MemberStatus
-from tests.e2e.fake_iam_repository import FakeMemberRepository
+from tests.integration.fake_iam_repository import FakeMemberRepository
 
 
 def test_repository_can_save_a_basic_member(

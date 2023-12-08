@@ -8,7 +8,7 @@ import bcrypt
 import yaml
 from dotenv import load_dotenv
 
-from critique_wheel.members.models import IAM_domain_exceptions as exceptions
+from critique_wheel.members.exceptions import exceptions
 from critique_wheel.members.value_objects import MemberId
 
 load_dotenv()
@@ -64,10 +64,11 @@ class Member:
         self.created_date: datetime = datetime.now()
 
     @staticmethod
-    def hash_password(password: str) -> bytes:
+    def hash_password(password: str) -> str:
         bcrypt.gensalt(rounds=4)  # Set the number of rounds for testing to 4
         salt = bcrypt.gensalt()
-        return bcrypt.hashpw(password.encode(), salt)
+        hashed_password = bcrypt.hashpw(password.encode(), salt)
+        return hashed_password.decode("utf-8")
 
     @classmethod
     def create(
@@ -144,12 +145,14 @@ class Member:
 
     def change_password(self, old_password, new_password):
         self.validate_password_strength(new_password)
-        if not bcrypt.checkpw(old_password.encode(), self.password):
+        stored_password = self.password.encode()
+        if not bcrypt.checkpw(old_password.encode(), stored_password):
             raise exceptions.IncorrectCredentialsError("Incorrect old password")
         self.password = self.hash_password(new_password)
 
     def verify_password(self, password):
-        return bcrypt.checkpw(password.encode(), self.password)
+        stored_password = self.password.encode()
+        return bcrypt.checkpw(password.encode(), stored_password)
 
     def deactivate_self(self):
         self.status = MemberStatus.INACTIVE

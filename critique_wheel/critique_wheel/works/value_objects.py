@@ -3,14 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from critique_wheel.config import config
-
-
-class BaseWorkDomainError(Exception):
-    pass
-
-
-class MissingEntryError(BaseWorkDomainError):
-    pass
+from critique_wheel.works.exceptions import exceptions
 
 
 class WorkStatus(str, Enum):
@@ -69,11 +62,15 @@ class WorkId:
 
     @classmethod
     def from_string(cls, uuid_string: str):
-        try:
-            uuid_obj = uuid.UUID(uuid_string)
-            return cls(id=uuid_obj)
-        except ValueError:
-            raise ValueError(f"Invalid UUID string: '{uuid_string}'")
+        if uuid_string:
+            try:
+                uuid_obj = uuid.UUID(uuid_string)
+                return cls(id=uuid_obj)
+            except ValueError:
+                raise exceptions.InvalidEntryError(
+                    f"Invalid UUID string: '{uuid_string}'"
+                )
+        return None
 
 
 @dataclass(frozen=True)
@@ -98,7 +95,9 @@ class Content:
     def __post_init__(self):
         word_limit = config.WORK_MAX_WORDS
         if self.word_count() > word_limit:
-            raise ValueError(f"Work text must be under {word_limit} words.")
+            raise exceptions.InvalidEntryError(
+                f"Work text must be under {word_limit} words."
+            )
 
     def __str__(self):
         return str(self.value)

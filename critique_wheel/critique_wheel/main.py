@@ -9,6 +9,7 @@ from critique_wheel.api.routers import healthcheck, works
 from critique_wheel.logging_conf import configure_logging
 
 configure_logging()
+orm.MapperRegistry.start_mappers()
 logger = logging.getLogger(__name__)
 logger.debug(f"Starting {__name__}...")
 
@@ -32,6 +33,5 @@ if __name__ == "__main__":
     import uvicorn
 
     logger.debug("Creating database engine...")
-    orm.MapperRegistry.start_mappers()
 
     uvicorn.run(app)
