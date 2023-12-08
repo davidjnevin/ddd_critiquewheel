@@ -3,7 +3,6 @@ import time
 
 import pytest
 import requests
-import sqlalchemy
 from requests.exceptions import ConnectionError
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
@@ -232,92 +231,6 @@ def postgres_session(postgres_db):
     yield session
     clear_mappers()
     session.close()
-
-
-@pytest.fixture(scope="session")
-def add_work(postgres_session):
-    members_added = set()
-    works_added = set()
-
-    def _add_work(work: Work):
-        # add a member first then add a work
-
-        stmt = sqlalchemy.text(
-            """
-            INSERT INTO members (id, username, password, email, member_type, status)
-            VALUES (:id, :username, :password, :email, :member_type, :status)
-            """
-        )
-        member_id = MemberId()
-        params = {
-            "id": str(member_id),
-            "username": "api_user_test",
-            "password": "Some_test_23423_pass_@@",
-            "email": "api_test_user_email@davidnevin.net",
-            "member_type": MemberRole.MEMBER.value,
-            "status": MemberStatus.ACTIVE.value,
-        }
-
-        postgres_session.execute(
-            stmt,
-            params,
-        )
-
-        logger.debug(f"Executing SQL Statement: {stmt}")
-        logger.debug(f"With Parameters: {params}")
-
-        members_added.add(member_id)
-        stmt = sqlalchemy.text(
-            """
-        INSERT INTO works (id, title, content, member_id)
-        VALUES (:id, :title, :content, :member_id)
-        """
-        )
-        params = {
-            "id": str(work.id),
-            "title": str(work.title),
-            "content": str(work.content),
-            # "age_restriction":str(work.age_restriction.value),
-            # "genre":str(work.genre.value),
-            "member_id": str(member_id),
-        }
-        postgres_session.execute(
-            stmt,
-            params,
-        )
-        logger.debug(f"Executing SQL Statement: {stmt}")
-        logger.debug(f"With Parameters: {params}")
-
-        stmt = sqlalchemy.text(
-            """
-            SELECT id FROM works WHERE title=:title AND content=:content
-            """
-        )
-        params = {
-            "title": str(work.title),
-            "content": str(work.content),
-        }
-        [[work_id]] = postgres_session.execute(
-            stmt,
-            params,
-        )
-        logger.debug(f"Executing SQL Statement: {stmt}")
-        logger.debug(f"With Parameters: {params}")
-
-        works_added.add(work_id)
-        postgres_session.commit()
-
-    yield _add_work
-
-    # cleanup
-    for work_id in works_added:
-        stmt = sqlalchemy.text("DELETE FROM works WHERE id=:id")
-        postgres_session.execute(stmt, dict(id=work_id))
-        postgres_session.commit()
-    for member_id in works_added:
-        stmt = sqlalchemy.text("DELETE FROM members WHERE id=:id")
-        postgres_session.execute(stmt, dict(id=member_id))
-        postgres_session.commit()
 
 
 @pytest.fixture
