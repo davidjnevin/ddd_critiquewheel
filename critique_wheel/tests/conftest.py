@@ -94,7 +94,7 @@ def another_valid_rating():
 @pytest.fixture(scope="module")
 def valid_critique():
     text = "Word " * 45
-    return Critique.create(
+    yield Critique.create(
         critique_about=CritiqueAbout(text),
         critique_successes=CritiqueSuccesses(text),
         critique_weaknesses=CritiqueWeaknesses(text),
@@ -120,7 +120,7 @@ def valid_work():
 
 @pytest.fixture(scope="module")
 def another_valid_work():
-    return Work.create(
+    yield Work.create(
         title=Title("Test Title 2"),
         content=Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
@@ -133,7 +133,7 @@ def another_valid_work():
 @pytest.fixture(scope="module")
 def valid_critique1():
     text = "Word " * 45
-    return Critique.create(
+    yield Critique.create(
         critique_about=CritiqueAbout(text),
         critique_successes=CritiqueSuccesses(text),
         critique_weaknesses=CritiqueWeaknesses(text),
@@ -147,7 +147,7 @@ def valid_critique1():
 @pytest.fixture(scope="module")
 def valid_critique2():
     text = "Word " * 45
-    return Critique.create(
+    yield Critique.create(
         critique_about=CritiqueAbout(text),
         critique_successes=CritiqueSuccesses(text),
         critique_weaknesses=CritiqueWeaknesses(text),
@@ -180,18 +180,29 @@ def valid_work_with_two_critiques(valid_critique1, valid_critique2):
 def in_memory_db():
     engine = create_engine("sqlite:///:memory:")
     mapper_registry.metadata.create_all(engine)
-    yield engine
-    mapper_registry.metadata.drop_all(engine)
-    engine.dispose()
+    return engine
 
 
 @pytest.fixture(scope="session")
-def session(in_memory_db):
+def session_factory(in_memory_db):
     MapperRegistry.start_mappers()
-    session = sessionmaker(bind=in_memory_db)()
+    session = sessionmaker(bind=in_memory_db, expire_on_commit=False)
     yield session
     clear_mappers()
-    session.close()
+
+
+@pytest.fixture(scope="session")
+def session(session_factory):
+    return session_factory()
+
+
+# @pytest.fixture(scope="session")
+# def session(in_memory_db):
+#     MapperRegistry.start_mappers()
+#     session = sessionmaker(bind=in_memory_db)()
+#     yield session
+#     clear_mappers()
+#     session.close()
 
 
 def wait_for_postgres_to_come_up(engine):
