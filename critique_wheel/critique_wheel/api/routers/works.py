@@ -35,14 +35,13 @@ async def create_work(work: UserWorkIn, session=fastapi.Depends(get_db_session))
     return work
 
 
-# @router.get("/work/{work_id}")
-# async def get_work_by_id(work_id: str):
-#     session = get_db_session()
-#     repo = SqlAlchemyWorkRepository(session)
-#     logger.info(f"Getting work {work_id}.")
-#     work = work_service.get_work_by_id(WorkId.from_string(work_id), repo)
-#     if not work:
-#         raise fastapi.HTTPException(
-#             status_code=404, detail=f"Work with id {work_id} not found"
-#         )
-#     return work
+@router.get("/work/{work_id}")
+async def get_work_by_id(work_id: str, session=fastapi.Depends(get_db_session)):
+    repo = SqlAlchemyWorkRepository(session)
+    logger.info(f"Getting work: {work_id}")
+    work = work_service.get_work_by_id(work_id, repo)
+    if not work:
+        raise fastapi.HTTPException(
+            status_code=404, detail=f"Work with id {work_id} not found"
+        )
+    return work
