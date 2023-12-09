@@ -8,7 +8,7 @@ from critique_wheel.works.models.work_repository import AbstractWorkRepository
 from critique_wheel.works.value_objects import WorkId
 
 
-class SqlAlchemyWorkRepository(AbstractWorkRepository):
+class WorkRepository(AbstractWorkRepository):
     def __init__(self, session: Session):
         self.session = session
 

@@ -15,7 +15,7 @@ def test_repository_can_save_a_work(
     work.member_id = active_valid_member.id
     work_2 = another_valid_work
     work_2.member_id = active_valid_member.id
-    repo = work_repository.SqlAlchemyWorkRepository(session)
+    repo = work_repository.WorkRepository(session)
     repo.add(work)
     repo.add(work_2)
     session.commit()
@@ -49,7 +49,7 @@ def test_repository_can_save_a_work(
 
 def test_repository_can_get_a_work_by_work_id(session, valid_work):
     work = valid_work
-    repo = work_repository.SqlAlchemyWorkRepository(session)
+    repo = work_repository.WorkRepository(session)
     repo.add(work)
     session.commit()
 
@@ -77,7 +77,7 @@ def test_repository_can_get_work_by_member_id(session, valid_work):
     work = valid_work
     work.member_id = MemberId()
     work.id = WorkId()
-    repo = work_repository.SqlAlchemyWorkRepository(session)
+    repo = work_repository.WorkRepository(session)
     repo.add(work)
     session.commit()
 
@@ -102,7 +102,7 @@ def test_repository_can_get_work_by_member_id(session, valid_work):
 
 
 def test_respository_returns_none_when_no_work_found(session):
-    repo = work_repository.SqlAlchemyWorkRepository(session)
+    repo = work_repository.WorkRepository(session)
     id = WorkId()
     member_id = MemberId()
     assert repo.get_work_by_id(id) is None

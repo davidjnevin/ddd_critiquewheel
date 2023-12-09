@@ -5,7 +5,7 @@ import fastapi.exception_handlers
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from critique_wheel.adapters.sqlalchemy.work_repository import SqlAlchemyWorkRepository
+from critique_wheel.adapters.sqlalchemy.work_repository import WorkRepository
 from critique_wheel.api.schemas.schemas import UserWork, UserWorkIn
 from critique_wheel.config import get_postgres_uri
 from critique_wheel.works.services import work_service
@@ -22,7 +22,7 @@ def get_db_session():
 
 @router.post("/work", response_model=UserWork, status_code=201)
 async def create_work(work: UserWorkIn, session=fastapi.Depends(get_db_session)):
-    repo = SqlAlchemyWorkRepository(session)
+    repo = WorkRepository(session)
     logger.info("Creating work.")
 
     try:
@@ -37,7 +37,7 @@ async def create_work(work: UserWorkIn, session=fastapi.Depends(get_db_session))
 
 @router.get("/work/{work_id}")
 async def get_work_by_id(work_id: str, session=fastapi.Depends(get_db_session)):
-    repo = SqlAlchemyWorkRepository(session)
+    repo = WorkRepository(session)
     logger.info(f"Getting work: {work_id}")
     work = work_service.get_work_by_id(work_id, repo)
     if not work:
