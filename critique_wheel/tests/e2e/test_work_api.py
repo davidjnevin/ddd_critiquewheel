@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import create_engine
@@ -41,31 +43,36 @@ async def test_create_work_endpoint_returns_work(
     assert response.json()["critiques"] == []
 
 
-# @pytest.mark.anyio
-# @pytest.mark.usefixtures('postgres_db')
-# async def test_work_api_returns_work(
-#     async_client: AsyncClient,
-#     work_details,
-# ):
-#     session = work_service.get_db_session()
-#     work = Work(
-#         work_id=WorkId(),
-#         title=Title(work_details["title"]),
-#         content=Content(work_details["content"]),
-#         age_restriction=work_details["age_restriction"],
-#         genre=work_details["genre"],
-#         member_id=MemberId(),
-#     )
-#     work_service.add_work(repo=repo, session=session, work)
-#     response = await async_client.get(f"/work/{work.id}")
-#     assert response.status_code == 200
-#     assert response.json()["title"]["value"] == work_details["title"]
+@pytest.mark.anyio
+@pytest.mark.usefixtures("postgres_db")
+async def test_work_api_returns_work(
+    async_client: AsyncClient,
+    work_details,
+):
+    session = get_db_session()
+    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    member_id = iam_service.create_member(
+        username="PeterPan",
+        email="some_random@email.com",
+        password="wertsdfsa12D!",
+        session=session,
+        repo=repo,
+    )
+
+    work_details["member_id"] = str(member_id)
+
+    add_response = await async_client.post("/work", json=work_details)
+
+    work_id = add_response.json()["id"]
+    response = await async_client.get(f"/work/{work_id}")
+    assert response.status_code == 200
+    assert response.json()["title"] == work_details["title"]
 
 
-# @pytest.mark.anyio
-# async def test_work_api_returns_404_if_id_does_not_exist(
-#     async_client: AsyncClient,
-# ):
-#     nonexistant_work_id = uuid.uuid4()
-#     response = await async_client.get(f"/work/{nonexistant_work_id}")
-#     assert response.status_code == 404
+@pytest.mark.anyio
+async def test_work_api_returns_404_if_id_does_not_exist(
+    async_client: AsyncClient,
+):
+    nonexistant_work_id = uuid.uuid4()
+    response = await async_client.get(f"/work/{nonexistant_work_id}")
+    assert response.status_code == 404
