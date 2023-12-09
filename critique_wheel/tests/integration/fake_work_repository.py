@@ -23,12 +23,18 @@ class FakeWorkRepository(AbstractWorkRepository):
         except StopIteration:
             logger.exception(f"Work with id {str(work_id)} not found")
             return None
+        except Exception as e:
+            logger.exception(f"Error getting work by member id: {e}")
+            return None
 
     def get_work_by_member_id(self, member_id: MemberId) -> Optional[Work]:
         try:
             return next(w for w in self._works if w.member_id == member_id)
         except StopIteration:
             logger.exception(f"Work with member id {str(member_id)} not found")
+            return None
+        except Exception as e:
+            logger.exception(f"Error getting work by member id: {e}")
             return None
 
     def list(self) -> list[Work]:
