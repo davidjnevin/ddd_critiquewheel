@@ -22,7 +22,7 @@ async def test_create_work_endpoint_returns_work(
     work_details,
 ):
     session = get_db_session()
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     member_id = iam_service.create_member(
         username="PeterPan",
         email="some_random@email.com",
@@ -50,7 +50,7 @@ async def test_work_api_returns_work(
     work_details,
 ):
     session = get_db_session()
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     member_id = iam_service.create_member(
         username="PeterPan",
         email="some_random@email.com",

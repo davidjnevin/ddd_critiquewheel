@@ -15,7 +15,7 @@ def test_repository_can_save_a_basic_member(
 ):
     member = active_valid_member
     member.id = MemberId()
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     assert member.works == []
     assert member.critiques == []
     repo.add(member)
@@ -51,7 +51,7 @@ def test_repository_can_get_a_member_by_id(
     valid_member.id = MemberId()
     valid_member.status = MemberStatus.ACTIVE
     member = valid_member
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     valid_work.member_id = member.id
     valid_critique.member_id = member.id
@@ -87,7 +87,7 @@ def test_repository_can_get_a_member_by_email(session, valid_member):
     valid_member.status = MemberStatus.ACTIVE
     valid_member.email = "another_email@davidnevin.net"
     member = valid_member
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     session.commit()
 
@@ -99,7 +99,7 @@ def test_resository_can_get_a_member_by_username(session, valid_member):
     valid_member.status = MemberStatus.ACTIVE
     valid_member.username = "yet_another_username"
     member = valid_member
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     session.commit()
 
@@ -112,7 +112,7 @@ def test_resository_can_get_a_list_of_members(
     member = valid_member
     member_2 = active_valid_member
     valid_member.status = MemberStatus.ACTIVE
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     repo.add(member_2)
     session.commit()
@@ -121,7 +121,7 @@ def test_resository_can_get_a_list_of_members(
 
 
 def test_repository_returns_None_for_no_member_found(session):
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     username, email, id = "not_in_db", "unknown@davidnevin.net", uuid4()
     assert repo.get_member_by_username(username) is None
     assert repo.get_member_by_email(email) is None
