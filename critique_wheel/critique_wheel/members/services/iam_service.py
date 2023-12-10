@@ -7,9 +7,6 @@ from critique_wheel.members.models.IAM import Member
 from critique_wheel.members.models.iam_repository import AbstractMemberRepository
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
-from critique_wheel.works.models.work_repository import AbstractWorkRepository
-from critique_wheel.works.services import work_service
-from critique_wheel.works.value_objects import WorkId
 
 
 class BaseIAMServiceError(Exception):
@@ -67,7 +64,7 @@ def register_member(
     repo: AbstractMemberRepository,
     session,
 ) -> Member:
-    check_for_unique_parameters(username, email, repo, session)
+    check_for_unique_parameters(username, email, repo)
     new_member = Member.register(username, email, password, confirm_password)
     repo.add(new_member)
     session.commit()
@@ -75,7 +72,7 @@ def register_member(
 
 
 def check_for_unique_parameters(
-    username: str, email: str, repo: AbstractMemberRepository, session
+    username: str, email: str, repo: AbstractMemberRepository
 ) -> None:
     if repo.get_member_by_email(email):
         raise DuplicateEntryError("Email already in use")
@@ -83,7 +80,7 @@ def check_for_unique_parameters(
         raise DuplicateEntryError("Email already in use")
 
 
-def list_members(repo, session) -> list[Member]:
+def list_members(repo) -> list[Member]:
     return repo.list()
 
 
@@ -99,61 +96,21 @@ def get_member_by_id(
     return repo.get_member_by_id(MemberId.from_string(uuid_string=member_id))
 
 
-# This was added here because each Work
-# has a member_id and is closely related to a Member,
-def add_work_to_member(
-    member_id: str,
-    work_id: str,
-    repo: AbstractMemberRepository,
-    work_repo: AbstractWorkRepository,
-    session,
-) -> None:
-    try:
-        workId = WorkId.from_string(uuid_string=work_id)
-    except exceptions.MissingEntryError as e:
-        logger.exception(f"An error occurred while adding work to member: {e}")
-        raise work_service.WorkNotFoundError(f"Invalid data encountered: {e}") from e
-    try:
-        memberId = MemberId.from_string(uuid_string=member_id)
-    except exceptions.InvalidEntryError as e:
-        logger.exception(f"An error occurred while adding work to member: {e}")
-        raise MemberNotFoundException(f"Invalid data encountered: {e}") from e
-
-    work = work_repo.get_work_by_id(workId)
-    member = repo.get_member_by_id(memberId)
-
-    if member and work:
-        member.add_work(work)
-        repo.add(member)
-        session.commit()
+def list_member_works(
+    member_id: MemberId, repo: AbstractMemberRepository
+) -> list[Work]:
+    member = repo.get_member_by_id(member_id)  # type: ignore
+    if member:
+        return member.list_works()
     else:
-        raise InvalidEntryError("Member not found")
+        raise MemberNotFoundException("Member not found")
 
 
-class IAMService:
-    def __init__(self, repository: AbstractMemberRepository):
-        self._repository = repository
-
-    # This was added here because the since each
-    # critique has a member_id and is closely related to a Member,
-    def add_critique_to_member(self, member_id: MemberId, critique: Critique) -> None:
-        member = self._repository.get_member_by_id(member_id)
-        if member:
-            member.add_critique(critique)
-            self._repository.add(member)
-        else:
-            raise MemberNotFoundException("Member not found")
-
-    def list_member_works(self, member_id: MemberId) -> list[Work]:
-        member = self._repository.get_member_by_id(member_id)  # type: ignore
-        if member:
-            return member.list_works()
-        else:
-            raise MemberNotFoundException("Member not found")
-
-    def list_member_critiques(self, member_id: MemberId) -> list[Critique]:
-        member = self._repository.get_member_by_id(member_id)
-        if member:
-            return member.list_critiques()
-        else:
-            raise MemberNotFoundException("Member not found")
+def list_member_critiques(
+    member_id: MemberId, repo: AbstractMemberRepository
+) -> list[Critique]:
+    member = repo.get_member_by_id(member_id)
+    if member:
+        return member.list_critiques()
+    else:
+        raise MemberNotFoundException("Member not found")
