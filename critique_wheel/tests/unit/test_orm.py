@@ -14,8 +14,8 @@ def test_create_and_retrieve_member(session, valid_member, valid_work, valid_cri
     new_member = valid_member
 
     new_member.status = MemberStatus.ACTIVE
-    new_member.add_work(valid_work)
-    new_member.add_critique(valid_critique)
+    new_member.works.append(valid_work)
+    new_member.critiques.append(valid_critique)
 
     # Act
     session.add(new_member)
