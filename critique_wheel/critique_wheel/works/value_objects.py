@@ -23,6 +23,13 @@ class WorkAgeRestriction(str, Enum):
     ADULT = "ADULT"
 
 
+def find_agerestriction_by_value(value: str) -> WorkAgeRestriction:
+    for genre in WorkAgeRestriction:
+        if genre.value == value:
+            return genre
+    raise ValueError(f"{value} is not a valid WorkAgeRestriction")
+
+
 class WorkGenre(str, Enum):
     BIOGRAPHY = "BIOGRAPHY"
     CHICKLIT = "CHICKLIT"
@@ -49,6 +56,13 @@ class WorkGenre(str, Enum):
     OTHER = "OTHER"
 
 
+def find_genre_by_value(value: str) -> WorkGenre:
+    for genre in WorkGenre:
+        if genre.value == value:
+            return genre
+    raise ValueError(f"{value} is not a valid WorkGenre")
+
+
 @dataclass(frozen=True)
 class WorkId:
     id: uuid.UUID = field(default_factory=uuid.uuid4)
@@ -65,16 +79,14 @@ class WorkId:
 
     @classmethod
     def from_string(cls, uuid_string: str):
-        if uuid_string:
-            try:
-                uuid_obj = uuid.UUID(uuid_string)
-                return cls(id=uuid_obj)
-            except ValueError:
-                logger.exception(f"Invalid UUID string: '{uuid_string}'")
-                raise exceptions.InvalidEntryError(
-                    f"Invalid UUID string: '{uuid_string}'"
-                )
-        return None
+        if not uuid_string:
+            return None
+        try:
+            uuid_obj = uuid.UUID(uuid_string)
+            return cls(id=uuid_obj)
+        except ValueError:
+            logger.exception(f"Invalid UUID string: '{uuid_string}'")
+            raise exceptions.InvalidEntryError(f"Invalid UUID string: '{uuid_string}'")
 
 
 @dataclass(frozen=True)
