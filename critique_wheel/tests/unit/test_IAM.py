@@ -233,17 +233,6 @@ class TestMemberContributions:
         member.works.append(valid_work)
         assert member.list_works() == [valid_work]
 
-    def test_add_work_to_member(self, member, valid_work):
-        assert member.works == []
-        member.add_work(valid_work)
-        assert member.works == [valid_work]
-
-        with pytest.raises(
-            exceptions.WorkAlreadyExistsError,
-            match="Work already exists",
-        ):
-            member.add_work(valid_work)
-
     def test_member_critiques(self, valid_member, member, valid_work, valid_critique):
         assert member.critiques == []
         assert valid_member.critiques == []
@@ -257,17 +246,3 @@ class TestMemberContributions:
         valid_work.critiques.append(valid_critique)
         reviewer.critiques.append(valid_critique)
         assert reviewer.list_critiques() == [valid_critique]
-
-    def test_add_critique_to_member(self, valid_member, valid_critique):
-        reviewer = valid_member
-        reviewer.status = MemberStatus.ACTIVE
-        assert reviewer.critiques == []
-        valid_critique.member_id = reviewer.id
-        reviewer.add_critique(valid_critique)
-        assert reviewer.critiques == [valid_critique]
-
-        with pytest.raises(
-            exceptions.CritiqueAlreadyExistsError,
-            match="Critique already exists",
-        ):
-            reviewer.add_critique(valid_critique)

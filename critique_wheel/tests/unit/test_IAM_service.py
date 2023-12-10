@@ -1,15 +1,12 @@
-from typing import Optional
 from uuid import uuid4
 
 import pytest
 
 from critique_wheel.members.exceptions import exceptions
-from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
+from critique_wheel.members.models.IAM import MemberRole, MemberStatus
 from critique_wheel.members.services import iam_service
 from critique_wheel.members.value_objects import MemberId
-from critique_wheel.works.services import work_service
 from tests.integration.fake_iam_repository import FakeMemberRepository
-from tests.integration.fake_work_repository import FakeWorkRepository
 
 
 class FakeSession:
@@ -270,7 +267,7 @@ def test_list_members(member_details):
     new_member_2 = create_member_for_testing(another_member_details, repo, session)
 
     # Act
-    members_list = iam_service.list_members(repo, session)
+    members_list = iam_service.list_members(repo)
 
     # Assert
     assert len(members_list) == 2
@@ -281,8 +278,7 @@ def test_list_members(member_details):
 def test_list_members_returns_empty_list_when_no_members():
     # Act
     repo = FakeMemberRepository([])
-    session = FakeSession()
-    members_list = iam_service.list_members(repo, session)
+    members_list = iam_service.list_members(repo)
 
     # Assert
     assert len(members_list) == 0
@@ -327,97 +323,3 @@ def test_get_member_by_username_returns_None_for_nonexistent_username():
     repo = FakeMemberRepository([])
     nonexistent_username = "nonexistent_username"
     assert iam_service.get_member_by_username(nonexistent_username, repo) is None
-
-
-def test_add_work_to_member_adds_work_to_member(member_details, work_details):
-    # Arrange
-    repo = FakeMemberRepository([])
-    work_repo = FakeWorkRepository([])
-    session = FakeSession()
-
-    new_member_1_id = create_member_for_testing(member_details, repo, session)
-
-    title = work_details["title"]
-    content = work_details["content"]
-    genre = work_details["genre"]
-    age_restriction = work_details["age_restriction"]
-
-    new_work = work_service.add_work(
-        title=title,
-        content=content,
-        genre=genre,
-        age_restriction=age_restriction,
-        member_id=str(new_member_1_id),
-        repo=work_repo,
-        session=session,
-    )
-
-    # Act
-    iam_service.add_work_to_member(
-        member_id=str(new_member_1_id),
-        work_id=new_work["id"],
-        repo=repo,
-        work_repo=work_repo,
-        session=session,
-    )
-    new_member: Optional[Member] = iam_service.get_member_by_id(
-        str(new_member_1_id), repo
-    )
-
-    # Assert
-    assert len(new_member.works) == 1
-    assert new_work == new_member.works[0].to_dict()
-
-
-def test_add_work_to_member_with_no_work_raises_InvalidEntryError(
-    member_details, work_details
-):
-    # Arrange
-    repo = FakeMemberRepository([])
-    work_repo = FakeWorkRepository([])
-    session = FakeSession()
-
-    new_member_1_id = create_member_for_testing(member_details, repo, session)
-
-    # Act
-    with pytest.raises(iam_service.InvalidEntryError):
-        iam_service.add_work_to_member(
-            member_id=str(new_member_1_id),
-            work_id="",
-            repo=repo,
-            work_repo=work_repo,
-            session=session,
-        )
-
-    def test_add_work_to_member_with_no_member_raises_MemberNotFoundException(
-        member_details, work_details
-    ):
-        # Arrange
-        repo = FakeMemberRepository([])
-        work_repo = FakeWorkRepository([])
-        session = FakeSession()
-
-        title = work_details["title"]
-        content = work_details["content"]
-        genre = work_details["genre"]
-        age_restriction = work_details["age_restriction"]
-
-        new_work = work_service.add_work(
-            title=title,
-            content=content,
-            genre=genre,
-            age_restriction=age_restriction,
-            member_id=str(uuid4()),
-            repo=work_repo,
-            session=session,
-        )
-
-        # Act
-        with pytest.raises(iam_service.MemberNotFoundException):
-            iam_service.add_work_to_member(
-                member_id="",
-                work_id=str(new_work.id),
-                repo=repo,
-                work_repo=work_repo,
-                session=session,
-            )
