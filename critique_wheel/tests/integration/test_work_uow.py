@@ -2,7 +2,7 @@ from uuid import uuid4
 
 import sqlalchemy
 
-from critique_wheel.works.services.unit_of_work import SqlAlchemyUnitOfWork
+from critique_wheel.works.services.unit_of_work import WorkUnitOfWork
 from tests.integration.fake_work_repository import FakeWorkRepository
 
 
@@ -42,7 +42,7 @@ def get_work_by_id(session, work_id):
     result = session.execute(stmt, params)
     row = result.fetchone()
     if row:
-        return dict(row)
+        return row._mapping
     else:
         return None
 
@@ -56,7 +56,6 @@ class FakeUnitOfWork:
         self.committed = True
 
 
-# @pytest.mark.current
 def test_uow_can_create_and_retrieve_works(session_factory, valid_work, member_details):
     session = session_factory()
     member_details["id"] = str(uuid4())
@@ -66,7 +65,7 @@ def test_uow_can_create_and_retrieve_works(session_factory, valid_work, member_d
     )  # We need a member in the database to create a work
     session.commit()
 
-    uow = SqlAlchemyUnitOfWork(session_factory)
+    uow = WorkUnitOfWork(session_factory)
     with uow:
         uow.works.add(valid_work)
         uow.commit()

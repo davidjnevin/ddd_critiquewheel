@@ -1,7 +1,5 @@
 from uuid import uuid4
 
-import pytest
-
 from critique_wheel.members.models.IAM import MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.value_objects import WorkId
@@ -26,10 +24,9 @@ def test_repository_can_save_a_work(
     assert repo.get_work_by_id(work_2.id) == work_2
 
 
-@pytest.mark.current
 def test_repository_can_get_a_work_by_id(session, valid_work, active_valid_member):
     work = valid_work
-    repo = fake_work_repository.FakeWorkRepository(session)
+    repo = fake_work_repository.FakeWorkRepository([])
     valid_work.id = WorkId.from_string(str(uuid4()))
     work.member_id = active_valid_member.id
     repo.add(work)
@@ -38,23 +35,25 @@ def test_repository_can_get_a_work_by_id(session, valid_work, active_valid_membe
     assert work in repo.list()
 
 
-@pytest.mark.current
-def test_repository_can_get_work_by_member_id(session, valid_work, active_valid_member):
+def test_repository_can_get_work_by_member_id(session, valid_work):
+    repo = fake_work_repository.FakeWorkRepository([])
+    member_id = uuid4()
+    work_id = uuid4()
     work = valid_work
-    active_valid_member.id = MemberId.from_string(str(uuid4()))
-    valid_work.id = WorkId.from_string(str(uuid4()))
-    work.member_id = active_valid_member.id
-    repo = fake_work_repository.FakeWorkRepository(session)
+    work.id = WorkId.from_string(str(work_id))
+    work.member_id = MemberId.from_string(str(member_id))
     repo.add(work)
     session.commit()
 
-    assert repo.get_work_by_member_id(work.member_id) == work
-    assert work in repo.list()
+    retrieved_work = repo.get_work_by_id(WorkId.from_string(str(work_id)))
+    assert retrieved_work == work
+    assert retrieved_work.member_id == MemberId.from_string(str(member_id))
+
+    assert repo.list() == [work]
 
 
-@pytest.mark.current
-def test_respository_returns_none_when_no_work_found(session):
-    repo = fake_work_repository.FakeWorkRepository(session)
+def test_respository_returns_none_when_no_work_found():
+    repo = fake_work_repository.FakeWorkRepository([])
     work_id = WorkId.from_string(str(uuid4()))
     member_id = MemberId.from_string(str(uuid4()))
     assert repo.get_work_by_id(work_id) is None
