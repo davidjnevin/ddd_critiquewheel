@@ -204,12 +204,12 @@ class Member:
     def list_works(self) -> list:
         return self.works
 
-    def add_work(self, work) -> None:
-        if work not in self.works:
-            self.works.append(work)
-            self.last_update_date = datetime.now()
-        else:
-            raise exceptions.WorkAlreadyExistsError("Work already exists")
+    # def add_work(self, work) -> None:
+    #     if work not in self.works:
+    #         self.works.append(work)
+    #         self.last_update_date = datetime.now()
+    #     else:
+    #         raise exceptions.WorkAlreadyExistsError("Work already exists")
 
     def list_critiques(self) -> list:
         return self.critiques
