@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from critique_wheel.members.value_objects import MemberId
@@ -10,6 +11,8 @@ from critique_wheel.works.value_objects import (
     WorkId,
     WorkStatus,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Work:
@@ -24,6 +27,7 @@ class Work:
         genre: WorkGenre = WorkGenre.OTHER,
         critiques=None,
     ) -> None:
+        logger.debug("Initalizing work.")
         self.id = work_id or WorkId()
         self.title: Title = title
         self.content: Content = content
@@ -48,6 +52,7 @@ class Work:
         critiques=None,
         work_id: WorkId = None,
     ):
+        logger.debug("Creating work.")
         if not title or not content:
             raise exceptions.MissingEntryError()
         if not genre or not age_restriction or not member_id:
@@ -63,6 +68,7 @@ class Work:
         )
 
     def to_dict(self) -> dict:
+        logger.debug("Converting work to dict.")
         return {
             "id": str(self.id),
             "title": str(self.title),
@@ -81,36 +87,44 @@ class Work:
         }
 
     def approve(self) -> None:
+        logger.debug("Approving work.")
         self.status = WorkStatus.ACTIVE
         self.archive_date = datetime.now()
 
     def reject(self) -> None:
+        logger.debug("Rejecting work.")
         self.status = WorkStatus.REJECTED
         self.archive_date = datetime.now()
 
     def archive(self) -> None:
+        logger.debug("Archiving work.")
         self.status = WorkStatus.ARCHIVED
         self.archive_date = datetime.now()
 
     def mark_for_deletion(self) -> None:
+        logger.debug("Marking work for deletion.")
         self.status = WorkStatus.MARKED_FOR_DELETION
         self.last_update_date = datetime.now()
 
     def restore(self) -> None:
         if self.status == WorkStatus.ARCHIVED:
+            logger.debug("Restoring work.")
             self.status = WorkStatus.ACTIVE
             self.archive_date = None
             self.last_update_date = datetime.now()
 
     def is_available_for_critique(self) -> bool:
+        logger.debug("Checking if work is available for critique.")
         if self.status == WorkStatus.ACTIVE:
             return True
         return False
 
     def list_critiques(self) -> list:
+        logger.debug("Listing critiques.")
         return self.critiques
 
     def add_critique(self, critique) -> None:
+        logger.debug("Adding critique.")
         if not self.is_available_for_critique():
             raise exceptions.WorkNotAvailableForCritiqueError(
                 "This work is not available for critique",
