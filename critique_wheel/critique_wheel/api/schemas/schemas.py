@@ -14,10 +14,10 @@ class UserCritiques(UserCritiquesIn):
 class UserWorkIn(BaseModel):
     title: str
     content: str
-    member_id: str
-    genre: str
+    status: str
     age_restriction: str
-    critiques: list[UserCritiques] = []
+    genre: str
+    member_id: str
 
 
 class UserWork(UserWorkIn):
