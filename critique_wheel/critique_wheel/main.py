@@ -32,6 +32,5 @@ async def http_exception_handle_logging(request, exc):
 if __name__ == "__main__":
     import uvicorn
 
-    logger.debug("Creating database engine...")
-
+    logger.debug("Starting Uvicorn server...")
     uvicorn.run(app)
