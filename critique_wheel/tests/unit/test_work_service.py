@@ -156,7 +156,7 @@ def test_add_work_raises_InvalidDataError_when_content_is_empty(work_details):
 
 
 def test_add_work_raises_member_exception_InvalidDataError_when_member_id_is_None(
-    work_details
+    work_details,
 ):
     work_id = str(uuid4())
     uow = FakeUnitOfWork()
