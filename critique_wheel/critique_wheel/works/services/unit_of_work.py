@@ -3,11 +3,8 @@ from __future__ import annotations
 
 import abc
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from critique_wheel import config
 from critique_wheel.adapters.sqlalchemy import work_repository as repository
+from critique_wheel.infrastructure import database as db_config
 
 
 class AbstractUnitOfWork(abc.ABC):
@@ -28,15 +25,8 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
 
-DEFAULT_SESSION_FACTORY = sessionmaker(
-    bind=create_engine(
-        config.get_postgres_uri(),
-    )
-)
-
-
 class WorkUnitOfWork(AbstractUnitOfWork):
-    def __init__(self, session_factory=DEFAULT_SESSION_FACTORY):
+    def __init__(self, session_factory=db_config.get_session_local()):
         self.session_factory = session_factory
 
     def __enter__(self):
