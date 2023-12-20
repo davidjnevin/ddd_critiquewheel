@@ -1,15 +1,17 @@
 import logging
+import os
 import time
+from typing import Generator
 
 import pytest
 import requests
+from fastapi.testclient import TestClient
 from requests.exceptions import ConnectionError
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from critique_wheel.adapters.orm import MapperRegistry, mapper_registry
-from critique_wheel.config import get_api_url, get_postgres_uri
 from critique_wheel.credits.models.credit import CreditManager, TransactionType
 from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.critiques.value_objects import (
@@ -32,7 +34,16 @@ from critique_wheel.works.value_objects import (
     WorkStatus,
 )
 
+os.environ["ENV_STATE"] = "test"
+from critique_wheel.config import get_api_url, get_postgres_uri  # noqa : E402
+from critique_wheel.main import app  # noqa: E402
+
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture()
+def test_client() -> Generator:
+    yield TestClient(app)
 
 
 @pytest.fixture
