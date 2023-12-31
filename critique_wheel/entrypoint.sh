@@ -12,9 +12,9 @@ from psycopg2.errors import OperationalError
 
 try:
     connect(
-        dbname="${DB_NAME}",
-        user="${DB_USER}",
-        password="${DB_PASSWORD}",
+        dbname="${DOCKER_DB_NAME}",
+        user="${DOCKER_DB_USER}",
+        password="${DOCKER_DB_PASSWORD}",
     )
 except OperationalError:
     sys.exit(-1)
