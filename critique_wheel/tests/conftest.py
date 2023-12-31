@@ -200,8 +200,8 @@ def in_memory_session_factory(in_memory_db):
 
 
 @pytest.fixture(scope="session")
-def session(session_factory):
-    return session_factory()
+def session(in_memory_session_factory):
+    return in_memory_session_factory()
 
 
 # @pytest.fixture(scope="session")
