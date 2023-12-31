@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 from critique_wheel import config
 from critique_wheel.adapters.sqlalchemy import iam_repository
-from critique_wheel.api.routers.works import get_db_session
+from critique_wheel.entrypoints.routers.works import get_db_session
 from critique_wheel.infrastructure import database as db_config
 from critique_wheel.main import app
 from critique_wheel.members.services import iam_service
