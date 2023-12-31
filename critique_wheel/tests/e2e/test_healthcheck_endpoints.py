@@ -1,11 +1,13 @@
 import pytest
-from httpx import AsyncClient
+from fastapi.testclient import TestClient
+
+from critique_wheel.main import app
+
+client = TestClient(app)
 
 
 @pytest.mark.anyio
-async def test_healthcheck_api_returns_ok(
-    async_client: AsyncClient,
-):
-    response = await async_client.get("/healthcheck")
+def test_healthcheck_api_returns_ok():
+    response = client.get("/healthcheck")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
