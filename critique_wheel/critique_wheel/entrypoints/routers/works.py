@@ -4,7 +4,7 @@ import fastapi
 import fastapi.exception_handlers
 from sqlalchemy.orm import Session
 
-from critique_wheel.api.schemas import schemas
+from critique_wheel.entrypoints.schemas import schemas
 from critique_wheel.infrastructure import database as db_config
 from critique_wheel.works.services import unit_of_work, work_service
 
