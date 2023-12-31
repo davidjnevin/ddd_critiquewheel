@@ -56,8 +56,10 @@ class FakeUnitOfWork:
         self.committed = True
 
 
-def test_uow_can_create_and_retrieve_works(session_factory, valid_work, member_details):
-    session = session_factory()
+def test_uow_can_create_and_retrieve_works(
+    in_memory_session_factory, valid_work, member_details
+):
+    session = in_memory_session_factory()
     member_details["id"] = str(uuid4())
     valid_work.id = member_details["id"]
     insert_member(
@@ -65,11 +67,11 @@ def test_uow_can_create_and_retrieve_works(session_factory, valid_work, member_d
     )  # We need a member in the database to create a work
     session.commit()
 
-    uow = WorkUnitOfWork(session_factory)
+    uow = WorkUnitOfWork(in_memory_session_factory)
     with uow:
         uow.works.add(valid_work)
         uow.commit()
 
-    new_session = session_factory()
+    new_session = in_memory_session_factory()
     work = get_work_by_id(new_session, valid_work.id)
     assert valid_work.id == work["id"]
