@@ -1,4 +1,3 @@
-import pytest
 import sqlalchemy
 
 from critique_wheel.members.services.unit_of_work import IAMUnitOfWork
@@ -44,7 +43,6 @@ class FakeUnitOfWork:
         self.committed = True
 
 
-@pytest.mark.current
 def test_uow_can_create_and_retrieve_members(session_factory, valid_member):
     uow = IAMUnitOfWork(session_factory)
     with uow:
