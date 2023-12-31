@@ -1,11 +1,9 @@
 import logging
 import os
 import time
-from typing import Generator
 
 import pytest
 import requests
-from fastapi.testclient import TestClient
 from requests.exceptions import ConnectionError
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
@@ -36,14 +34,13 @@ from critique_wheel.works.value_objects import (
 
 os.environ["ENV_STATE"] = "test"
 from critique_wheel.config import get_api_url, get_postgres_uri  # noqa : E402
-from critique_wheel.main import app  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture()
-def test_client() -> Generator:
-    yield TestClient(app)
+# @pytest.fixture()
+# def test_client() -> Generator:
+#    yield TestClient(app)
 
 
 @pytest.fixture
@@ -195,7 +192,7 @@ def in_memory_db():
 
 
 @pytest.fixture(scope="session")
-def session_factory(in_memory_db):
+def in_memory_session_factory(in_memory_db):
     MapperRegistry.start_mappers()
     session = sessionmaker(bind=in_memory_db, expire_on_commit=False)
     yield session
