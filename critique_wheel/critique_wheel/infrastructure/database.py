@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 def get_engine():
-    logger.debug(f"Using {config.BaseConfig().ENV_STATE}")
     logger.debug("Creating database engine...")
+    logger.debug(f"Using {config.BaseConfig().ENV_STATE} state")
     engine = sqlalchemy.create_engine(
         config.get_postgres_uri(),
         # connect_args={"check_same_thread": False},
@@ -21,8 +21,8 @@ def get_engine():
 
 
 def get_session_local():
-    logger.debug(f"Using {config.BaseConfig().ENV_STATE}")
     logger.debug("Creating database session...")
+    logger.debug(f"Using {config.BaseConfig().ENV_STATE} state")
     SessionLocal = sqlalchemy.orm.sessionmaker(
         autocommit=False, autoflush=False, bind=get_engine()
     )
