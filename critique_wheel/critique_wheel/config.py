@@ -76,6 +76,8 @@ def get_postgres_uri():
     password = config.DB_PASSWORD
     user = config.DB_USER
     db_name = config.DB_NAME
+    logger.debug(f"Using {config.ENV_STATE}")
+    logger.debug(f"Using {db_name}")
     return f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
 
 
