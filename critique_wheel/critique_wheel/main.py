@@ -5,7 +5,7 @@ import fastapi.exception_handlers
 from asgi_correlation_id import CorrelationIdMiddleware
 
 from critique_wheel.adapters import orm
-from critique_wheel.api.routers import healthcheck, works
+from critique_wheel.entrypoints.routers import healthcheck, members, works
 from critique_wheel.logging_conf import configure_logging
 
 configure_logging()
@@ -19,6 +19,7 @@ app = fastapi.FastAPI(
 )
 app.add_middleware(CorrelationIdMiddleware)
 
+app.include_router(members.router)
 app.include_router(healthcheck.router)
 app.include_router(works.router)
 
