@@ -14,11 +14,10 @@ router = fastapi.APIRouter()
 
 
 def get_db_session():
-    db = db_config.get_session_local()
+    db = db_config.get_session_local()()
     try:
         yield db
     finally:
-        # db().execute.text("DELETE from member")
         db.close()
 
 
@@ -29,7 +28,7 @@ def create_member(
 ):
     logger.debug("Creating member.")
     result = iam_service.add_member(
-        uow=unit_of_work.IAMUnitOfWork(session_factory),
+        uow=unit_of_work.IAMUnitOfWork(),
         username=member.username,
         email=member.email,
         password=member.password,
