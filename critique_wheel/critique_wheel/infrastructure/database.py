@@ -23,4 +23,5 @@ def get_session_local():
     SessionLocal = sqlalchemy.orm.sessionmaker(
         autocommit=False, autoflush=False, bind=get_engine()
     )
+
     return SessionLocal
