@@ -43,12 +43,12 @@ class FakeUnitOfWork:
         self.committed = True
 
 
-def test_uow_can_create_and_retrieve_members(session_factory, valid_member):
-    uow = IAMUnitOfWork(session_factory)
+def test_uow_can_create_and_retrieve_members(in_memory_session_factory, valid_member):
+    uow = IAMUnitOfWork(in_memory_session_factory)
     with uow:
         uow.members.add(valid_member)
         uow.commit()
 
-    new_session = session_factory()
+    new_session = in_memory_session_factory()
     member = get_member_by_id(new_session, str(valid_member.id))
     assert str(valid_member.id) == member["id"]
