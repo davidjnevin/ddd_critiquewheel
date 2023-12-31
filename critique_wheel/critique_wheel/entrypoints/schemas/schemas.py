@@ -1,7 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class UserCritiquesIn(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     member_id: str
     content: str
     work_id: str
@@ -12,6 +14,8 @@ class UserCritiques(UserCritiquesIn):
 
 
 class UserWorkIn(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     title: str
     content: str
     status: str
@@ -25,6 +29,8 @@ class UserWork(UserWorkIn):
 
 
 class UserMemberIn(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     username: str
     password: str
     email: str
