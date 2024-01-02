@@ -58,15 +58,6 @@ def session(in_memory_session_factory):
     return in_memory_session_factory()
 
 
-# @pytest.fixture(scope="session")
-# def session(in_memory_db):
-#     MapperRegistry.start_mappers()
-#     session = sessionmaker(bind=in_memory_db)()
-#     yield session
-#     clear_mappers()
-#     session.close()
-
-
 def wait_for_postgres_to_come_up(engine):
     deadline = time.time() + 1
     while time.time() < deadline:
