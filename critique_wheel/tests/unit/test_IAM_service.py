@@ -22,6 +22,7 @@ class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
 
 def test_add_member(member_details):
     # Arrange
+    uow = FakeUnitOfWork()
     username = member_details["username"]
     email = member_details["email"]
     password = member_details["password"]
