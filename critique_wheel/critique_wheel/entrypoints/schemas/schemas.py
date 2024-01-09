@@ -36,5 +36,9 @@ class UserMemberIn(BaseModel):
     email: str
 
 
+class UserMemberOut(BaseModel):
+    id: str
+
+
 class UserMember(UserMemberIn):
     id: str
