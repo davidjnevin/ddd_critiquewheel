@@ -24,7 +24,7 @@ def create_member(
 ):
     logger.debug("Creating member.")
     result = iam_service.add_member(
-        uow=unit_of_work.IAMUnitOfWork(db),
+        uow=unit_of_work.IAMUnitOfWork(),
         username=member.username,
         email=member.email,
         password=member.password,
