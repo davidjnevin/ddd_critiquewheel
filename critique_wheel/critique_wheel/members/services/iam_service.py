@@ -55,7 +55,6 @@ def add_member(
             raise DuplicateEntryError("Email already in use")
             logger.exception("An error occurred while creating a member.")
         uow.members.add(new_member)
-        uow.commit()
     return new_member.id
 
 
