@@ -26,7 +26,6 @@ def test_add_member(member_details):
     username = member_details["username"]
     email = member_details["email"]
     password = member_details["password"]
-    uow = FakeUnitOfWork()
     # Act
     member = iam_service.add_member(
         uow=uow,
@@ -117,7 +116,7 @@ def test_login_member_raises_InvalidCredentials_for_nonexistent_email(member_det
         )
 
 
-def test_register_new_member_with_valid_registration_creates_new_member(member_details):
+def test_register_new_member_with_valid_registration_returns_new_member(member_details):
     # Arrange
     username = member_details["username"]
     email = member_details["email"]
