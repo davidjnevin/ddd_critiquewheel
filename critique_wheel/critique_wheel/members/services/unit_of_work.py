@@ -4,7 +4,7 @@ from __future__ import annotations
 import abc
 
 from critique_wheel.adapters.sqlalchemy import iam_repository as repository
-from critique_wheel.infrastructure import database as db_config
+from critique_wheel.infrastructure import database
 
 
 class AbstractUnitOfWork(abc.ABC):
@@ -26,7 +26,8 @@ class AbstractUnitOfWork(abc.ABC):
 
 
 class IAMUnitOfWork(AbstractUnitOfWork):
-    def __init__(self, session_factory=db_config.get_session_local()):
+    def __init__(self, session_factory=database.get_session_local()):
+        breakpoint()
         self.session_factory = session_factory
 
     def __enter__(self):
