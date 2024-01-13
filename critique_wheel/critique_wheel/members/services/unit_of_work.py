@@ -27,7 +27,6 @@ class AbstractUnitOfWork(abc.ABC):
 
 class IAMUnitOfWork(AbstractUnitOfWork):
     def __init__(self, session_factory=database.get_session_local()):
-        breakpoint()
         self.session_factory = session_factory
 
     def __enter__(self):
