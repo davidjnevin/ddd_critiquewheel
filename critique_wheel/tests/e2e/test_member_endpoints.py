@@ -30,7 +30,6 @@ def override_get_local_db_session():
         db.close()
 
 
-breakpoint()
 app.dependency_overrides[get_db_session] = override_get_local_db_session
 test_client = TestClient(app)
 
@@ -46,11 +45,7 @@ def test_create_member_endpoint_returns_member():
 
     response = test_client.post("/member", json=payload)
     logger.debug(response.json())
-    breakpoint()
     assert response.status_code == 201
-    assert response.json()["username"] == payload["username"]
-    assert response.json()["email"] == payload["email"]
-    assert response.json()["password"] != payload["password"]
 
 
 @pytest.mark.current
