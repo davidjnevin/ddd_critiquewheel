@@ -36,7 +36,7 @@ def test_add_member(member_details):
 
     # Assert
     assert member is not None
-    # assert uow.committed
+    assert uow.committed
 
 
 def test_login_member_valid_credentials(member_details):
@@ -62,7 +62,7 @@ def test_login_member_valid_credentials(member_details):
 
     # Assert
     assert returned_member is not None
-    assert returned_member["id"] == str(new_member_id)
+    assert returned_member["id"] == str(new_member_id["id"])
     assert returned_member["username"] == member_details["username"]
     assert returned_member["email"] == member_details["email"]
     assert returned_member["password"] != member_details["password"]
@@ -367,11 +367,11 @@ def test_get_member_by_id_returns_member_with_matching_id(member_details):
     )
 
     # Act
-    member = iam_service.get_member_by_id(str(new_member_id), uow)
+    member = iam_service.get_member_by_id(new_member_id["id"], uow)
 
     # Assert
     assert member is not None
-    assert str(member.id) == str(new_member_id.id)
+    assert str(member.id) == str(new_member_id["id"])
     assert str(member.username) == member_details["username"]
 
 
