@@ -87,7 +87,6 @@ async def test_work_api_returns_work(
     work_details["member_id"] = str(member_id)
     logger.debug(work_details)
     add_response = await async_client.post("/work", json=work_details)
-    breakpoint()
     logger.debug(add_response.json())
     work_id = add_response.json()["id"]
     response = await async_client.get(f"/work/{work_id}")
