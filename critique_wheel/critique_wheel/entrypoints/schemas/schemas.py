@@ -36,9 +36,11 @@ class UserMemberIn(BaseModel):
     email: str
 
 
-class UserMemberOut(BaseModel):
+class UserMember(UserMemberIn):
     id: str
 
 
-class UserMember(UserMemberIn):
+class UserMemberOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
