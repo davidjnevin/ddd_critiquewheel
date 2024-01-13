@@ -18,7 +18,7 @@ def get_db_session():
     yield db
 
 
-@router.post("/member", response_model=schemas.UserMember)
+@router.post("/member", response_model=schemas.UserMemberOut, status_code=201)
 def create_member(
     member: schemas.UserMemberIn, db: Session = fastapi.Depends(get_db_session)
 ):
