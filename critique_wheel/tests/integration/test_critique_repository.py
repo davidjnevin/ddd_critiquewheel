@@ -1,7 +1,10 @@
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import critique_repository
 from critique_wheel.critiques.value_objects import CritiqueId
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def test_repository_can_save_a_critique(session, valid_critique):
