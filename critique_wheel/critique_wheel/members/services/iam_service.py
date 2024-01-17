@@ -45,17 +45,18 @@ def add_member(
                 email=email,
                 password=password,
             )
-        except exceptions.MemberInvalidEntryError as e:
+            if uow.members.get_member_by_email(email):
+                raise DuplicateEntryError("Email already in use")
+                logger.exception("An error occurred while creating a member.")
+            uow.members.add(new_member)
+            uow.commit()
+        except exceptions.InvalidEntryError as e:
             logger.exception(f"An error occurred while creating a member: {e}")
             raise InvalidEntryError("Invalid entry")
-        except exceptions.InvalidPasswordError as e:
+        except exceptions.IncorrectCredentialsError as e:
             logger.exception(f"An error occurred while creating a member: {e}")
             raise InvalidEntryError("Invalid entry")
-        if uow.members.get_member_by_email(email):
-            raise DuplicateEntryError("Email already in use")
-            logger.exception("An error occurred while creating a member.")
-        uow.members.add(new_member)
-    return new_member.id
+    return new_member.to_dict()
 
 
 def login_member(
