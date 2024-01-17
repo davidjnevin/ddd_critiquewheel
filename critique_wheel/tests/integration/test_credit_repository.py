@@ -1,6 +1,9 @@
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import credit_repository
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def test_repository_can_save_a_critique_credit_transaction(
