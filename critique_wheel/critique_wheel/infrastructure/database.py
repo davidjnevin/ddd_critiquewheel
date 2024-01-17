@@ -47,7 +47,7 @@ def get_in_memory_engine():
     engine = sqlalchemy.create_engine(
         get_sqlite_uri(),
         connect_args={"check_same_thread": False},
-        echo=True,
+        # echo=True,
     )
     mapper_registry.metadata.create_all(engine)
     logger.debug(f"Engine {engine} created.")
@@ -70,8 +70,8 @@ def get_session_local():
     logger.debug(f"Using {config.BaseConfig().ENV_STATE} state")
     logger.debug("Creating database session...")
     LocalSessionMaker = sqlalchemy.orm.sessionmaker(
-        autocommit=False,
-        autoflush=False,
+        # autocommit=False,
+        # autoflush=False,
         bind=get_engine(),
     )
 
