@@ -13,16 +13,17 @@ from critique_wheel.main import app
 
 logger = logging.getLogger(__name__)
 
-engine = create_engine(db_config.get_postgres_uri())
+engine = create_engine(db_config.get_sqlite_uri())
+logger.debug(f"Using {engine} database engine")
 
 
 def override_get_local_db_session():
     try:
-        orm.MapperRegistry.start_mappers()
+        orm.start_mappers()
         local_db_session = sessionmaker(
             bind=engine,
-            autocommit=False,
-            autoflush=False,
+            # autocommit=False,
+            # autoflush=False,
         )
         db = local_db_session
         yield db
@@ -38,7 +39,7 @@ test_client = TestClient(app)
 def test_create_member_endpoint_returns_member():
     payload = {
         "username": "PeterPan",
-        "email": "some_other_random@email.com",
+        "email": "yet_some_other_random@email.com",
         "password": "wertsdfsa12D!",
         "status": "active",
     }
