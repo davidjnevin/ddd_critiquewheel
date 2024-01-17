@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import iam_repository
@@ -8,6 +9,8 @@ from critique_wheel.members.models.IAM import MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.value_objects import WorkId
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def test_repository_can_save_a_basic_member(
