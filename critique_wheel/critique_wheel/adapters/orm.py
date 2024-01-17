@@ -12,20 +12,23 @@ from critique_wheel.adapters.orm_domain_types import (
     CritiqueUUIDType,
     CritiqueWeaknessesType,
     MemberUUIDType,
+    RatingCommentStringType,
     RatingScoreType,
     RatingUUIDType,
     TitleType,
     TransactionUUIDType,
-    WorkAgeRestriction,
-    WorkGenre,
-    WorkStatus,
     WorkUUIDType,
 )
 from critique_wheel.credits.models.credit import CreditManager, TransactionType
 from critique_wheel.critiques.models.critique import Critique, CritiqueStatus
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.ratings.models.rating import Rating, RatingStatus
-from critique_wheel.works.models.work import Work
+from critique_wheel.works.models.work import (
+    Work,
+    WorkAgeRestriction,
+    WorkGenre,
+    WorkStatus,
+)
 
 logger = logging.getLogger(__name__)
 mapper_registry = registry()
@@ -69,7 +72,7 @@ rating_table = Table(
     mapper_registry.metadata,
     Column("id", RatingUUIDType, primary_key=True),
     Column("score", RatingScoreType),
-    Column("comment", String),
+    Column("comment", RatingCommentStringType),
     Column("status", Enum(RatingStatus)),
     Column("member_id", ForeignKey("members.id"), nullable=False),
     Column("critique_id", ForeignKey("critiques.id"), nullable=False),
