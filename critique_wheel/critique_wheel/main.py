@@ -9,10 +9,10 @@ from critique_wheel.entrypoints.routers import healthcheck, members, works
 from critique_wheel.logging_conf import configure_logging
 
 configure_logging()
-orm.MapperRegistry.start_mappers()
 logger = logging.getLogger(__name__)
 logger.debug(f"Starting {__name__}...")
 
+orm.start_mappers()
 
 app = fastapi.FastAPI(
     title="Critique Wheel API", version="0.0.1", openapi_url="/openapi.json"
