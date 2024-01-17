@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
-from critique_wheel.adapters.orm import MapperRegistry, mapper_registry
+from critique_wheel.adapters.orm import mapper_registry, start_mappers
 from critique_wheel.credits.models.credit import CreditManager, TransactionType
 from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.critiques.value_objects import (
@@ -38,22 +38,21 @@ from critique_wheel import config  # noqa : E402
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def in_memory_db():
     engine = create_engine("sqlite:///:memory:")
     mapper_registry.metadata.create_all(engine)
     return engine
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def in_memory_session_factory(in_memory_db):
-    MapperRegistry.start_mappers()
-    session = sessionmaker(bind=in_memory_db, expire_on_commit=False)
-    yield session
+    start_mappers()
+    yield sessionmaker(bind=in_memory_db)
     clear_mappers()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def session(in_memory_session_factory):
     return in_memory_session_factory()
 
@@ -90,13 +89,11 @@ def postgres_db():
     return engine
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def postgres_session(postgres_db):
-    MapperRegistry.start_mappers()
-    session = sessionmaker(bind=postgres_db)()
-    yield session
+    start_mappers()
+    yield sessionmaker(bind=postgres_db)()
     clear_mappers()
-    session.close()
 
 
 @pytest.fixture
