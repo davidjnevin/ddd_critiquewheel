@@ -22,6 +22,7 @@ from critique_wheel.critiques.value_objects import (
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.ratings.models.rating import Rating
+from critique_wheel.ratings.value_objects import RatingComment
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.value_objects import (
     Content,
@@ -140,7 +141,7 @@ def valid_rating():
     yield Rating.create(
         member_id=MemberId(),
         score=5,
-        comment="This is a test rating.",
+        comment=RatingComment("This is a test rating."),
         critique_id=CritiqueId(),
     )
 

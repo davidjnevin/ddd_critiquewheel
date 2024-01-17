@@ -1,7 +1,6 @@
 import logging
 import uuid
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -35,7 +34,6 @@ app.dependency_overrides[get_db_session] = override_get_local_db_session
 test_client = TestClient(app)
 
 
-@pytest.mark.current
 def test_create_member_endpoint_returns_member():
     payload = {
         "username": "PeterPan",
@@ -49,7 +47,6 @@ def test_create_member_endpoint_returns_member():
     assert response.status_code == 201
 
 
-@pytest.mark.current
 def test_member_endpoint_returns_404_if_id_does_not_exist():
     nonexistant_member_id = uuid.uuid4()
     response = test_client.get(f"/work/{nonexistant_member_id}")
