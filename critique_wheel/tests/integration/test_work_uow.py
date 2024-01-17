@@ -1,9 +1,12 @@
 from uuid import uuid4
 
+import pytest
 import sqlalchemy
 
 from critique_wheel.works.services.unit_of_work import WorkUnitOfWork
 from tests.integration.fake_work_repository import FakeWorkRepository
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def insert_member(session, **kwargs):
@@ -57,9 +60,9 @@ class FakeUnitOfWork:
 
 
 def test_uow_can_create_and_retrieve_works(
-    in_memory_session_factory, valid_work, member_details
+    sqlite_session_factory, valid_work, member_details
 ):
-    session = in_memory_session_factory()
+    session = sqlite_session_factory()
     member_details["id"] = str(uuid4())
     valid_work.id = member_details["id"]
     insert_member(
@@ -67,11 +70,11 @@ def test_uow_can_create_and_retrieve_works(
     )  # We need a member in the database to create a work
     session.commit()
 
-    uow = WorkUnitOfWork(in_memory_session_factory)
+    uow = WorkUnitOfWork(sqlite_session_factory)
     with uow:
         uow.works.add(valid_work)
         uow.commit()
 
-    new_session = in_memory_session_factory()
+    new_session = sqlite_session_factory()
     work = get_work_by_id(new_session, valid_work.id)
     assert valid_work.id == work["id"]

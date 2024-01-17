@@ -1,7 +1,10 @@
+import pytest
 import sqlalchemy
 
 from critique_wheel.members.services.unit_of_work import IAMUnitOfWork
 from tests.integration.fake_iam_repository import FakeMemberRepository
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def insert_member(session, **kwargs):
@@ -43,12 +46,12 @@ class FakeUnitOfWork:
         self.committed = True
 
 
-def test_uow_can_create_and_retrieve_members(in_memory_session_factory, valid_member):
-    uow = IAMUnitOfWork(in_memory_session_factory)
+def test_uow_can_create_and_retrieve_members(sqlite_session_factory, valid_member):
+    uow = IAMUnitOfWork(sqlite_session_factory)
     with uow:
         uow.members.add(valid_member)
         uow.commit()
 
-    new_session = in_memory_session_factory()
+    new_session = sqlite_session_factory()
     member = get_member_by_id(new_session, str(valid_member.id))
     assert str(valid_member.id) == member["id"]

@@ -39,22 +39,27 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def in_memory_db():
+def in_memory_sqlite_db():
     engine = create_engine("sqlite:///:memory:")
     mapper_registry.metadata.create_all(engine)
     return engine
 
 
 @pytest.fixture
-def in_memory_session_factory(in_memory_db):
+def sqlite_session_factory(in_memory_sqlite_db):
+    yield sessionmaker(bind=in_memory_sqlite_db)
+
+
+@pytest.fixture
+def mappers():
     start_mappers()
-    yield sessionmaker(bind=in_memory_db)
+    yield
     clear_mappers()
 
 
 @pytest.fixture
-def session(in_memory_session_factory):
-    return in_memory_session_factory()
+def session(sqlite_session_factory):
+    return sqlite_session_factory()
 
 
 def wait_for_postgres_to_come_up(engine):
@@ -91,9 +96,7 @@ def postgres_db():
 
 @pytest.fixture
 def postgres_session(postgres_db):
-    start_mappers()
     yield sessionmaker(bind=postgres_db)()
-    clear_mappers()
 
 
 @pytest.fixture
@@ -121,7 +124,7 @@ def active_valid_member():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_credit():
     return CreditManager.create(
         member_id=MemberId(),
@@ -132,7 +135,7 @@ def valid_credit():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_rating():
     yield Rating.create(
         member_id=MemberId(),
@@ -142,7 +145,7 @@ def valid_rating():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def another_valid_rating():
     yield Rating.create(
         member_id=MemberId(),
@@ -152,7 +155,7 @@ def another_valid_rating():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_critique():
     text = "Word " * 45
     yield Critique.create(
@@ -167,7 +170,7 @@ def valid_critique():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_work():
     yield Work.create(
         title=Title("Test Title"),
@@ -179,7 +182,7 @@ def valid_work():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def another_valid_work():
     yield Work.create(
         title=Title("Test Title 2"),
@@ -191,7 +194,7 @@ def another_valid_work():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_critique1():
     text = "Word " * 45
     yield Critique.create(
@@ -205,7 +208,7 @@ def valid_critique1():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_critique2():
     text = "Word " * 45
     yield Critique.create(
@@ -219,7 +222,7 @@ def valid_critique2():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_work_with_two_critiques(valid_critique1, valid_critique2):
     work = Work.create(
         title=Title("Test Title"),
