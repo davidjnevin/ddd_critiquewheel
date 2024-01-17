@@ -14,11 +14,11 @@ router = fastapi.APIRouter()
 
 
 def get_db_session():
-    db: Session = db_config.get_session_local()
+    db: Session = db_config.get_in_memory_session_local()
     yield db
 
 
-@router.post("/member", response_model=schemas.UserMemberOut, status_code=201)
+@router.post("/member", response_model=schemas.UserMember)
 def create_member(
     member: schemas.UserMemberIn, db: Session = fastapi.Depends(get_db_session)
 ):
