@@ -1,9 +1,12 @@
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import work_repository
 from critique_wheel.members.models.IAM import MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.value_objects import WorkId
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def test_repository_can_save_a_work(
