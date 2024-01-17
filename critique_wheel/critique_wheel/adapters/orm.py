@@ -1,180 +1,34 @@
 import logging
-import uuid
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import registry, relationship
-from sqlalchemy.types import CHAR, TypeDecorator
 
-from critique_wheel.credits.models.credit import CreditManager, TransactionType
-from critique_wheel.credits.value_objects import TransactionId
-from critique_wheel.critiques.models.critique import Critique, CritiqueStatus
-from critique_wheel.critiques.value_objects import (
-    CritiqueAbout,
-    CritiqueId,
-    CritiqueIdeas,
-    CritiqueSuccesses,
-    CritiqueWeaknesses,
-)
-from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
-from critique_wheel.members.value_objects import MemberId
-from critique_wheel.ratings.models.rating import Rating, RatingStatus
-from critique_wheel.ratings.value_objects import RatingComment, RatingId, RatingScore
-from critique_wheel.works.models.work import Work
-from critique_wheel.works.value_objects import (
-    Content,
-    Title,
+from critique_wheel.adapters.orm_domain_types import (
+    ContentType,
+    CritiqueAboutType,
+    CritiqueIdeasType,
+    CritiqueSuccesesType,
+    CritiqueUUIDType,
+    CritiqueWeaknessesType,
+    MemberUUIDType,
+    RatingScoreType,
+    RatingUUIDType,
+    TitleType,
+    TransactionUUIDType,
     WorkAgeRestriction,
     WorkGenre,
-    WorkId,
     WorkStatus,
+    WorkUUIDType,
 )
+from critique_wheel.credits.models.credit import CreditManager, TransactionType
+from critique_wheel.critiques.models.critique import Critique, CritiqueStatus
+from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
+from critique_wheel.ratings.models.rating import Rating, RatingStatus
+from critique_wheel.works.models.work import Work
 
 logger = logging.getLogger(__name__)
 mapper_registry = registry()
-
-
-class WorkUUIDType(TypeDecorator):
-    impl = CHAR(36)
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return str(value) if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return WorkId(id=uuid.UUID(value)) if value is not None else None
-
-
-class TitleType(TypeDecorator):
-    impl = String
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return value.value if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return Title(value) if value is not None else None
-
-
-class ContentType(TypeDecorator):
-    impl = String
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return value.value if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return Content(value) if value is not None else None
-
-
-class MemberUUIDType(TypeDecorator):
-    impl = CHAR(36)
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return str(value) if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return MemberId(id=uuid.UUID(value)) if value is not None else None
-
-
-class CritiqueUUIDType(TypeDecorator):
-    impl = CHAR(36)
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return str(value) if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return CritiqueId(id=uuid.UUID(value)) if value is not None else None
-
-
-class CritiqueAboutType(TypeDecorator):
-    impl = String
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return value.value if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return CritiqueAbout(value) if value is not None else None
-
-
-class CritiqueSuccesesType(TypeDecorator):
-    impl = String
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return value.value if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return CritiqueSuccesses(value) if value is not None else None
-
-
-class CritiqueWeaknessesType(TypeDecorator):
-    impl = String
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return value.value if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return CritiqueWeaknesses(value) if value is not None else None
-
-
-class CritiqueIdeasType(TypeDecorator):
-    impl = String
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return value.value if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return CritiqueIdeas(value) if value is not None else None
-
-
-class RatingUUIDType(TypeDecorator):
-    impl = CHAR(36)
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return str(value) if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return RatingId(id=uuid.UUID(value)) if value is not None else None
-
-
-class RatingScoreType(TypeDecorator):
-    impl = Integer
-    cache_ok = False  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return int(value) if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return RatingScore(value) if value is not None else None
-
-
-class RatingCommentStringType(TypeDecorator):
-    impl = String
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return value.value if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return RatingComment(value) if value is not None else None
-
-
-class TransactionUUIDType(TypeDecorator):
-    impl = CHAR(36)
-    cache_ok = True  # Indicate that this type is safe to cache
-
-    def process_bind_param(self, value, dialect):
-        return str(value) if value is not None else None
-
-    def process_result_value(self, value, dialect):
-        return TransactionId(id=uuid.UUID(value)) if value is not None else None
 
 
 work_table = Table(
@@ -252,62 +106,53 @@ member_table = Table(
 )
 
 
-class MapperRegistry:
-    _is_initialized = False
+def start_mappers():
+    logger.debug("Starting orm mappers")
+    # CRITIQUE
+    mapper_registry.map_imperatively(
+        Critique,
+        critique_table,
+        properties={
+            "ratings": relationship(
+                Rating, backref="critiques", order_by=rating_table.c.id
+            )
+        },
+    )
+    # WORK
+    mapper_registry.map_imperatively(
+        Work,
+        work_table,
+        properties={
+            "critiques": relationship(
+                Critique, backref="works", order_by=critique_table.c.id
+            ),
+        },
+    )
+    # MEMBER
+    mapper_registry.map_imperatively(
+        Member,
+        member_table,
+        properties={
+            "works": relationship(Work, backref="members", order_by=work_table.c.id),
+            "critiques": relationship(
+                Critique, backref="members", order_by=critique_table.c.id
+            ),
+            "ratings": relationship(
+                Rating, backref="members", order_by=rating_table.c.id
+            ),
+        },
+    )
 
-    @classmethod
-    def start_mappers(cls):
-        if cls._is_initialized:
-            return
-        logger.debug("Starting orm mappers")
-        # CRITIQUE
-        mapper_registry.map_imperatively(
-            Critique,
-            critique_table,
-            properties={
-                "ratings": relationship(
-                    Rating, backref="critiques", order_by=rating_table.c.id
-                )
-            },
-        )
-        # WORK
-        mapper_registry.map_imperatively(
-            Work,
-            work_table,
-            properties={
-                "critiques": relationship(
-                    Critique, backref="works", order_by=critique_table.c.id
-                ),
-            },
-        )
-        # MEMBER
-        mapper_registry.map_imperatively(
-            Member,
-            member_table,
-            properties={
-                "works": relationship(
-                    Work, backref="members", order_by=work_table.c.id
-                ),
-                "critiques": relationship(
-                    Critique, backref="members", order_by=critique_table.c.id
-                ),
-                "ratings": relationship(
-                    Rating, backref="members", order_by=rating_table.c.id
-                ),
-            },
-        )
-
-        # RATING
-        # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
-        # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
-        mapper_registry.map_imperatively(
-            Rating,
-            rating_table,
-            properties={
-                "_critique_id": rating_table.c.critique_id,
-                "_member_id": rating_table.c.member_id,
-            },
-        )
-        # CREDIT
-        mapper_registry.map_imperatively(CreditManager, credit_table)
-        cls._is_initialized = True
+    # RATING
+    # In order to maintain the invariant that a Rating is always associated with a Critique and a Member,
+    # we need to map the Rating class imperatively, and then add the Critique and Member as properties.
+    mapper_registry.map_imperatively(
+        Rating,
+        rating_table,
+        properties={
+            "_critique_id": rating_table.c.critique_id,
+            "_member_id": rating_table.c.member_id,
+        },
+    )
+    # CREDIT
+    mapper_registry.map_imperatively(CreditManager, credit_table)
