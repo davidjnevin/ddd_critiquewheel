@@ -122,7 +122,7 @@ def test_create_and_retreive_rating(session, valid_critique, valid_rating):
     # Assert
     assert retrieved_rating.id == new_rating.id
     assert retrieved_rating.member_id == new_rating.member_id
-    assert int(retrieved_rating.score) == 5
+    assert retrieved_rating.score == new_rating.score
 
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
