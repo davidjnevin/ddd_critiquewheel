@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def in_memory_sqlite_db():
-    engine = create_engine("sqlite:///:memory:")
+    engine = create_engine("sqlite:///:memory:", echo=True)
     mapper_registry.metadata.create_all(engine)
     return engine
 
