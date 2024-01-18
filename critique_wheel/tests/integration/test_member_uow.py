@@ -1,8 +1,10 @@
+from uuid import uuid4
+
 import pytest
 import sqlalchemy
 
+from critique_wheel.members.models.IAM import MemberRole, MemberStatus
 from critique_wheel.members.services.unit_of_work import IAMUnitOfWork
-from tests.integration.fake_iam_repository import FakeMemberRepository
 
 pytestmark = pytest.mark.usefixtures("mappers")
 
@@ -37,21 +39,28 @@ def get_member_by_id(session, member_id):
         return None
 
 
-class FakeUnitOfWork:
-    def __init__(self):
-        self.members = FakeMemberRepository([])
-        self.committed = False
+def test_uow_can_retrieve_a_member_and_alter_it(sqlite_session_factory):
+    session = sqlite_session_factory()
+    session.expire_on_commit = False
+    id = str(uuid4())
+    insert_member(
+        session,
+        id=id,
+        username="test_username",
+        password="secure_unguessab1e_p@ssword",
+        email="email_address@davidneivn.net",
+        member_type=MemberRole.MEMBER,
+        status=MemberStatus.ACTIVE,
+        works=None,
+        critiques=None,
+    )
+    session.commit()
 
-    def commit(self):
-        self.committed = True
-
-
-def test_uow_can_create_and_retrieve_members(sqlite_session_factory, valid_member):
     uow = IAMUnitOfWork(sqlite_session_factory)
     with uow:
-        uow.members.add(valid_member)
+        member = uow.members.get_member_by_username("test_username")
+        member.username = "new_username"
         uow.commit()
 
-    new_session = sqlite_session_factory()
-    member = get_member_by_id(new_session, str(valid_member.id))
-    assert str(valid_member.id) == member["id"]
+    member = get_member_by_id(session, id)
+    assert member.username == "new_username"
