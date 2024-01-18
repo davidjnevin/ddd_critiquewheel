@@ -26,7 +26,7 @@ class AbstractUnitOfWork(abc.ABC):
 
 
 class IAMUnitOfWork(AbstractUnitOfWork):
-    def __init__(self, session_factory=database.get_session_local()):
+    def __init__(self, session_factory=database.get_postgres_session_local()):
         self.session_factory = session_factory
 
     def __enter__(self):
