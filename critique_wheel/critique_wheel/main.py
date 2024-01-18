@@ -4,6 +4,7 @@ import fastapi
 import fastapi.exception_handlers
 from asgi_correlation_id import CorrelationIdMiddleware
 
+from critique_wheel.adapters import orm
 from critique_wheel.entrypoints.routers import healthcheck, members, works
 from critique_wheel.logging_conf import configure_logging
 
@@ -11,7 +12,6 @@ configure_logging()
 logger = logging.getLogger(__name__)
 logger.debug(f"Starting {__name__}...")
 
-# orm.start_mappers()
 
 app = fastapi.FastAPI(
     title="Critique Wheel API", version="0.0.1", openapi_url="/openapi.json"
@@ -30,6 +30,7 @@ async def http_exception_handle_logging(request, exc):
 
 
 if __name__ == "__main__":
+    orm.start_mappers()
     import uvicorn
 
     logger.debug("Starting Uvicorn server...")
