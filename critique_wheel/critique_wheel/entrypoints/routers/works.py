@@ -14,11 +14,8 @@ router = fastapi.APIRouter()
 
 
 async def get_db_session():
-    db = db_config.get_session_local()
-    try:
-        yield db
-    finally:
-        db.close
+    db = db_config.get_postgres_session_local()
+    yield db
 
 
 @router.post("/work")
@@ -28,7 +25,7 @@ async def create_work(
 ):
     logger.debug("Creating work.")
     result = work_service.add_work(
-        uow=unit_of_work.WorkUnitOfWork(session_factory),
+        uow=unit_of_work.WorkUnitOfWork(session_factory=session_factory),
         title=work.title,
         content=work.content,
         member_id=work.member_id,
