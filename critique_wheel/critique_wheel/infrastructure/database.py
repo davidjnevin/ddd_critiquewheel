@@ -34,7 +34,6 @@ def get_postgres_engine():
     logger.debug("Creating database engine...")
     engine = sqlalchemy.create_engine(
         get_postgres_uri(),
-        # connect_args={"check_same_thread": False},
     )
     mapper_registry.metadata.create_all(engine)
     logger.debug(f"Database {get_postgres_uri()} created.")
@@ -47,7 +46,7 @@ def get_sqlite_engine():
     engine = sqlalchemy.create_engine(
         get_sqlite_uri(),
         connect_args={"check_same_thread": False},
-        # echo=True,
+        echo=True,
     )
     mapper_registry.metadata.create_all(engine)
     logger.debug(f"Engine {engine} created.")
