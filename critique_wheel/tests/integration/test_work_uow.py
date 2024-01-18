@@ -4,7 +4,6 @@ import pytest
 import sqlalchemy
 
 from critique_wheel.works.services.unit_of_work import WorkUnitOfWork
-from tests.integration.fake_work_repository import FakeWorkRepository
 
 pytestmark = pytest.mark.usefixtures("mappers")
 
@@ -31,16 +30,16 @@ def insert_work(session, **kwargs):
     session.execute(stmt, params)
 
 
-def get_work_by_id(session, work_id):
+def get_work_by_member_id(session, member_id):
     stmt = sqlalchemy.text(
         """
         SELECT id, title, content, age_restriction, genre, member_id
         FROM works
-        WHERE id = :id
+        WHERE member_id = :member_id
         """
     )
     params = {
-        "id": work_id,
+        "member_id": member_id,
     }
     result = session.execute(stmt, params)
     row = result.fetchone()
@@ -50,31 +49,24 @@ def get_work_by_id(session, work_id):
         return None
 
 
-class FakeUnitOfWork:
-    def __init__(self):
-        self.works = FakeWorkRepository([])
-        self.committed = False
-
-    def commit(self):
-        self.committed = True
-
-
 def test_uow_can_create_and_retrieve_works(
     sqlite_session_factory, valid_work, member_details
 ):
     session = sqlite_session_factory()
-    member_details["id"] = str(uuid4())
-    valid_work.id = member_details["id"]
+    id = str(uuid4())
+    member_details["id"] = id
     insert_member(
         session, **member_details
     )  # We need a member in the database to create a work
     session.commit()
 
+    valid_work.member_id = member_details["id"]
     uow = WorkUnitOfWork(sqlite_session_factory)
     with uow:
         uow.works.add(valid_work)
         uow.commit()
 
     new_session = sqlite_session_factory()
-    work = get_work_by_id(new_session, valid_work.id)
-    assert valid_work.id == work["id"]
+    work = get_work_by_member_id(new_session, id)
+    assert id == work["member_id"]
+    assert "Test Title" == work["title"]
