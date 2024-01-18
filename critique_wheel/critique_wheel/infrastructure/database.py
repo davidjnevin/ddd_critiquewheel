@@ -29,7 +29,7 @@ def get_sqlite_uri():
     return "sqlite:///:memory:"
 
 
-def get_engine():
+def get_postgres_engine():
     logger.debug(f"Using {config.BaseConfig().ENV_STATE} state")
     logger.debug("Creating database engine...")
     engine = sqlalchemy.create_engine(
@@ -41,7 +41,7 @@ def get_engine():
     return engine
 
 
-def get_in_memory_engine():
+def get_sqlite_engine():
     logger.debug(f"Using {config.BaseConfig().ENV_STATE} state")
     logger.debug("Creating database engine...")
     engine = sqlalchemy.create_engine(
@@ -54,25 +54,25 @@ def get_in_memory_engine():
     return engine
 
 
-def get_in_memory_session_local():
+def get_sqlite_session():
     logger.debug(f"Using {config.BaseConfig().ENV_STATE} state")
-    logger.debug("Creating database session...")
+    logger.debug("Creating sqlite database sessionfactory...")
     LocalSessionMaker = sqlalchemy.orm.sessionmaker(
         # autocommit=False,
         # autoflush=False,
-        bind=get_in_memory_engine(),
+        bind=get_sqlite_engine(),
     )
 
     return LocalSessionMaker
 
 
-def get_session_local():
+def get_postgres_session_local():
     logger.debug(f"Using {config.BaseConfig().ENV_STATE} state")
-    logger.debug("Creating database session...")
+    logger.debug("Creating postgres database sessionfactory...")
     LocalSessionMaker = sqlalchemy.orm.sessionmaker(
         # autocommit=False,
         # autoflush=False,
-        bind=get_engine(),
+        bind=get_postgres_engine(),
     )
 
     return LocalSessionMaker
