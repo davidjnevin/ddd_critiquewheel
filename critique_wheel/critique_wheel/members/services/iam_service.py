@@ -37,7 +37,7 @@ def add_member(
     username: str,
     email: str,
     password: str,
-) -> str:
+) -> dict:
     with uow:
         try:
             new_member = model.Member.create(
@@ -50,13 +50,13 @@ def add_member(
                 logger.exception("An error occurred while creating a member.")
             uow.members.add(new_member)
             uow.commit()
+            return new_member.to_dict()
         except exceptions.InvalidEntryError as e:
             logger.exception(f"An error occurred while creating a member: {e}")
             raise InvalidEntryError("Invalid entry")
         except exceptions.IncorrectCredentialsError as e:
             logger.exception(f"An error occurred while creating a member: {e}")
             raise InvalidEntryError("Invalid entry")
-    return new_member.to_dict()
 
 
 def login_member(
