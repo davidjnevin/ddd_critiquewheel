@@ -18,15 +18,14 @@ def get_db_session():
     yield db
 
 
-@router.post("/members", response_model=schemas.UserMember)
+@router.post("/members", response_model=schemas.UserMember, status_code=201)
 def create_member(
     member: schemas.UserMemberIn,
     db: Session = fastapi.Depends(get_db_session),
 ):
-    breakpoint()
     logger.debug("Creating member.")
     result = iam_service.add_member(
-        uow=unit_of_work.IAMUnitOfWork(),
+        uow=unit_of_work.IAMUnitOfWork(session_factory=db),
         username=member.username,
         email=member.email,
         password=member.password,
