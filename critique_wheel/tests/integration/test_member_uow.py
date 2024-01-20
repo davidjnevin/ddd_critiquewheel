@@ -1,42 +1,42 @@
 from uuid import uuid4
 
 import pytest
-import sqlalchemy
 
 from critique_wheel.members.models.IAM import MemberRole, MemberStatus
 from critique_wheel.members.services.unit_of_work import IAMUnitOfWork
+from tests.helpers import get_member_by_id, insert_member
 
 pytestmark = pytest.mark.usefixtures("mappers")
 
 
-def insert_member(session, **kwargs):
-    stmt = sqlalchemy.text(
-        """
-        INSERT INTO members (id, username, email, password)
-        VALUES (:id, :username, :email, :password)
-        """
-    )
-    params = kwargs
-    session.execute(stmt, params)
+# def insert_member(session, **kwargs):
+#     stmt = sqlalchemy.text(
+#         """
+#         INSERT INTO members (id, username, email, password)
+#         VALUES (:id, :username, :email, :password)
+#         """
+#     )
+#     params = kwargs
+#     session.execute(stmt, params)
 
 
-def get_member_by_id(session, member_id):
-    stmt = sqlalchemy.text(
-        """
-        SELECT id, username, email, password
-        FROM members
-        WHERE id = :id
-        """
-    )
-    params = {
-        "id": member_id,
-    }
-    result = session.execute(stmt, params)
-    row = result.fetchone()
-    if row:
-        return row._mapping
-    else:
-        return None
+# def get_member_by_id(session, member_id):
+#     stmt = sqlalchemy.text(
+#         """
+#         SELECT id, username, email, password
+#         FROM members
+#         WHERE id = :id
+#         """
+#     )
+#     params = {
+#         "id": member_id,
+#     }
+#     result = session.execute(stmt, params)
+#     row = result.fetchone()
+#     if row:
+#         return row._mapping
+#     else:
+#         return None
 
 
 def test_uow_can_retrieve_a_member_and_alter_it(sqlite_session_factory):
