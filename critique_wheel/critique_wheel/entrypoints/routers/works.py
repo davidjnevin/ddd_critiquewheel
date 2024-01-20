@@ -18,7 +18,7 @@ async def get_db_session():
     yield db
 
 
-@router.post("/work")
+@router.post("/works", response_model=schemas.UserWork, status_code=201)
 async def create_work(
     work: schemas.UserWorkIn,
     session_factory: Session = fastapi.Depends(get_db_session),
