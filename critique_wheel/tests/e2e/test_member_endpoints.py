@@ -3,38 +3,13 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
-from critique_wheel.adapters.orm import mapper_registry
 from critique_wheel.entrypoints.routers import members as members_router
 from critique_wheel.main import app
+from tests.helpers import override_get_db_session
 
 logger = logging.getLogger(__name__)
-
 pytestmark = pytest.mark.usefixtures("mappers")
-
-
-def override_get_db_session():
-    SQLITE_DB_URI = "sqlite:///"
-    engine = create_engine(
-        SQLITE_DB_URI,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-        echo=True,
-    )
-    logger.debug(f"Using {engine} database engine")
-    mapper_registry.metadata.create_all(engine)
-    try:
-        db = sessionmaker(
-            autocommit=False,
-            autoflush=False,
-            bind=engine,
-        )
-        yield db
-    finally:
-        db().close()
 
 
 app.include_router(members_router.router)
@@ -42,7 +17,6 @@ test_client = TestClient(app)
 app.dependency_overrides[members_router.get_db_session] = override_get_db_session
 
 
-@pytest.mark.current
 def test_create_member_endpoint_returns_member():
     payload = {
         "username": "PeterPan",
