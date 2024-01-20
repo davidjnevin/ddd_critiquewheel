@@ -50,6 +50,7 @@ test:
 	${PRE_RUN_API_COMMAND} test
 
 # target: test - test code
+# excludes slow tests
 .PHONY: test-fast
 test-fast:
 	${PRE_RUN_API_COMMAND} test-fast
