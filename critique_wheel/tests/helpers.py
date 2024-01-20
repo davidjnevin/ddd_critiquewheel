@@ -18,7 +18,7 @@ def override_get_db_session():
         SQLITE_DB_URI,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
-        echo=True,
+        # echo=True,
     )
     logger.debug(f"Using {engine} database engine")
     mapper_registry.metadata.create_all(engine)
@@ -64,11 +64,12 @@ def get_member_by_id(session, member_id):
 
 
 def create_and_insert_member(session):
+    id = str(uuid.uuid4())
     member = {
-        "id": str(uuid.uuid4()),
+        "id": id,
         "username": "Peter Pan",
         "password": "adsfhjsdaf65rtdTTFd!",
         "email": "some_random+password@davidnevin.net",
     }
-    id = insert_member(session, **member)
+    insert_member(session, **member)
     return id
