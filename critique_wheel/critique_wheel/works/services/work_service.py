@@ -59,8 +59,11 @@ def add_work(
             uow.works.add(new_work)
             uow.commit()
             return new_work.to_dict()
+        except DuplicateWorkError as e:
+            logger.exception("Work with that id already exists")
+            raise DuplicateWorkError(f"Work with that id already exists: {e}") from e
         except exceptions.MissingEntryError as e:
-            logger.exception(f"Missing entry encountered: {e}")
+            logger.exception(f"Invalid data encountered: {e}")
             raise InvalidDataError(f"Invalid data encountered: {e}") from e
         except Exception as e:
             logger.exception(f"Invalid data encountered: {e}")
