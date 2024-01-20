@@ -52,17 +52,19 @@ def add_work(
                 genre=value_objects.find_genre_by_value(genre),
                 critiques=critiques,
             )
+            if uow.works.get_work_by_id(new_work.id):
+                raise DuplicateWorkError(
+                    f"Work with id {str(new_work.id)} already exists"
+                )
+            uow.works.add(new_work)
+            uow.commit()
+            return new_work.to_dict()
         except exceptions.MissingEntryError as e:
             logger.exception(f"Missing entry encountered: {e}")
             raise InvalidDataError(f"Invalid data encountered: {e}") from e
         except Exception as e:
             logger.exception(f"Invalid data encountered: {e}")
             raise InvalidDataError(f"Invalid data encountered: {e}") from e
-        if uow.works.get_work_by_id(new_work.id):
-            raise DuplicateWorkError(f"Work with id {str(new_work.id)} already exists")
-        uow.works.add(new_work)
-        uow.commit()
-    return new_work.to_dict()
 
 
 def list_works(
