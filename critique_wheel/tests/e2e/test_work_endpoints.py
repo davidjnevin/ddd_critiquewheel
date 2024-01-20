@@ -27,7 +27,6 @@ def test_work_endpoint_returns_404_if_id_does_not_exist():
 
 @pytest.mark.current
 def test_create_work_endpoint_returns_work(work_details, sqlite_session_factory):
-    breakpoint()
     session = sqlite_session_factory()
     member_id = create_and_insert_member(session)
     session.commit()
@@ -43,5 +42,12 @@ def test_create_work_endpoint_returns_work(work_details, sqlite_session_factory)
 
     response = test_client.post("/works/", json=payload)
     logger.debug(response.json())
+
     assert response.status_code == 201
-    assert response.json()["title"] == payload["Test Title"]
+    assert response.json()["title"] == payload["title"]
+    assert response.json()["content"] == payload["content"]
+    assert response.json()["status"] == payload["status"]
+    assert response.json()["age_restriction"] == payload["age_restriction"]
+    assert response.json()["genre"] == payload["genre"]
+    assert response.json()["member_id"] == payload["member_id"]
+    assert response.json()["id"] is not None
