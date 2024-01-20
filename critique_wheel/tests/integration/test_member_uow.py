@@ -36,7 +36,6 @@ def test_uow_can_retrieve_a_member_and_alter_it(sqlite_session_factory):
     assert member.username == "new_username"
 
 
-@pytest.mark.current
 def test_roll_back_uncommited_changes_by_default(sqlite_session_factory):
     session = sqlite_session_factory()
     session.expire_on_commit = False
@@ -63,7 +62,6 @@ def test_roll_back_uncommited_changes_by_default(sqlite_session_factory):
     assert member.username == "test_username"
 
 
-@pytest.mark.current
 def test_rolls_back_on_errors(sqlite_session_factory):
     session = sqlite_session_factory()
     session.expire_on_commit = False
