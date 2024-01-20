@@ -14,10 +14,10 @@ from critique_wheel.main import app
 logger = logging.getLogger(__name__)
 
 pytestmark = pytest.mark.usefixtures("mappers")
-SQLITE_DB_URI = "sqlite:///"
 
 
 def override_get_db_session():
+    SQLITE_DB_URI = "sqlite:///"
     engine = create_engine(
         SQLITE_DB_URI,
         connect_args={"check_same_thread": False},
@@ -54,9 +54,11 @@ def test_create_member_endpoint_returns_member():
     response = test_client.post("/members/", json=payload)
     logger.debug(response.json())
     assert response.status_code == 201
+    assert response.json()["username"] == payload["username"]
+    assert response.json()["email"] == payload["email"]
+    assert response.json()["password"] != payload["password"]
 
 
-@pytest.mark.current
 def test_member_endpoint_returns_404_if_id_does_not_exist():
     nonexistant_member_id = uuid.uuid4()
     response = test_client.get(f"/members/{nonexistant_member_id}")
