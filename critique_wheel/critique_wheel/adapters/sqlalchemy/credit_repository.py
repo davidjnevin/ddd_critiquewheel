@@ -7,7 +7,7 @@ from critique_wheel.credits.models.credit_repository import AbstractCreditReposi
 from critique_wheel.credits.value_objects import TransactionId
 
 
-class SqlAlchemyCreditRepository(AbstractCreditRepository):
+class CreditRepository(AbstractCreditRepository):
     def __init__(self, session: Session):
         self.session = session
 

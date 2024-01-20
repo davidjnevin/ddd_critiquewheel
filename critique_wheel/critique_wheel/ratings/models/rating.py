@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from critique_wheel.ratings.value_objects import RatingId, RatingScore
+from critique_wheel.ratings.value_objects import RatingComment, RatingId, RatingScore
 
 
 class MissingEntryError(Exception):
@@ -28,7 +28,7 @@ class Rating:
     ) -> None:
         self.id = rating_id or RatingId()
         self.score: RatingScore = score
-        self.comment: str = comment
+        self.comment: RatingComment = comment
         self.status: RatingStatus = status
         self.submission_date: datetime = datetime.now()
         self.last_updated_date: datetime = datetime.now()
@@ -75,7 +75,7 @@ class Rating:
         self.score = updated_score
         self.last_updated_date = datetime.now()
 
-    def add_comment(self, comment: str) -> None:
+    def add_comment(self, comment: RatingComment) -> None:
         self.comment = comment
         self.last_updated_date = datetime.now()
 

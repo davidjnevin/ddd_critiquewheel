@@ -97,6 +97,22 @@ class Member:
             critiques=critiques or [],
         )
 
+    def to_dict(self) -> dict:
+        logger.debug("Converting member to dict.")
+        return {
+            "id": str(self.id),
+            "username": str(self.username),
+            "email": str(self.email),
+            "password": str(self.password),
+            "member_type": str(self.member_type.value),
+            "status": str(self.status.value),
+            "works": [str(work) for work in self.works],
+            "critiques": [str(critique) for critique in self.critiques],
+            "last_login": self.last_login.isoformat(),
+            "last_updated_date": self.last_updated_date.isoformat(),
+            "created_date": self.created_date.isoformat(),
+        }
+
     @classmethod
     def register(cls, username, email, password, confirm_password):
         cls._validate_registration_parameters(
@@ -203,13 +219,6 @@ class Member:
 
     def list_works(self) -> list:
         return self.works
-
-    def add_work(self, work) -> None:
-        if work not in self.works:
-            self.works.append(work)
-            self.last_update_date = datetime.now()
-        else:
-            raise exceptions.WorkAlreadyExistsError("Work already exists")
 
     def list_critiques(self) -> list:
         return self.critiques

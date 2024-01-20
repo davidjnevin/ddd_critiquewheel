@@ -12,9 +12,9 @@ from psycopg2.errors import OperationalError
 
 try:
     connect(
-        dbname="${DB_NAME}",
-        user="${DB_USER}",
-        password="${DB_PASSWORD}",
+        dbname="${DOCKER_DB_NAME}",
+        user="${DOCKER_DB_USER}",
+        password="${DOCKER_DB_PASSWORD}",
     )
 except OperationalError:
     sys.exit(-1)
@@ -54,11 +54,15 @@ case $1 in
 	;;
 	"test")
 		wait_other_containers ;\
-		pytest
+		pytest -q
 		;;
 	"test-fast")
 		wait_other_containers ;\
 		pytest -n 4
+		;;
+	"test-last-failed")
+		wait_other_containers ;\
+		pytest --lf
 		;;
 	"test-current")
 		wait_other_containers ;\
@@ -66,23 +70,24 @@ case $1 in
 		;;
 	"test-current-v")
 		wait_other_containers ;\
-		pytest -vv -m current
+		pytest -vv -m current --log-cli-level=DEBUG
 		;;
 	"test-api")
 		wait_other_containers ;\
-		pytest tests/api
+		pytest tests/api --log-cli-level=DEBUG
+
 		;;
 	"test-unit")
 		wait_other_containers ;\
-		pytest tests/unit
+		pytest tests/unit --log-cli-level=DEBUG
 		;;
 	"test-e2e")
 		wait_other_containers ;\
-		pytest tests/e2e
+		pytest tests/e2e --log-cli-level=DEBUG
 		;;
 	"test-int")
 		wait_other_containers ;\
-		pytest tests/integration
+		pytest tests/integration --log-cli-level=DEBUG
 		;;
 	"lint")
 		isort critique_wheel tests

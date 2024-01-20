@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 
 import pytest
@@ -8,8 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
-from critique_wheel.adapters.orm import MapperRegistry, mapper_registry
-from critique_wheel.config import get_api_url, get_postgres_uri
+from critique_wheel.adapters.orm import mapper_registry, start_mappers
 from critique_wheel.credits.models.credit import CreditManager, TransactionType
 from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.critiques.value_objects import (
@@ -22,6 +22,7 @@ from critique_wheel.critiques.value_objects import (
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.ratings.models.rating import Rating
+from critique_wheel.ratings.value_objects import RatingComment
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.value_objects import (
     Content,
@@ -32,7 +33,71 @@ from critique_wheel.works.value_objects import (
     WorkStatus,
 )
 
+os.environ["ENV_STATE"] = "test"
+from critique_wheel import config  # noqa : E402
+
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture
+def in_memory_sqlite_db():
+    engine = create_engine("sqlite:///:memory:")  # , echo=True)
+    mapper_registry.metadata.create_all(engine)
+    return engine
+
+
+@pytest.fixture
+def sqlite_session_factory(in_memory_sqlite_db):
+    yield sessionmaker(bind=in_memory_sqlite_db)
+
+
+@pytest.fixture
+def mappers():
+    start_mappers()
+    yield
+    clear_mappers()
+
+
+@pytest.fixture
+def session(sqlite_session_factory):
+    return sqlite_session_factory()
+
+
+def wait_for_postgres_to_come_up(engine):
+    deadline = time.time() + 1
+    while time.time() < deadline:
+        try:
+            return engine.connect()
+        except OperationalError:
+            logger.exception("Postgres not up yet")
+            time.sleep(0.5)
+    pytest.fail("Postgres never came up")
+
+
+def wait_for_webapp_to_come_up():
+    deadline = time.time() + 5
+    url = config.get_api_url()
+    logger.debug(f"Waiting for {url} to come up")
+    while time.time() < deadline:
+        try:
+            return requests.get(url)
+        except ConnectionError:
+            logger.exception("Webapp not up yet")
+            time.sleep(0.5)
+    pytest.fail("API never came up")
+
+
+@pytest.fixture(scope="session")
+def postgres_db():
+    engine = create_engine(config.get_postgres_uri())  # echo=True option
+    wait_for_postgres_to_come_up(engine)
+    mapper_registry.metadata.create_all(engine)
+    return engine
+
+
+@pytest.fixture
+def postgres_session(postgres_db):
+    yield sessionmaker(bind=postgres_db)()
 
 
 @pytest.fixture
@@ -60,7 +125,7 @@ def active_valid_member():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_credit():
     return CreditManager.create(
         member_id=MemberId(),
@@ -71,17 +136,17 @@ def valid_credit():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_rating():
     yield Rating.create(
         member_id=MemberId(),
         score=5,
-        comment="This is a test rating.",
+        comment=RatingComment("This is a test rating."),
         critique_id=CritiqueId(),
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def another_valid_rating():
     yield Rating.create(
         member_id=MemberId(),
@@ -91,10 +156,10 @@ def another_valid_rating():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_critique():
     text = "Word " * 45
-    return Critique.create(
+    yield Critique.create(
         critique_about=CritiqueAbout(text),
         critique_successes=CritiqueSuccesses(text),
         critique_weaknesses=CritiqueWeaknesses(text),
@@ -106,7 +171,7 @@ def valid_critique():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_work():
     yield Work.create(
         title=Title("Test Title"),
@@ -118,9 +183,9 @@ def valid_work():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def another_valid_work():
-    return Work.create(
+    yield Work.create(
         title=Title("Test Title 2"),
         content=Content("Test content"),
         age_restriction=WorkAgeRestriction.ADULT,
@@ -130,10 +195,10 @@ def another_valid_work():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_critique1():
     text = "Word " * 45
-    return Critique.create(
+    yield Critique.create(
         critique_about=CritiqueAbout(text),
         critique_successes=CritiqueSuccesses(text),
         critique_weaknesses=CritiqueWeaknesses(text),
@@ -144,10 +209,10 @@ def valid_critique1():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_critique2():
     text = "Word " * 45
-    return Critique.create(
+    yield Critique.create(
         critique_about=CritiqueAbout(text),
         critique_successes=CritiqueSuccesses(text),
         critique_weaknesses=CritiqueWeaknesses(text),
@@ -158,7 +223,7 @@ def valid_critique2():
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def valid_work_with_two_critiques(valid_critique1, valid_critique2):
     work = Work.create(
         title=Title("Test Title"),
@@ -174,65 +239,6 @@ def valid_work_with_two_critiques(valid_critique1, valid_critique2):
     work.add_critique(valid_critique1)
     work.add_critique(valid_critique2)
     return work
-
-
-@pytest.fixture(scope="session")
-def in_memory_db():
-    engine = create_engine("sqlite:///:memory:")
-    mapper_registry.metadata.create_all(engine)
-    yield engine
-    mapper_registry.metadata.drop_all(engine)
-    engine.dispose()
-
-
-@pytest.fixture(scope="session")
-def session(in_memory_db):
-    MapperRegistry.start_mappers()
-    session = sessionmaker(bind=in_memory_db)()
-    yield session
-    clear_mappers()
-    session.close()
-
-
-def wait_for_postgres_to_come_up(engine):
-    deadline = time.time() + 1
-    while time.time() < deadline:
-        try:
-            return engine.connect()
-        except OperationalError:
-            logger.exception("Postgres not up yet")
-            time.sleep(0.5)
-    pytest.fail("Postgres never came up")
-
-
-def wait_for_webapp_to_come_up():
-    deadline = time.time() + 5
-    url = get_api_url()
-    logger.debug(f"Waiting for {url} to come up")
-    while time.time() < deadline:
-        try:
-            return requests.get(url)
-        except ConnectionError:
-            logger.exception("Webapp not up yet")
-            time.sleep(0.5)
-    pytest.fail("API never came up")
-
-
-@pytest.fixture(scope="session")
-def postgres_db():
-    engine = create_engine(get_postgres_uri())  # echo=True option
-    wait_for_postgres_to_come_up(engine)
-    mapper_registry.metadata.create_all(engine)
-    return engine
-
-
-@pytest.fixture(scope="session")
-def postgres_session(postgres_db):
-    MapperRegistry.start_mappers()
-    session = sessionmaker(bind=postgres_db)()
-    yield session
-    clear_mappers()
-    session.close()
 
 
 @pytest.fixture

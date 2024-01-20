@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import iam_repository
@@ -9,21 +10,23 @@ from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.value_objects import WorkId
 
+pytestmark = pytest.mark.usefixtures("mappers")
+
 
 def test_repository_can_save_a_basic_member(
     session, active_valid_member, valid_work, valid_critique
 ):
     member = active_valid_member
     member.id = MemberId()
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     assert member.works == []
     assert member.critiques == []
     repo.add(member)
     valid_work.id = WorkId()
     valid_work.member_id = member.id
 
-    member.add_work(valid_work)
-    member.add_critique(valid_critique)
+    member.works.append(valid_work)
+    member.critiques.append(valid_critique)
     session.commit()
 
     rows = list(
@@ -51,12 +54,12 @@ def test_repository_can_get_a_member_by_id(
     valid_member.id = MemberId()
     valid_member.status = MemberStatus.ACTIVE
     member = valid_member
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     valid_work.member_id = member.id
     valid_critique.member_id = member.id
-    member.add_work(valid_work)
-    member.add_critique(valid_critique)
+    member.works.append(valid_work)
+    member.critiques.append(valid_critique)
     assert len(member.works) == 1
     assert len(member.critiques) == 1
     session.commit()
@@ -87,7 +90,7 @@ def test_repository_can_get_a_member_by_email(session, valid_member):
     valid_member.status = MemberStatus.ACTIVE
     valid_member.email = "another_email@davidnevin.net"
     member = valid_member
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     session.commit()
 
@@ -99,7 +102,7 @@ def test_resository_can_get_a_member_by_username(session, valid_member):
     valid_member.status = MemberStatus.ACTIVE
     valid_member.username = "yet_another_username"
     member = valid_member
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     session.commit()
 
@@ -112,7 +115,7 @@ def test_resository_can_get_a_list_of_members(
     member = valid_member
     member_2 = active_valid_member
     valid_member.status = MemberStatus.ACTIVE
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     repo.add(member)
     repo.add(member_2)
     session.commit()
@@ -121,7 +124,7 @@ def test_resository_can_get_a_list_of_members(
 
 
 def test_repository_returns_None_for_no_member_found(session):
-    repo = iam_repository.SqlAlchemyMemberRepository(session)
+    repo = iam_repository.MemberRepository(session)
     username, email, id = "not_in_db", "unknown@davidnevin.net", uuid4()
     assert repo.get_member_by_username(username) is None
     assert repo.get_member_by_email(email) is None

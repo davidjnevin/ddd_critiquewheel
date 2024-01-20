@@ -1,6 +1,9 @@
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import credit_repository
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def test_repository_can_save_a_critique_credit_transaction(
@@ -15,7 +18,7 @@ def test_repository_can_save_a_critique_credit_transaction(
     critique.member_id = member.id
     credit.work_id = None
     credit.critique_id = critique.id
-    repo = credit_repository.SqlAlchemyCreditRepository(session)
+    repo = credit_repository.CreditRepository(session)
     repo.add(credit)
     session.commit()
 
@@ -51,7 +54,7 @@ def test_repository_can_save_a_work_credit_transaction(
     credit.critique_id = None
     credit.work_id = work.id
 
-    repo = credit_repository.SqlAlchemyCreditRepository(session)
+    repo = credit_repository.CreditRepository(session)
     repo.add(credit)
     session.commit()
 

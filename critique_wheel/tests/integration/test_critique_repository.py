@@ -1,13 +1,16 @@
+import pytest
 from sqlalchemy import text
 
 from critique_wheel.adapters.sqlalchemy import critique_repository
 from critique_wheel.critiques.value_objects import CritiqueId
 
+pytestmark = pytest.mark.usefixtures("mappers")
+
 
 def test_repository_can_save_a_critique(session, valid_critique):
     critique = valid_critique
     critique.id = CritiqueId()
-    repo = critique_repository.SqlAlchemyCritiqueRepository(session)
+    repo = critique_repository.CritiqueRepository(session)
     repo.add(critique)
     session.commit()
 
@@ -37,7 +40,7 @@ def test_repository_can_save_a_critique(session, valid_critique):
 def test_repository_can_get_a_critique_by_id(session, valid_critique):
     critique = valid_critique
     critique.id = CritiqueId()
-    repo = critique_repository.SqlAlchemyCritiqueRepository(session)
+    repo = critique_repository.CritiqueRepository(session)
     repo.add(critique)
     session.commit()
 

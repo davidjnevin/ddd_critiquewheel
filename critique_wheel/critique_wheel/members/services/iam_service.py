@@ -3,13 +3,13 @@ from typing import Optional
 
 from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.members.exceptions import exceptions
-from critique_wheel.members.models.IAM import Member
+from critique_wheel.members.models import IAM as model
 from critique_wheel.members.models.iam_repository import AbstractMemberRepository
+from critique_wheel.members.services import unit_of_work as uow
 from critique_wheel.members.value_objects import MemberId
 from critique_wheel.works.models.work import Work
-from critique_wheel.works.models.work_repository import AbstractWorkRepository
-from critique_wheel.works.services import work_service
-from critique_wheel.works.value_objects import WorkId
+
+logger = logging.getLogger(__name__)
 
 
 class BaseIAMServiceError(Exception):
@@ -32,50 +32,67 @@ class InvalidEntryError(BaseIAMServiceError):
     pass
 
 
-logger = logging.getLogger(__name__)
-
-
-def create_member(
-    username: str, email: str, password: str, repo: AbstractMemberRepository, session
-) -> MemberId:
-    new_member = Member.create(username, email, password)
-    repo.add(new_member)
-    session.commit()
-    return new_member.id
+def add_member(
+    uow: uow.AbstractUnitOfWork,
+    username: str,
+    email: str,
+    password: str,
+) -> dict:
+    with uow:
+        try:
+            new_member = model.Member.create(
+                username=username,
+                email=email,
+                password=password,
+            )
+            if uow.members.get_member_by_email(email):
+                raise DuplicateEntryError("Email already in use")
+                logger.exception("An error occurred while creating a member.")
+            uow.members.add(new_member)
+            uow.commit()
+            return new_member.to_dict()
+        except exceptions.InvalidEntryError as e:
+            logger.exception(f"An error occurred while creating a member: {e}")
+            raise InvalidEntryError("Invalid entry")
+        except exceptions.IncorrectCredentialsError as e:
+            logger.exception(f"An error occurred while creating a member: {e}")
+            raise InvalidEntryError("Invalid entry")
 
 
 def login_member(
-    email: str, password: str, repo: AbstractMemberRepository, session
-) -> Member:
-    try:
-        member = repo.get_member_by_email(email)
-    except exceptions.BaseIAMDomainError as e:
-        logger.exception(f"An error occurred while logging in: {e}")
-        raise InvalidCredentials("Invalid credentials")
-    if member and member.verify_password(password):
-        session.commit()
-        return member
-    else:
-        raise InvalidCredentials("Invalid credentials")
+    uow: uow.AbstractUnitOfWork,
+    email: str,
+    password: str,
+) -> dict:
+    with uow:
+        try:
+            member = uow.members.get_member_by_email(email)
+        except exceptions.BaseIAMDomainError as e:
+            logger.exception(f"An error occurred while logging in: {e}")
+            raise InvalidCredentials("Invalid credentials")
+        if member and member.verify_password(password):
+            uow.commit()
+            return member.to_dict()
+        else:
+            raise InvalidCredentials("Invalid credentials")
 
 
 def register_member(
+    uow: uow.AbstractUnitOfWork,
     username: str,
     email: str,
     password: str,
     confirm_password: str,
-    repo: AbstractMemberRepository,
-    session,
-) -> Member:
-    check_for_unique_parameters(username, email, repo, session)
-    new_member = Member.register(username, email, password, confirm_password)
-    repo.add(new_member)
-    session.commit()
-    return new_member
+) -> dict:
+    check_for_unique_parameters(username, email, uow.members)
+    new_member = model.Member.register(username, email, password, confirm_password)
+    uow.members.add(new_member)
+    uow.commit()
+    return new_member.to_dict()
 
 
 def check_for_unique_parameters(
-    username: str, email: str, repo: AbstractMemberRepository, session
+    username: str, email: str, repo: AbstractMemberRepository
 ) -> None:
     if repo.get_member_by_email(email):
         raise DuplicateEntryError("Email already in use")
@@ -83,77 +100,35 @@ def check_for_unique_parameters(
         raise DuplicateEntryError("Email already in use")
 
 
-def list_members(repo, session) -> list[Member]:
-    return repo.list()
+def list_members(uow: uow.AbstractUnitOfWork) -> list[model.Member]:
+    return uow.members.list()
 
 
 def get_member_by_username(
-    username: str, repo: AbstractMemberRepository
-) -> Optional[Member]:
-    return repo.get_member_by_username(username)
+    username: str, uow: uow.AbstractUnitOfWork
+) -> Optional[model.Member]:
+    return uow.members.get_member_by_username(username)
 
 
 def get_member_by_id(
-    member_id: str, repo: AbstractMemberRepository
-) -> Optional[Member]:
-    return repo.get_member_by_id(MemberId.from_string(uuid_string=member_id))
+    member_id: str, uow: uow.AbstractUnitOfWork
+) -> Optional[model.Member]:
+    return uow.members.get_member_by_id(MemberId.from_string(uuid_string=member_id))
 
 
-# This was added here because each Work
-# has a member_id and is closely related to a Member,
-def add_work_to_member(
-    member_id: str,
-    work_id: str,
-    repo: AbstractMemberRepository,
-    work_repo: AbstractWorkRepository,
-    session,
-) -> None:
-    try:
-        workId = WorkId.from_string(uuid_string=work_id)
-    except exceptions.MissingEntryError as e:
-        logger.exception(f"An error occurred while adding work to member: {e}")
-        raise work_service.WorkNotFoundError(f"Invalid data encountered: {e}") from e
-    try:
-        memberId = MemberId.from_string(uuid_string=member_id)
-    except exceptions.InvalidEntryError as e:
-        logger.exception(f"An error occurred while adding work to member: {e}")
-        raise MemberNotFoundException(f"Invalid data encountered: {e}") from e
-
-    work = work_repo.get_work_by_id(workId)
-    member = repo.get_member_by_id(memberId)
-
-    if member and work:
-        member.add_work(work)
-        repo.add(member)
-        session.commit()
+def list_member_works(member_id: MemberId, uow: uow.AbstractUnitOfWork) -> list[Work]:
+    member = uow.members.get_member_by_id(member_id)  # type: ignore
+    if member:
+        return member.list_works()
     else:
-        raise InvalidEntryError("Member not found")
+        raise MemberNotFoundException("Member not found")
 
 
-class IAMService:
-    def __init__(self, repository: AbstractMemberRepository):
-        self._repository = repository
-
-    # This was added here because the since each
-    # critique has a member_id and is closely related to a Member,
-    def add_critique_to_member(self, member_id: MemberId, critique: Critique) -> None:
-        member = self._repository.get_member_by_id(member_id)
-        if member:
-            member.add_critique(critique)
-            self._repository.add(member)
-        else:
-            raise MemberNotFoundException("Member not found")
-
-    def list_member_works(self, member_id: MemberId) -> list[Work]:
-        member = self._repository.get_member_by_id(member_id)  # type: ignore
-        if member:
-            return member.list_works()
-        else:
-            raise MemberNotFoundException("Member not found")
-
-    def list_member_critiques(self, member_id: MemberId) -> list[Critique]:
-        member = self._repository.get_member_by_id(member_id)
-        if member:
-            return member.list_critiques()
-        else:
-            raise MemberNotFoundException("Member not found")
+def list_member_critiques(
+    member_id: MemberId, uow: uow.AbstractUnitOfWork
+) -> list[Critique]:
+    member = uow.members.get_member_by_id(member_id)
+    if member:
+        return member.list_critiques()
+    else:
+        raise MemberNotFoundException("Member not found")

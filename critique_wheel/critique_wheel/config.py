@@ -51,11 +51,6 @@ class ProdConfig(GlobalConfig):
 
 
 class TestConfig(GlobalConfig):
-    # JWT_SECRET_KEY: str = (
-    #     "4598398cca0a7ecb7c7466fb30e43d4525bb3f5c59974183c8f46724e63ccee7"
-    # )
-    # JWT_ALGORITHM: str = "HS256"
-
     model_config = SettingsConfigDict(env_prefix="TEST_")
 
 
@@ -67,16 +62,6 @@ def get_config(env_state: str):
 
 logger.debug(f"Loading config for {BaseConfig().ENV_STATE}")
 config = get_config(BaseConfig().ENV_STATE)
-
-
-# DB configuration
-def get_postgres_uri():
-    host = config.DB_HOST
-    port = 54321 if host == "localhost" else 5432
-    password = config.DB_PASSWORD
-    user = config.DB_USER
-    db_name = config.DB_NAME
-    return f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
 
 
 # API configuration

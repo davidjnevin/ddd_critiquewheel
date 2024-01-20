@@ -7,7 +7,7 @@ from critique_wheel.members.models.iam_repository import AbstractMemberRepositor
 from critique_wheel.members.value_objects import MemberId
 
 
-class SqlAlchemyMemberRepository(AbstractMemberRepository):
+class MemberRepository(AbstractMemberRepository):
     def __init__(self, session: Session):
         self.session = session
 

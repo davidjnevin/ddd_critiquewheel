@@ -136,7 +136,7 @@ def test_ensure_the_submission_date_is_set_when_a_critique_is_submitted(
 
 # Test Approving Critique Content:
 def test_ensure_the_last_updated_date_is_set_when_a_critique_s_content_is_approved(
-    valid_critique
+    valid_critique,
 ):
     critique = valid_critique
     critique.last_updated_date = datetime.now() - timedelta(days=1)
@@ -148,7 +148,7 @@ def test_ensure_the_last_updated_date_is_set_when_a_critique_s_content_is_approv
 
 # Test Archiving a Critique:
 def test_ensure_a_critique_can_be_archived_and_its_status_and_archive_date_are_updated(
-    valid_critique
+    valid_critique,
 ):
     critique = valid_critique
     critique.last_updated_date = datetime.now() - timedelta(days=1)
@@ -161,7 +161,7 @@ def test_ensure_a_critique_can_be_archived_and_its_status_and_archive_date_are_u
 
 # Test Marking a Critique for Deletion:
 def test_ensure_a_critique_can_be_marked_for_deletion_and_its_status_is_updated(
-    valid_critique
+    valid_critique,
 ):
     critique = valid_critique
     critique.last_updated_date = datetime.now() - timedelta(days=1)
@@ -173,7 +173,7 @@ def test_ensure_a_critique_can_be_marked_for_deletion_and_its_status_is_updated(
 
 # Test Marking a Critique as Pending Review:
 def test_ensure_a_critique_can_be_marked_as_pending_review_and_its_status_is_updated(
-    valid_critique
+    valid_critique,
 ):
     critique = valid_critique
     critique.last_updated_date = datetime.now() - timedelta(days=1)
@@ -196,7 +196,7 @@ def test_ensure_a_critique_can_be_rejected_and_its_status_is_updated(valid_criti
 
 # Test Restoring an Archived Critique:
 def test_ensure_an_archived_critique_can_be_restored_to_active_status_and_its_archive_date_is_cleared(
-    valid_critique
+    valid_critique,
 ):
     critique = valid_critique
     critique.last_updated_date = datetime.now() - timedelta(days=1)

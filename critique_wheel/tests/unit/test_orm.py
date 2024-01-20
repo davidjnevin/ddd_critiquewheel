@@ -1,11 +1,14 @@
+import pytest
+
 # Throwaway test file for testing ORM functionality
 from critique_wheel.credits.models.credit import CreditManager, TransactionType
 from critique_wheel.critiques.models.critique import Critique
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 from critique_wheel.ratings.models.rating import Rating
-from critique_wheel.ratings.value_objects import RatingScore
 from critique_wheel.works.models.work import Work
 from critique_wheel.works.value_objects import WorkAgeRestriction, WorkGenre, WorkStatus
+
+pytestmark = pytest.mark.usefixtures("mappers")
 
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")
@@ -14,8 +17,8 @@ def test_create_and_retrieve_member(session, valid_member, valid_work, valid_cri
     new_member = valid_member
 
     new_member.status = MemberStatus.ACTIVE
-    new_member.add_work(valid_work)
-    new_member.add_critique(valid_critique)
+    new_member.works.append(valid_work)
+    new_member.critiques.append(valid_critique)
 
     # Act
     session.add(new_member)
@@ -119,7 +122,7 @@ def test_create_and_retreive_rating(session, valid_critique, valid_rating):
     # Assert
     assert retrieved_rating.id == new_rating.id
     assert retrieved_rating.member_id == new_rating.member_id
-    assert retrieved_rating.score == RatingScore(5)
+    assert retrieved_rating.score == new_rating.score
 
 
 # @pytest.mark.skip(reason="Throwaway test file for testing ORM functionality")

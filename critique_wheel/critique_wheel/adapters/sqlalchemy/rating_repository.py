@@ -7,7 +7,7 @@ from critique_wheel.ratings.models.rating_repository import AbstractRatingReposi
 from critique_wheel.ratings.value_objects import RatingId
 
 
-class SqlAlchemyRatingRepository(AbstractRatingRepository):
+class RatingRepository(AbstractRatingRepository):
     def __init__(self, session: Session):
         self.session = session
 

@@ -9,7 +9,7 @@ from critique_wheel.critiques.models.critique_repository import (
 from critique_wheel.critiques.value_objects import CritiqueId
 
 
-class SqlAlchemyCritiqueRepository(AbstractCritiqueRepository):
+class CritiqueRepository(AbstractCritiqueRepository):
     def __init__(self, session: Session):
         self.session = session
 

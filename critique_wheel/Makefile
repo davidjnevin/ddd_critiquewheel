@@ -50,9 +50,16 @@ test:
 	${PRE_RUN_API_COMMAND} test
 
 # target: test - test code
+# run tests on 4 cores
 .PHONY: test-fast
 test-fast:
 	${PRE_RUN_API_COMMAND} test-fast
+
+# target: test-last-failed
+# re-run last failed tests
+.PHONY: test-fast
+test-last-failed:
+	${PRE_RUN_API_COMMAND} test-last-failed
 
 # target: test with current flag- populate function
 .PHONY: test-current

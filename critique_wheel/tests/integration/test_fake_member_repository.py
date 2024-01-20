@@ -11,8 +11,8 @@ def test_repository_can_save_a_basic_member(
     assert member.works == []
     assert member.critiques == []
     repo = FakeMemberRepository([])
-    member.add_work(valid_work)
-    member.add_critique(valid_critique)
+    member.works.append(valid_work)
+    member.critiques.append(valid_critique)
     repo.add(member)
     session.commit()
 
@@ -34,8 +34,8 @@ def test_repository_can_get_a_member_by_id(
     valid_member.status = MemberStatus.ACTIVE
     valid_work.member_id = member.id
     valid_critique.member_id = member.id
-    member.add_work(valid_work)
-    member.add_critique(valid_critique)
+    member.works.append(valid_work)
+    member.critiques.append(valid_critique)
     assert len(member.works) == 1
     assert len(member.critiques) == 1
     repo.add(member)
