@@ -17,6 +17,12 @@ test_client = TestClient(app)
 app.dependency_overrides[members_router.get_db_session] = override_get_db_session
 
 
+def test_member_endpoint_returns_404_if_id_does_not_exist():
+    nonexistant_member_id = uuid.uuid4()
+    response = test_client.get(f"/members/{nonexistant_member_id}")
+    assert response.status_code == 404
+
+
 def test_create_member_endpoint_returns_member():
     payload = {
         "username": "PeterPan",
@@ -33,7 +39,15 @@ def test_create_member_endpoint_returns_member():
     assert response.json()["password"] != payload["password"]
 
 
-def test_member_endpoint_returns_404_if_id_does_not_exist():
-    nonexistant_member_id = uuid.uuid4()
-    response = test_client.get(f"/members/{nonexistant_member_id}")
-    assert response.status_code == 404
+def test_register_member_endpoint_returns_member():
+    payload = {
+        "username": "davidnevin",
+        "email": "a_member_email@davidnevin.net",
+        "password": "bhsrugh^yygTY!",
+        "confirm_password": "bhsrugh^yygTY!",
+    }
+
+    response = test_client.post("/members/register/", json=payload)
+    logger.debug(response.json())
+    assert response.status_code == 201
+    assert response.json()["detail"] == "User created. Please confirm your email"

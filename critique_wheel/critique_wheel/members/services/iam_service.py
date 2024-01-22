@@ -84,11 +84,18 @@ def register_member(
     password: str,
     confirm_password: str,
 ) -> dict:
-    check_for_unique_parameters(username, email, uow.members)
-    new_member = model.Member.register(username, email, password, confirm_password)
-    uow.members.add(new_member)
-    uow.commit()
-    return new_member.to_dict()
+    with uow:
+        try:
+            check_for_unique_parameters(username, email, uow.members)
+            new_member = model.Member.register(
+                username, email, password, confirm_password
+            )
+            uow.members.add(new_member)
+            uow.commit()
+            return new_member.to_dict()
+        except exceptions.BaseIAMDomainError as e:
+            logger.exception(f"An error occurred while registering a member: {e}")
+            raise InvalidEntryError("Invalid entry")
 
 
 def check_for_unique_parameters(
