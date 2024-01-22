@@ -10,7 +10,9 @@ from critique_wheel.members.services import iam_service, unit_of_work
 
 logger = logging.getLogger(__name__)
 
-router = fastapi.APIRouter()
+router = fastapi.APIRouter(
+    prefix="/members",
+)
 
 
 def get_db_session():
@@ -18,7 +20,11 @@ def get_db_session():
     yield db
 
 
-@router.post("/members", response_model=schemas.UserMember, status_code=201)
+@router.post(
+    "/",
+    response_model=schemas.UserMember,
+    status_code=201,
+)
 def create_member(
     member: schemas.UserMemberIn,
     db: Session = fastapi.Depends(get_db_session),
@@ -31,3 +37,25 @@ def create_member(
         password=member.password,
     )
     return result
+
+
+@router.post(
+    "/register",
+    response_model=schemas.RegisterMemberSuccess,
+    status_code=201,
+)
+def register_member(
+    member: schemas.RegisterMemberIn,
+    db: Session = fastapi.Depends(get_db_session),
+):
+    logger.debug("Registering member.")
+    iam_service.register_member(
+        uow=unit_of_work.IAMUnitOfWork(session_factory=db),
+        username=member.username,
+        email=member.email,
+        password=member.password,
+        confirm_password=member.confirm_password,
+    )
+    return {
+        "detail": "User created. Please confirm your email",
+    }
