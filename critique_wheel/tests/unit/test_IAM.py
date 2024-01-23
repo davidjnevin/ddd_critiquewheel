@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from critique_wheel.members.exceptions import exceptions
+from critique_wheel.members.models import exceptions
 from critique_wheel.members.models.IAM import Member, MemberRole, MemberStatus
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))

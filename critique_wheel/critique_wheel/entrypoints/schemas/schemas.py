@@ -13,6 +13,21 @@ class UserCritiques(UserCritiquesIn):
     id: str
 
 
+class RegisterMemberIn(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    username: str
+    password: str
+    confirm_password: str
+    email: str
+
+
+class RegisterMemberSuccess(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    detail: str
+
+
 class UserWorkIn(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

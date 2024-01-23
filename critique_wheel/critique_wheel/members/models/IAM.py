@@ -9,7 +9,7 @@ import bcrypt
 import yaml
 from dotenv import load_dotenv
 
-from critique_wheel.members.exceptions import exceptions
+from critique_wheel.members.models import exceptions
 from critique_wheel.members.value_objects import MemberId
 
 logger = logging.getLogger(__name__)
