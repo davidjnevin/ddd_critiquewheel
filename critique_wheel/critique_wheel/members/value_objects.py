@@ -2,7 +2,7 @@ import logging
 import uuid
 from dataclasses import dataclass, field
 
-from critique_wheel.members.exceptions import exceptions
+from critique_wheel.members.models import exceptions
 
 logger = logging.getLogger(__name__)
 
