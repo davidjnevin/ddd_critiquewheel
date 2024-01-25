@@ -9,5 +9,6 @@ I’ve captured the three crucial characteristics of good critiques, objectivity
 
 To signup for free, visit [https://critiquewheel.com](https://www.critiquewheel.com), and improve your craft.
 
-## This repository is an onging migration from my original C#, ASP.NET Razor Pages  MySQL application to a Hexagonal Architecture application written in Python, using Test Driven Development methodology. This migrated version uses FastAPI, PostgreSQL and Docker and will have a React front end.
+## Note
 
+This repository is an onging migration from my original C#, ASP.NET Razor Pages  MySQL application to a Hexagonal Architecture application written in Python, using Test Driven Development methodology. This migrated version uses FastAPI, PostgreSQL and Docker and will have a React front end.
